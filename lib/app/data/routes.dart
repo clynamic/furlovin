@@ -51,12 +51,14 @@ List<RouteBase> _reachable() => [
   ),
 ];
 
-final Map<String, Widget Function()> _roots = {
-  browsePath: () => const BrowsePage(),
-  searchPath: () =>
-      const SearchPage(query: SearchQuery(text: ''), editing: true),
-  inboxPath: () => const InboxPage(),
-  mePath: () => const MePage(),
+final Map<String, Widget Function(GoRouterState state)> _roots = {
+  browsePath: (state) => const BrowsePage(),
+  searchPath: (state) => SearchPage(
+    query: SearchQuery.fromLocation(state.uri.queryParameters),
+    editing: state.uri.queryParameters[searchEditKey] == '1',
+  ),
+  inboxPath: (state) => const InboxPage(),
+  mePath: (state) => const MePage(),
 };
 
 StatefulShellBranch _branch(ShellDestination destination) =>
@@ -64,7 +66,10 @@ StatefulShellBranch _branch(ShellDestination destination) =>
       routes: [
         GoRoute(
           path: destination.path,
-          builder: (context, state) => _roots[destination.path]!(),
+          pageBuilder: (context, state) => DismissPage<void>(
+            key: state.pageKey,
+            child: _roots[destination.path]!(state),
+          ),
           routes: _reachable(),
         ),
       ],

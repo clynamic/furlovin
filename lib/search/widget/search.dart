@@ -12,7 +12,7 @@ class SearchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => editing || query.isEmpty
-      ? SearchForm(query: query)
+      ? SearchForm(query: query, refining: editing)
       : SearchResults(query: query);
 }
 
@@ -40,9 +40,10 @@ class SearchResults extends ConsumerWidget {
 }
 
 class SearchForm extends StatefulWidget {
-  const SearchForm({super.key, required this.query});
+  const SearchForm({super.key, required this.query, this.refining = false});
 
   final SearchQuery query;
+  final bool refining;
 
   @override
   State<SearchForm> createState() => _SearchFormState();
@@ -63,7 +64,11 @@ class _SearchFormState extends State<SearchForm> {
   void _submit() {
     final SearchQuery next = _query.copyWith(text: _text.text);
     if (next.isEmpty) return;
-    context.runSearch(next);
+    if (widget.refining) {
+      context.runSearch(next);
+      return;
+    }
+    context.openQuery(next);
   }
 
   @override
