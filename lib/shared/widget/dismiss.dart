@@ -111,7 +111,7 @@ class DismissRoute<T> extends PageRoute<T> {
                 this,
                 context,
                 animation,
-                secondaryAnimation,
+                kAlwaysDismissedAnimation,
                 child,
               ),
           },

@@ -87,4 +87,55 @@ void main() {
     await tester.pumpAndSettle();
     expect(scrim(tester), 1);
   });
+
+  testWidgets('a covered page never recedes behind a drag', (tester) async {
+    final _SecondarySpy spy = _SecondarySpy();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(
+          pageTransitionsTheme: PageTransitionsTheme(
+            builders: {
+              for (final TargetPlatform platform in TargetPlatform.values)
+                platform: spy,
+            },
+          ),
+        ),
+        onGenerateRoute: (settings) => DismissRoute<void>(
+          builder: (context) =>
+              const Scaffold(body: Center(child: Text('below'))),
+          settings: settings,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final NavigatorState navigator = tester.state(find.byType(Navigator));
+    navigator.push(
+      DismissRoute<void>(
+        builder: (context) =>
+            const Scaffold(body: Center(child: Text('above'))),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(spy.largestSecondary, 0);
+  });
+}
+
+class _SecondarySpy extends PageTransitionsBuilder {
+  double largestSecondary = 0;
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    if (secondaryAnimation.value > largestSecondary) {
+      largestSecondary = secondaryAnimation.value;
+    }
+    return child;
+  }
 }
