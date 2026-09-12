@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
@@ -39,7 +40,9 @@ void main() {
     expect(ended, isNotNull);
   });
 
-  testWidgets('pans first, then hands over the remainder', (tester) async {
+  testWidgets('a drag that begins away from an edge stays a pan', (
+    tester,
+  ) async {
     await pump(tester);
     zoom.transformation.value = Matrix4.identity()
       ..scaleByDouble(2, 2, 1, 1)
@@ -49,8 +52,31 @@ void main() {
     await tester.drag(find.byType(Zoomable), const Offset(0, 600));
     await tester.pumpAndSettle();
 
+    expect(vertical(), 0);
+  });
+
+  testWidgets('a drag that begins at the edge hands over', (tester) async {
+    await pump(tester);
+    zoom.transformation.value = Matrix4.identity()..scaleByDouble(2, 2, 1, 1);
+    await tester.pump();
+
+    await tester.drag(find.byType(Zoomable), const Offset(0, 300));
+    await tester.pumpAndSettle();
+
     expect(vertical(), greaterThan(0));
-    expect(vertical(), lessThan(600));
+  });
+
+  testWidgets('a scroll wheel never reaches dismiss', (tester) async {
+    await pump(tester);
+    final Offset centre = tester.getCenter(find.byType(Zoomable));
+    final TestPointer mouse = TestPointer(1, PointerDeviceKind.mouse);
+    mouse.hover(centre);
+    for (int turn = 0; turn < 5; turn++) {
+      await tester.sendEventToBinding(mouse.scroll(const Offset(0, -120)));
+      await tester.pump();
+    }
+
+    expect(vertical(), 0);
   });
 
   testWidgets('a residual zoom still reaches dismiss', (tester) async {

@@ -4,6 +4,7 @@ const double zoomMin = 1;
 const double zoomMax = 6;
 const double zoomStep = 2.5;
 const double zoomSnap = 0.08;
+const double edgeSlack = 0.5;
 
 class ZoomController extends ChangeNotifier {
   final TransformationController transformation = TransformationController();
@@ -142,18 +143,34 @@ class _ZoomableState extends State<Zoomable>
       MatrixUtils.transformPoint(transformation.value, Offset.zero);
 
   Offset? _panned;
+  bool _fromTop = false;
+  bool _fromBottom = false;
 
-  void _onStart(ScaleStartDetails details) => _panned = _shift;
+  double get _viewport {
+    final RenderObject? box = context.findRenderObject();
+    return box is RenderBox && box.hasSize ? box.size.height : 0;
+  }
+
+  void _onStart(ScaleStartDetails details) {
+    _panned = _shift;
+    final double scale = widget.controller.scale;
+    final double room = (scale - zoomMin) * _viewport;
+    _fromTop = _shift.dy >= -edgeSlack;
+    _fromBottom = _shift.dy <= -room + edgeSlack;
+  }
 
   void _onUpdate(ScaleUpdateDetails details) {
-    if (details.pointerCount > 1) {
+    if (details.pointerCount != 1 || details.scale != 1) {
       _panned = null;
       return;
     }
     final Offset moved = _shift;
     if (_panned case final Offset last) {
       final Offset spare = details.focalPointDelta - (moved - last);
-      if (spare != Offset.zero) widget.onSpare?.call(spare);
+      final bool allowed = spare.dy > 0
+          ? _fromTop
+          : spare.dy < 0 && _fromBottom;
+      if (allowed) widget.onSpare?.call(spare);
     }
     _panned = moved;
   }
