@@ -32,8 +32,6 @@ class _AppState extends ConsumerState<App> {
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
       routerConfig: router,
-      builder: (context, child) =>
-          AppChrome(router: router, child: child ?? const SizedBox.shrink()),
     );
   }
 }
