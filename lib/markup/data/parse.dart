@@ -5,7 +5,10 @@ import 'package:html/parser.dart' as html;
 import 'package:material_ui/material_ui.dart' show Color;
 
 final RegExp _spaces = RegExp(r'\s+');
-final RegExp _colour = RegExp(r'color\s*:\s*([^;]+)', caseSensitive: false);
+final RegExp _colour = RegExp(
+  r'(?:^|;)\s*color\s*:\s*([^;]+)',
+  caseSensitive: false,
+);
 final RegExp _hex = RegExp(
   r'^#([0-9a-f]{3}|[0-9a-f]{6})$',
   caseSensitive: false,
@@ -31,12 +34,13 @@ Color? readColour(String? declaration) {
     return Color(int.parse('ff$digits', radix: 16));
   }
   if (_rgb.firstMatch(value) case final RegExpMatch match) {
-    final List<int> parts = match
-        .group(1)!
-        .split(',')
+    final List<String> fields = match.group(1)!.split(',');
+    if (fields.length < 3) return null;
+    final List<int> parts = fields
+        .take(3)
         .map((e) => int.tryParse(e.trim()) ?? -1)
         .toList();
-    if (parts.length < 3 || parts.any((e) => e < 0 || e > 255)) return null;
+    if (parts.any((e) => e < 0 || e > 255)) return null;
     return Color.fromARGB(255, parts[0], parts[1], parts[2]);
   }
   return null;
@@ -45,27 +49,30 @@ Color? readColour(String? declaration) {
 class MarkupReader {
   final List<MarkupBlock> _blocks = [];
   List<MarkupSpan> _spans = [];
-  MarkupAlign _align = MarkupAlign.start;
 
   List<MarkupBlock> finish() {
-    _flush();
+    _flush(MarkupAlign.start);
     return _blocks;
   }
 
-  void children(dom.Node parent, MarkupStyle style) {
+  void children(
+    dom.Node parent,
+    MarkupStyle style, [
+    MarkupAlign align = MarkupAlign.start,
+  ]) {
     for (final dom.Node node in parent.nodes) {
-      visit(node, style);
+      visit(node, style, align);
     }
   }
 
-  void visit(dom.Node node, MarkupStyle style) {
+  void visit(dom.Node node, MarkupStyle style, MarkupAlign outer) {
     if (node is dom.Text) return _text(node, style);
     if (node is! dom.Element) return;
     switch (roleOf(node)) {
       case BreakRole():
         _add(const MarkupBreak());
       case RuleRole():
-        _flush();
+        _flush(outer);
         _blocks.add(const MarkupRule());
       case EmoteRole(:final String name):
         _add(MarkupEmote(name));
@@ -88,12 +95,13 @@ class MarkupReader {
           ),
         );
       case LinkRole(:final String href):
-        _link(node, href, style);
+        _link(node, href, style, outer);
       case ContentRole(:final bool block, :final MarkupAlign? align):
-        if (block) _flush();
-        if (align != null) _align = align;
-        children(node, styleOf(node, style));
-        if (block) _flush();
+        final bool breaks = block || align != null;
+        final MarkupAlign inner = breaks ? (align ?? outer) : outer;
+        if (breaks) _flush(outer);
+        children(node, styleOf(node, style), inner);
+        if (breaks) _flush(inner);
     }
   }
 
@@ -103,10 +111,21 @@ class MarkupReader {
     _add(MarkupText(value, style: style));
   }
 
-  void _link(dom.Element node, String href, MarkupStyle style) {
-    final MarkupReader inner = MarkupReader()..children(node, style);
-    if (inner._spans.isEmpty) return;
-    _add(MarkupLink(href: href, spans: inner._spans));
+  void _link(
+    dom.Element node,
+    String href,
+    MarkupStyle style,
+    MarkupAlign align,
+  ) {
+    final MarkupReader inner = MarkupReader()
+      ..children(node, styleOf(node, style), align);
+    final List<MarkupSpan> spans = [
+      for (final MarkupBlock block in inner._blocks)
+        if (block is MarkupParagraph) ...block.spans,
+      ...inner._spans,
+    ];
+    if (spans.isEmpty) return;
+    _add(MarkupLink(href: href, spans: spans));
   }
 
   void _add(MarkupSpan span) {
@@ -115,12 +134,11 @@ class MarkupReader {
     _spans.add(span);
   }
 
-  void _flush() {
+  void _flush(MarkupAlign align) {
     while (_spans.isNotEmpty && _spans.last is MarkupBreak) {
       _spans.removeLast();
     }
-    if (_spans.isNotEmpty) _blocks.add(MarkupParagraph(_spans, align: _align));
+    if (_spans.isNotEmpty) _blocks.add(MarkupParagraph(_spans, align: align));
     _spans = [];
-    _align = MarkupAlign.start;
   }
 }

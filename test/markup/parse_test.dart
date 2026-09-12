@@ -195,4 +195,50 @@ void main() {
     );
     expect(readTarget('/search/'), isA<ElsewhereTarget>());
   });
+
+  test('alignment reaches the children of an aligned block', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      '<div class="bbcode_center"><p>one</p><p>two</p></div>',
+    );
+    expect(blocks, hasLength(2));
+    for (final MarkupBlock block in blocks) {
+      expect((block as MarkupParagraph).align, MarkupAlign.center);
+    }
+  });
+
+  test('alignment does not reach backwards over its neighbours', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      'before <span class="bbcode_center">mid</span> after',
+    );
+    final List<MarkupAlign> aligns = [
+      for (final MarkupBlock block in blocks) (block as MarkupParagraph).align,
+    ];
+    expect(aligns.first, MarkupAlign.start);
+    expect(aligns, contains(MarkupAlign.center));
+  });
+
+  test('a link wrapping a block keeps its href and its text', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      '<a href="/view/1/"><div>Title</div></a>',
+    );
+    final MarkupLink link =
+        (blocks.single as MarkupParagraph).spans.single as MarkupLink;
+    expect(link.href, '/view/1/');
+    expect(link.spans, isNotEmpty);
+  });
+
+  test('a background colour is not read as a text colour', () {
+    expect(readColour('background-color:#ffffff'), isNull);
+    expect(readColour('color:#ffffff'), isNotNull);
+    expect(readColour('background-color:#fff;color:#ff0000'), isNotNull);
+  });
+
+  test('an rgba colour keeps its channels', () {
+    expect(readColour('color:rgba(255,0,0,0.5)'), isNotNull);
+    expect(readColour('color:rgb(255,0,0)'), isNotNull);
+  });
+
+  test('an oversized submission id does not throw', () {
+    expect(readTarget('/view/99999999999999999999/'), isA<ElsewhereTarget>());
+  });
 }

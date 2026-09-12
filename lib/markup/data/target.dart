@@ -37,7 +37,9 @@ final RegExp _view = RegExp(r'^/view/(\d+)');
 final RegExp _user = RegExp(r'^/user/([^/]+)/?$');
 
 MarkupTarget readTarget(String href, {int depth = 0}) {
-  final Uri resolved = Uri.parse(faOrigin).resolveUri(Uri.parse(href));
+  final Uri? parsed = Uri.tryParse(href);
+  if (parsed == null) return ElsewhereTarget(href);
+  final Uri resolved = Uri.parse(faOrigin).resolveUri(parsed);
   if (!isFaHost(resolved.host)) return ElsewhereTarget(resolved.toString());
 
   final String path = resolved.path;
@@ -54,7 +56,8 @@ MarkupTarget readTarget(String href, {int depth = 0}) {
     if (asked != null && asked.isNotEmpty) return SearchTarget(asked);
   }
   if (_view.firstMatch(path) case final RegExpMatch match) {
-    return SubmissionTarget(int.parse(match.group(1)!));
+    final int? id = int.tryParse(match.group(1)!);
+    if (id != null) return SubmissionTarget(id);
   }
   if (_user.firstMatch(path) case final RegExpMatch match) {
     return UserTarget(Uri.decodeComponent(match.group(1)!));
