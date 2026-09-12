@@ -11,8 +11,6 @@ const int commentDepthLimit = 5;
 const double commentAvatarSize = 30;
 const double commentElbowGap = 3;
 const double commentElbowArm = 9;
-const double commentRailAlpha = 0.7;
-const double commentBreakAlpha = 0.5;
 
 typedef CommentRow = ({Comment comment, int depth});
 
@@ -39,9 +37,7 @@ class CommentTile extends StatelessWidget {
     return CustomPaint(
       painter: CommentElbow(
         depth: row.depth,
-        color: theme.colorScheme.outlineVariant.withValues(
-          alpha: commentRailAlpha,
-        ),
+        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.7),
       ),
       child: Padding(
         padding: EdgeInsets.only(left: row.depth * commentIndent),
@@ -137,9 +133,7 @@ class CommentBreak extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(40, 18, 8, 18),
       child: ColoredBox(
-        color: theme.colorScheme.outlineVariant.withValues(
-          alpha: commentBreakAlpha,
-        ),
+        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
         child: const SizedBox(height: 1, width: double.infinity),
       ),
     );

@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
 const double retreatThreshold = 56;
-const Duration retreatDuration = Duration(milliseconds: 220);
 
 class RetreatController extends ChangeNotifier {
   bool _shown = true;
@@ -75,7 +74,7 @@ class RetreatSlide extends StatelessWidget {
     listenable: controller,
     builder: (context, child) => AnimatedSlide(
       offset: controller.shown ? Offset.zero : const Offset(0, 1.4),
-      duration: retreatDuration,
+      duration: const Duration(milliseconds: 220),
       curve: Curves.easeOutCubic,
       child: IgnorePointer(ignoring: !controller.shown, child: child),
     ),

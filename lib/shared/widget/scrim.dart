@@ -1,11 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 
-const double scrimHeight = 110;
 const Color scrimTop = Color(0x66000000);
 const Color scrimShadow = Color(0xB3000000);
 
 class TopScrim extends StatelessWidget {
-  const TopScrim({super.key, this.height = scrimHeight});
+  const TopScrim({super.key, this.height = 110});
 
   final double height;
 

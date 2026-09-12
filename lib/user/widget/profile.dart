@@ -10,10 +10,6 @@ import 'package:furlovin/user/user.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-const double profileBannerHeight = 190;
-const double profileAvatarSize = 78;
-const double contactIconSize = 24;
-
 class UserPage extends ConsumerWidget {
   const UserPage({super.key, required this.name});
 
@@ -41,7 +37,7 @@ class UserPage extends ConsumerWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
-            expandedHeight: profileBannerHeight,
+            expandedHeight: 190,
             leading: const ScrimBackButton(),
             backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
@@ -209,7 +205,7 @@ class ProfileIdentity extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 14,
       children: [
-        Avatar(url: user?.avatar, name: shown, size: profileAvatarSize),
+        Avatar(url: user?.avatar, name: shown, size: 78),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,11 +295,11 @@ class ContactRow extends StatelessWidget {
             spacing: 12,
             children: [
               SizedBox.square(
-                dimension: contactIconSize,
+                dimension: 24,
                 child: contact.icon == null
                     ? Icon(
                         Icons.link,
-                        size: contactIconSize,
+                        size: 24,
                         color: theme.colorScheme.onSurfaceVariant,
                       )
                     : FaImage(url: contact.icon!, fit: BoxFit.contain),

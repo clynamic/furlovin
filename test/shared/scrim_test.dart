@@ -17,7 +17,7 @@ void main() {
     );
 
     final Size size = tester.getSize(find.byType(TopScrim));
-    expect(size.height, scrimHeight);
+    expect(size.height, 110);
     expect(
       size.width,
       tester.view.physicalSize.width / tester.view.devicePixelRatio,

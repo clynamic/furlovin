@@ -3,8 +3,6 @@ import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
 
-const double mentionAvatarSize = 18;
-
 class Mention extends StatelessWidget {
   const Mention({
     super.key,
@@ -31,11 +29,7 @@ class Mention extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             spacing: Space.tight,
             children: [
-              Avatar(
-                url: avatar,
-                name: display ?? name,
-                size: mentionAvatarSize,
-              ),
+              Avatar(url: avatar, name: display ?? name, size: 18),
               if (display case final String shown)
                 Text(
                   shown,

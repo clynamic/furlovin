@@ -3,9 +3,6 @@ import 'package:furlovin/markup/markup.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
 
-const double markupBlockGap = 12;
-const double markupRuleInset = 40;
-
 class Markup extends StatefulWidget {
   const Markup({
     super.key,
@@ -116,12 +113,12 @@ class _MarkupState extends State<Markup> {
     _used = 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: markupBlockGap,
+      spacing: 12,
       children: [
         for (final MarkupBlock block in widget.blocks)
           switch (block) {
             MarkupRule() => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: markupRuleInset),
+              padding: const EdgeInsets.symmetric(horizontal: 40),
               child: ColoredBox(
                 color: theme.colorScheme.outlineVariant,
                 child: const SizedBox(height: 1, width: double.infinity),
