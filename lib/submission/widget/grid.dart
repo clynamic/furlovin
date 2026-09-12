@@ -10,9 +10,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 const double tileExtent = 220;
-const double stripHeight = 150;
 const int stripLimit = 10;
-const double tileSpacing = 8;
 
 class BrowsePage extends ConsumerWidget {
   const BrowsePage({super.key});
@@ -91,13 +89,17 @@ class SubmissionPagedGrid extends ConsumerWidget {
                 )
               else
                 SliverPadding(
-                  padding: const EdgeInsets.all(tileSpacing),
+                  padding:
+                      const EdgeInsets.all(Space.small) +
+                      EdgeInsets.only(
+                        bottom: MediaQuery.paddingOf(context).bottom,
+                      ),
                   sliver: PagedSliverMasonryGrid<int, SubmissionPreview>.extent(
                     state: state,
                     fetchNextPage: fetchNextPage,
                     maxCrossAxisExtent: tileExtent,
-                    mainAxisSpacing: tileSpacing,
-                    crossAxisSpacing: tileSpacing,
+                    mainAxisSpacing: Space.small,
+                    crossAxisSpacing: Space.small,
                     showNewPageProgressIndicatorAsGridChild: false,
                     showNewPageErrorIndicatorAsGridChild: false,
                     showNoMoreItemsIndicatorAsGridChild: false,
@@ -194,11 +196,13 @@ class SubmissionGrid extends StatelessWidget {
         Skeletonizer.sliver(
           enabled: loading,
           child: SliverPadding(
-            padding: const EdgeInsets.all(tileSpacing),
+            padding:
+                const EdgeInsets.all(Space.small) +
+                EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
             sliver: SliverMasonryGrid.extent(
               maxCrossAxisExtent: tileExtent,
-              mainAxisSpacing: tileSpacing,
-              crossAxisSpacing: tileSpacing,
+              mainAxisSpacing: Space.small,
+              crossAxisSpacing: Space.small,
               childCount: submissions.length,
               itemBuilder: (context, index) => SubmissionTile(
                 submission: submissions[index],
@@ -216,7 +220,7 @@ class SubmissionStrip extends ConsumerWidget {
   const SubmissionStrip({
     super.key,
     required this.submissions,
-    this.height = stripHeight,
+    this.height = 150,
     this.limit = stripLimit,
   });
 

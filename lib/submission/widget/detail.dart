@@ -180,7 +180,6 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage> {
                         PersistentSliverSection(
                           name: 'metadata',
                           title: 'Details',
-                          byDefault: false,
                           sliver: SliverToBoxAdapter(
                             child: Skeletonizer(
                               enabled: loaded == null,

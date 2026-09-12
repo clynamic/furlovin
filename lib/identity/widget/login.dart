@@ -5,7 +5,7 @@ import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/logs/logs.dart';
 import 'package:material_ui/material_ui.dart';
 
-const String loginPath = '/login/';
+const String faLoginPath = '/login/';
 const String loggedInMarker = 'logout-link';
 const String loggedInFallback = 'loggedin_user_avatar';
 const String authCheckPath = '/controls/';
@@ -83,7 +83,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ),
     body: InAppWebView(
       initialUrlRequest: URLRequest(
-        url: WebUri(Uri.parse(faOrigin).resolve(loginPath).toString()),
+        url: WebUri(Uri.parse(faOrigin).resolve(faLoginPath).toString()),
       ),
       onWebViewCreated: (value) => controller = value,
       onLoadStop: (controller, url) => _settle(),

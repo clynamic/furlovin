@@ -37,14 +37,17 @@ final FutureProvider<SubmissionClient> submissionClientProvider =
 
 SubmissionPaging submissionPaging(
   Ref ref,
-  Future<List<SubmissionPreview>> Function(SubmissionClient, int) fetch,
-) {
+  Future<List<SubmissionPreview>> Function(SubmissionClient, int) fetch, {
+  int Function(PagingState<int, SubmissionPreview> state)? nextKey,
+}) {
   late final SubmissionPaging controller;
   bool exhausted = false;
   controller = SubmissionPaging(
     getNextPageKey: (state) {
       if (state.keys?.isNotEmpty != true) exhausted = false;
-      return exhausted ? null : state.nextIntPageKey;
+      if (exhausted) return null;
+      final int next = nextKey?.call(state) ?? state.nextIntPageKey;
+      return state.keys?.lastOrNull == next ? null : next;
     },
     fetchPage: (key) async {
       final SubmissionClient client = await ref.read(
@@ -86,6 +89,14 @@ SubmissionPaging retainedPaging(
 
 final Provider<SubmissionPaging> browseProvider = Provider<SubmissionPaging>(
   (ref) => submissionPaging(ref, (client, page) => client.browse(page: page)),
+);
+
+final Provider<SubmissionPaging> inboxProvider = Provider<SubmissionPaging>(
+  (ref) => submissionPaging(
+    ref,
+    (client, after) => client.inbox(after: after),
+    nextKey: (state) => state.items?.lastOrNull?.id ?? 0,
+  ),
 );
 
 final ProviderFamily<SubmissionPaging, String> galleryProvider = Provider

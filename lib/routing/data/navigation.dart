@@ -1,6 +1,9 @@
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+const String inboxPath = '/inbox';
+const String browsePath = '/browse';
+const String mePath = '/me';
 const String submissionPath = '/view';
 const String userPath = '/user';
 const String galleryPath = '/gallery';

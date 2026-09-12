@@ -3,6 +3,8 @@ import 'package:furlovin/logs/logs.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/submission.dart';
 
+const int inboxPageSize = 48;
+
 class SubmissionClient {
   SubmissionClient({required this.client, required this.rules});
 
@@ -13,6 +15,13 @@ class SubmissionClient {
 
   Future<List<SubmissionPreview>> browse({int page = 1}) =>
       _listing(BrowseSlots.submissions, '/browse/$page/');
+
+  Future<List<SubmissionPreview>> inbox({int after = 0}) => _listing(
+    SubmissionsSlots.submissions,
+    after == 0
+        ? '/msg/submissions/'
+        : '/msg/submissions/new~$after@$inboxPageSize/',
+  );
 
   Future<List<SubmissionPreview>> gallery(String user, {int page = 1}) =>
       _listing(GallerySlots.submissions, '/gallery/$user/$page/');
