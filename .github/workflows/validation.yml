@@ -33,8 +33,8 @@ jobs:
 
       - name: verify generated models match the rules
         run: |
-          dart run tool/generate_models.dart
-          git diff --exit-code -- lib/parser/data/models.rules.dart
+          dart run tool/generate_rules.dart
+          git diff --exit-code -- '*.rules.dart'
 
       - name: verify feature layering
         run: dart run tool/check_layering.dart
