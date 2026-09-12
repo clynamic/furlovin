@@ -67,16 +67,34 @@ SubmissionPaging submissionPaging(
   return controller;
 }
 
+const int listingRetention = 4;
+
+final Provider<Retention> listingRetentionProvider = Provider<Retention>(
+  (ref) => Retention(listingRetention),
+);
+
+SubmissionPaging retainedPaging(
+  Ref ref,
+  Object key,
+  Future<List<SubmissionPreview>> Function(SubmissionClient, int) fetch,
+) {
+  final Retention retention = ref.read(listingRetentionProvider);
+  ref.onDispose(() => retention.release(key));
+  retention.hold(key, ref.keepAlive());
+  return submissionPaging(ref, fetch);
+}
+
 final Provider<SubmissionPaging> browseProvider = Provider<SubmissionPaging>(
   (ref) => submissionPaging(ref, (client, page) => client.browse(page: page)),
 );
 
-final ProviderFamily<SubmissionPaging, String> galleryProvider =
-    Provider.family<SubmissionPaging, String>(
-      (ref, user) => submissionPaging(
-        ref,
-        (client, page) => client.gallery(user, page: page),
-      ),
+final ProviderFamily<SubmissionPaging, String> galleryProvider = Provider
+    .autoDispose
+    .family<SubmissionPaging, String>(
+      (ref, user) => retainedPaging(ref, (
+        'gallery',
+        user,
+      ), (client, page) => client.gallery(user, page: page)),
     );
 
 const int submissionRetention = 12;
