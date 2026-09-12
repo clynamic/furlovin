@@ -18,8 +18,15 @@ class FieldType {
   static const FieldType integer = FieldType('int');
   static const FieldType float = FieldType('float');
   static const FieldType timestamp = FieldType('timestamp');
+  static const FieldType boolean = FieldType('bool');
 
-  static const Set<String> builtIn = {'string', 'int', 'float', 'timestamp'};
+  static const Set<String> builtIn = {
+    'string',
+    'int',
+    'float',
+    'timestamp',
+    'bool',
+  };
 
   final String name;
   final Set<String>? values;
@@ -37,6 +44,7 @@ class FieldType {
       'int' => coerced.cast<int>().toList(),
       'float' => coerced.cast<double>().toList(),
       'timestamp' => coerced.cast<DateTime>().toList(),
+      'bool' => coerced.cast<bool>().toList(),
       _ => coerced.cast<String>().toList(),
     };
   }
@@ -48,6 +56,7 @@ class FieldType {
       'int' => _integer(value) ?? _fail(value),
       'float' => _float(value) ?? _fail(value),
       'timestamp' => _timestamp(value) ?? _fail(value),
+      'bool' => _boolean(value) ?? _fail(value),
       _ => _member(value),
     };
   }
@@ -61,6 +70,15 @@ class FieldType {
     final Set<String>? allowed = values;
     if (allowed == null || allowed.contains(text)) return text;
     _fail(value);
+  }
+
+  static bool? _boolean(Object value) {
+    if (value is bool) return value;
+    return switch (value.toString().trim().toLowerCase()) {
+      'true' || 'yes' || '1' => true,
+      'false' || 'no' || '0' => false,
+      _ => null,
+    };
   }
 
   static int? _integer(Object value) {

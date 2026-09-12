@@ -16,6 +16,7 @@ const Map<String, String> builtInTypes = {
   'int': 'int',
   'float': 'double',
   'timestamp': 'DateTime',
+  'bool': 'bool',
 };
 
 const Set<String> knownOps = {

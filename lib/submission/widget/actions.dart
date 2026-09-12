@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,8 +11,6 @@ import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:share_plus/share_plus.dart';
-
-const String unfavouritePath = '/unfav/';
 
 bool get platformShares => switch (defaultTargetPlatform) {
   TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS => true,
@@ -29,9 +29,11 @@ class SubmissionActions extends ConsumerStatefulWidget {
   ConsumerState<SubmissionActions> createState() => _SubmissionActionsState();
 }
 
+const int favouriteAttempts = 4;
+
 class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
-  bool _busy = false;
   bool? _wanted;
+  bool _syncing = false;
 
   int get id => widget.id;
 
@@ -39,30 +41,52 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
 
   String? get favouriteLink => submission?.favouriteLink;
 
-  bool get favourited =>
-      _wanted ?? (favouriteLink?.contains(unfavouritePath) ?? false);
+  bool get favourited => _wanted ?? _shown;
+
+  bool get _shown => submission?.favourited ?? false;
+
+  Submission? get _liveSubmission =>
+      ref.read(submissionProvider(id)).asData?.value.submission;
+
+  String? get _liveLink => _liveSubmission?.favouriteLink;
+
+  bool? get _live => _liveSubmission?.favourited;
 
   @override
   void didUpdateWidget(SubmissionActions old) {
     super.didUpdateWidget(old);
-    if (old.submission?.favouriteLink != favouriteLink) {
-      _wanted = null;
-    }
+    if (!_syncing && _wanted != null && _wanted == _live) _wanted = null;
+    unawaited(_sync());
   }
 
-  Future<void> _favourite() async {
-    final String? link = favouriteLink;
-    if (link == null || _busy) return;
-    setState(() {
-      _wanted = !favourited;
-      _busy = true;
-    });
+  void _toggle() {
+    if (favouriteLink == null) return;
+    setState(() => _wanted = !favourited);
+    unawaited(_sync());
+  }
+
+  Future<void> _sync() async {
+    if (_syncing) return;
+    if (_wanted == null || _wanted == _live) return;
+    _syncing = true;
     try {
-      final SubmissionClient client = await ref.read(
-        submissionClientProvider.future,
-      );
-      await client.favourite(link);
-      ref.invalidate(submissionProvider(id));
+      for (int attempt = 0; attempt < favouriteAttempts; attempt++) {
+        final bool? goal = _wanted;
+        final String? link = _liveLink;
+        if (goal == null || link == null || goal == _live) break;
+        final SubmissionClient client = await ref.read(
+          submissionClientProvider.future,
+        );
+        await client.favourite(link);
+        if (!mounted) return;
+        ref.invalidate(submissionProvider(id));
+        try {
+          await ref.read(submissionProvider(id).future);
+        } on Object {
+          break;
+        }
+        if (!mounted) return;
+      }
     } on Object catch (error) {
       if (!mounted) return;
       setState(() => _wanted = null);
@@ -73,7 +97,8 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
         ),
       );
     } finally {
-      if (mounted) setState(() => _busy = false);
+      _syncing = false;
+      if (mounted && _wanted == _live) setState(() => _wanted = null);
     }
   }
 
@@ -199,7 +224,7 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
                   : theme.colorScheme.onSurfaceVariant,
               onPressed: !authenticated
                   ? () => _needsAccount(context)
-                  : (favouriteLink == null ? null : _favourite),
+                  : (favouriteLink == null ? null : _toggle),
               child: Icon(favourited ? Icons.favorite : Icons.favorite_border),
             ),
           ],

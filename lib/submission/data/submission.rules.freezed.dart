@@ -30,7 +30,8 @@ mixin _$Submission {
 /// favourites. The site only writes one of the two, so which it is
 /// says whether you have favourited it already. Absent when signed
 /// out.
- String? get favouriteLink;/// The size of the uploaded file, as FA renders it.
+ String? get favouriteLink;/// Absent when signed out.
+ bool? get favourited;/// The size of the uploaded file, as FA renders it.
  String? get fileSize;/// Absolute url that opens a new note to whoever posted it. Absent
 /// when signed out.
  String? get noteLink;/// When the submission was posted.
@@ -55,20 +56,20 @@ $SubmissionCopyWith<Submission> get copyWith => _$SubmissionCopyWithImpl<Submiss
 @override
 bool operator ==(Object other) {
   final _this = this as Submission;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Submission&&(identical(other.file, _this.file) || other.file == _this.file)&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.rating, _this.rating) || other.rating == _this.rating)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.uploader, _this.uploader) || other.uploader == _this.uploader)&&(identical(other.category, _this.category) || other.category == _this.category)&&(identical(other.comments, _this.comments) || other.comments == _this.comments)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.extension, _this.extension) || other.extension == _this.extension)&&(identical(other.favorites, _this.favorites) || other.favorites == _this.favorites)&&(identical(other.favouriteLink, _this.favouriteLink) || other.favouriteLink == _this.favouriteLink)&&(identical(other.fileSize, _this.fileSize) || other.fileSize == _this.fileSize)&&(identical(other.noteLink, _this.noteLink) || other.noteLink == _this.noteLink)&&(identical(other.posted, _this.posted) || other.posted == _this.posted)&&(identical(other.preview, _this.preview) || other.preview == _this.preview)&&(identical(other.resolution, _this.resolution) || other.resolution == _this.resolution)&&(identical(other.species, _this.species) || other.species == _this.species)&&const DeepCollectionEquality().equals(other.tags, _this.tags)&&(identical(other.theme, _this.theme) || other.theme == _this.theme)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.uploaderAvatar, _this.uploaderAvatar) || other.uploaderAvatar == _this.uploaderAvatar)&&(identical(other.uploaderName, _this.uploaderName) || other.uploaderName == _this.uploaderName)&&(identical(other.views, _this.views) || other.views == _this.views)&&const DeepCollectionEquality().equals(other.failed, _this.failed));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Submission&&(identical(other.file, _this.file) || other.file == _this.file)&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.rating, _this.rating) || other.rating == _this.rating)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.uploader, _this.uploader) || other.uploader == _this.uploader)&&(identical(other.category, _this.category) || other.category == _this.category)&&(identical(other.comments, _this.comments) || other.comments == _this.comments)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.extension, _this.extension) || other.extension == _this.extension)&&(identical(other.favorites, _this.favorites) || other.favorites == _this.favorites)&&(identical(other.favouriteLink, _this.favouriteLink) || other.favouriteLink == _this.favouriteLink)&&(identical(other.favourited, _this.favourited) || other.favourited == _this.favourited)&&(identical(other.fileSize, _this.fileSize) || other.fileSize == _this.fileSize)&&(identical(other.noteLink, _this.noteLink) || other.noteLink == _this.noteLink)&&(identical(other.posted, _this.posted) || other.posted == _this.posted)&&(identical(other.preview, _this.preview) || other.preview == _this.preview)&&(identical(other.resolution, _this.resolution) || other.resolution == _this.resolution)&&(identical(other.species, _this.species) || other.species == _this.species)&&const DeepCollectionEquality().equals(other.tags, _this.tags)&&(identical(other.theme, _this.theme) || other.theme == _this.theme)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.uploaderAvatar, _this.uploaderAvatar) || other.uploaderAvatar == _this.uploaderAvatar)&&(identical(other.uploaderName, _this.uploaderName) || other.uploaderName == _this.uploaderName)&&(identical(other.views, _this.views) || other.views == _this.views)&&const DeepCollectionEquality().equals(other.failed, _this.failed));
 }
 
 
 @override
 int get hashCode {
   final _this = this as Submission;
-  return Object.hashAll([runtimeType,_this.file,_this.id,_this.rating,_this.title,_this.uploader,_this.category,_this.comments,_this.description,_this.extension,_this.favorites,_this.favouriteLink,_this.fileSize,_this.noteLink,_this.posted,_this.preview,_this.resolution,_this.species,const DeepCollectionEquality().hash(_this.tags),_this.theme,_this.type,_this.uploaderAvatar,_this.uploaderName,_this.views,const DeepCollectionEquality().hash(_this.failed)]);
+  return Object.hashAll([runtimeType,_this.file,_this.id,_this.rating,_this.title,_this.uploader,_this.category,_this.comments,_this.description,_this.extension,_this.favorites,_this.favouriteLink,_this.favourited,_this.fileSize,_this.noteLink,_this.posted,_this.preview,_this.resolution,_this.species,const DeepCollectionEquality().hash(_this.tags),_this.theme,_this.type,_this.uploaderAvatar,_this.uploaderName,_this.views,const DeepCollectionEquality().hash(_this.failed)]);
 }
 
 @override
 String toString() {
   final _this = this as Submission;
-  return 'Submission(file: ${_this.file}, id: ${_this.id}, rating: ${_this.rating}, title: ${_this.title}, uploader: ${_this.uploader}, category: ${_this.category}, comments: ${_this.comments}, description: ${_this.description}, extension: ${_this.extension}, favorites: ${_this.favorites}, favouriteLink: ${_this.favouriteLink}, fileSize: ${_this.fileSize}, noteLink: ${_this.noteLink}, posted: ${_this.posted}, preview: ${_this.preview}, resolution: ${_this.resolution}, species: ${_this.species}, tags: ${_this.tags}, theme: ${_this.theme}, type: ${_this.type}, uploaderAvatar: ${_this.uploaderAvatar}, uploaderName: ${_this.uploaderName}, views: ${_this.views}, failed: ${_this.failed})';
+  return 'Submission(file: ${_this.file}, id: ${_this.id}, rating: ${_this.rating}, title: ${_this.title}, uploader: ${_this.uploader}, category: ${_this.category}, comments: ${_this.comments}, description: ${_this.description}, extension: ${_this.extension}, favorites: ${_this.favorites}, favouriteLink: ${_this.favouriteLink}, favourited: ${_this.favourited}, fileSize: ${_this.fileSize}, noteLink: ${_this.noteLink}, posted: ${_this.posted}, preview: ${_this.preview}, resolution: ${_this.resolution}, species: ${_this.species}, tags: ${_this.tags}, theme: ${_this.theme}, type: ${_this.type}, uploaderAvatar: ${_this.uploaderAvatar}, uploaderName: ${_this.uploaderName}, views: ${_this.views}, failed: ${_this.failed})';
 }
 
 
@@ -79,7 +80,7 @@ abstract mixin class $SubmissionCopyWith<$Res>  {
   factory $SubmissionCopyWith(Submission value, $Res Function(Submission) _then) = _$SubmissionCopyWithImpl;
 @useResult
 $Res call({
- String file, int id, SubmissionRating rating, String title, String uploader, String? category, int? comments, String? description, String? extension, int? favorites, String? favouriteLink, String? fileSize, String? noteLink, DateTime? posted, String? preview, String? resolution, String? species, List<String>? tags, String? theme, SubmissionType? type, String? uploaderAvatar, String? uploaderName, int? views, Map<String, String> failed
+ String file, int id, SubmissionRating rating, String title, String uploader, String? category, int? comments, String? description, String? extension, int? favorites, String? favouriteLink, bool? favourited, String? fileSize, String? noteLink, DateTime? posted, String? preview, String? resolution, String? species, List<String>? tags, String? theme, SubmissionType? type, String? uploaderAvatar, String? uploaderName, int? views, Map<String, String> failed
 });
 
 
@@ -96,7 +97,7 @@ class _$SubmissionCopyWithImpl<$Res>
 
 /// Create a copy of Submission
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? file = null,Object? id = null,Object? rating = null,Object? title = null,Object? uploader = null,Object? category = freezed,Object? comments = freezed,Object? description = freezed,Object? extension = freezed,Object? favorites = freezed,Object? favouriteLink = freezed,Object? fileSize = freezed,Object? noteLink = freezed,Object? posted = freezed,Object? preview = freezed,Object? resolution = freezed,Object? species = freezed,Object? tags = freezed,Object? theme = freezed,Object? type = freezed,Object? uploaderAvatar = freezed,Object? uploaderName = freezed,Object? views = freezed,Object? failed = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? file = null,Object? id = null,Object? rating = null,Object? title = null,Object? uploader = null,Object? category = freezed,Object? comments = freezed,Object? description = freezed,Object? extension = freezed,Object? favorites = freezed,Object? favouriteLink = freezed,Object? favourited = freezed,Object? fileSize = freezed,Object? noteLink = freezed,Object? posted = freezed,Object? preview = freezed,Object? resolution = freezed,Object? species = freezed,Object? tags = freezed,Object? theme = freezed,Object? type = freezed,Object? uploaderAvatar = freezed,Object? uploaderName = freezed,Object? views = freezed,Object? failed = null,}) {
   return _then(Submission(
 file: null == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
 as String,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
@@ -109,7 +110,8 @@ as int?,description: freezed == description ? _self.description : description //
 as String?,extension: freezed == extension ? _self.extension : extension // ignore: cast_nullable_to_non_nullable
 as String?,favorites: freezed == favorites ? _self.favorites : favorites // ignore: cast_nullable_to_non_nullable
 as int?,favouriteLink: freezed == favouriteLink ? _self.favouriteLink : favouriteLink // ignore: cast_nullable_to_non_nullable
-as String?,fileSize: freezed == fileSize ? _self.fileSize : fileSize // ignore: cast_nullable_to_non_nullable
+as String?,favourited: freezed == favourited ? _self.favourited : favourited // ignore: cast_nullable_to_non_nullable
+as bool?,fileSize: freezed == fileSize ? _self.fileSize : fileSize // ignore: cast_nullable_to_non_nullable
 as String?,noteLink: freezed == noteLink ? _self.noteLink : noteLink // ignore: cast_nullable_to_non_nullable
 as String?,posted: freezed == posted ? _self.posted : posted // ignore: cast_nullable_to_non_nullable
 as DateTime?,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
@@ -207,10 +209,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String>? tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, String> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  bool? favourited,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String>? tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, String> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Submission() when $default != null:
-return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_that.category,_that.comments,_that.description,_that.extension,_that.favorites,_that.favouriteLink,_that.fileSize,_that.noteLink,_that.posted,_that.preview,_that.resolution,_that.species,_that.tags,_that.theme,_that.type,_that.uploaderAvatar,_that.uploaderName,_that.views,_that.failed);case _:
+return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_that.category,_that.comments,_that.description,_that.extension,_that.favorites,_that.favouriteLink,_that.favourited,_that.fileSize,_that.noteLink,_that.posted,_that.preview,_that.resolution,_that.species,_that.tags,_that.theme,_that.type,_that.uploaderAvatar,_that.uploaderName,_that.views,_that.failed);case _:
   return orElse();
 
 }
@@ -228,10 +230,10 @@ return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String>? tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, String> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  bool? favourited,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String>? tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, String> failed)  $default,) {final _that = this;
 switch (_that) {
 case _Submission():
-return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_that.category,_that.comments,_that.description,_that.extension,_that.favorites,_that.favouriteLink,_that.fileSize,_that.noteLink,_that.posted,_that.preview,_that.resolution,_that.species,_that.tags,_that.theme,_that.type,_that.uploaderAvatar,_that.uploaderName,_that.views,_that.failed);case _:
+return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_that.category,_that.comments,_that.description,_that.extension,_that.favorites,_that.favouriteLink,_that.favourited,_that.fileSize,_that.noteLink,_that.posted,_that.preview,_that.resolution,_that.species,_that.tags,_that.theme,_that.type,_that.uploaderAvatar,_that.uploaderName,_that.views,_that.failed);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -248,10 +250,10 @@ return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String>? tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, String> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  bool? favourited,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String>? tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, String> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _Submission() when $default != null:
-return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_that.category,_that.comments,_that.description,_that.extension,_that.favorites,_that.favouriteLink,_that.fileSize,_that.noteLink,_that.posted,_that.preview,_that.resolution,_that.species,_that.tags,_that.theme,_that.type,_that.uploaderAvatar,_that.uploaderName,_that.views,_that.failed);case _:
+return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_that.category,_that.comments,_that.description,_that.extension,_that.favorites,_that.favouriteLink,_that.favourited,_that.fileSize,_that.noteLink,_that.posted,_that.preview,_that.resolution,_that.species,_that.tags,_that.theme,_that.type,_that.uploaderAvatar,_that.uploaderName,_that.views,_that.failed);case _:
   return null;
 
 }
@@ -263,7 +265,7 @@ return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_tha
 
 
 class _Submission extends Submission {
-  const _Submission({required this.file, required this.id, required this.rating, required this.title, required this.uploader, this.category, this.comments, this.description, this.extension, this.favorites, this.favouriteLink, this.fileSize, this.noteLink, this.posted, this.preview, this.resolution, this.species,  List<String>? tags, this.theme, this.type, this.uploaderAvatar, this.uploaderName, this.views,  Map<String, String> failed = const {}}): _tags = tags,_failed = failed,super._();
+  const _Submission({required this.file, required this.id, required this.rating, required this.title, required this.uploader, this.category, this.comments, this.description, this.extension, this.favorites, this.favouriteLink, this.favourited, this.fileSize, this.noteLink, this.posted, this.preview, this.resolution, this.species,  List<String>? tags, this.theme, this.type, this.uploaderAvatar, this.uploaderName, this.views,  Map<String, String> failed = const {}}): _tags = tags,_failed = failed,super._();
   
 
 /// Absolute url of the submitted file at full resolution.
@@ -292,6 +294,8 @@ class _Submission extends Submission {
 /// says whether you have favourited it already. Absent when signed
 /// out.
 @override final  String? favouriteLink;
+/// Absent when signed out.
+@override final  bool? favourited;
 /// The size of the uploaded file, as FA renders it.
 @override final  String? fileSize;
 /// Absolute url that opens a new note to whoever posted it. Absent
@@ -344,18 +348,18 @@ _$SubmissionCopyWith<_Submission> get copyWith => __$SubmissionCopyWithImpl<_Sub
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Submission&&(identical(other.file, file) || other.file == file)&&(identical(other.id, id) || other.id == id)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.title, title) || other.title == title)&&(identical(other.uploader, uploader) || other.uploader == uploader)&&(identical(other.category, category) || other.category == category)&&(identical(other.comments, comments) || other.comments == comments)&&(identical(other.description, description) || other.description == description)&&(identical(other.extension, extension) || other.extension == extension)&&(identical(other.favorites, favorites) || other.favorites == favorites)&&(identical(other.favouriteLink, favouriteLink) || other.favouriteLink == favouriteLink)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.noteLink, noteLink) || other.noteLink == noteLink)&&(identical(other.posted, posted) || other.posted == posted)&&(identical(other.preview, preview) || other.preview == preview)&&(identical(other.resolution, resolution) || other.resolution == resolution)&&(identical(other.species, species) || other.species == species)&&const DeepCollectionEquality().equals(other.tags, _tags)&&(identical(other.theme, theme) || other.theme == theme)&&(identical(other.type, type) || other.type == type)&&(identical(other.uploaderAvatar, uploaderAvatar) || other.uploaderAvatar == uploaderAvatar)&&(identical(other.uploaderName, uploaderName) || other.uploaderName == uploaderName)&&(identical(other.views, views) || other.views == views)&&const DeepCollectionEquality().equals(other.failed, _failed));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Submission&&(identical(other.file, file) || other.file == file)&&(identical(other.id, id) || other.id == id)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.title, title) || other.title == title)&&(identical(other.uploader, uploader) || other.uploader == uploader)&&(identical(other.category, category) || other.category == category)&&(identical(other.comments, comments) || other.comments == comments)&&(identical(other.description, description) || other.description == description)&&(identical(other.extension, extension) || other.extension == extension)&&(identical(other.favorites, favorites) || other.favorites == favorites)&&(identical(other.favouriteLink, favouriteLink) || other.favouriteLink == favouriteLink)&&(identical(other.favourited, favourited) || other.favourited == favourited)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.noteLink, noteLink) || other.noteLink == noteLink)&&(identical(other.posted, posted) || other.posted == posted)&&(identical(other.preview, preview) || other.preview == preview)&&(identical(other.resolution, resolution) || other.resolution == resolution)&&(identical(other.species, species) || other.species == species)&&const DeepCollectionEquality().equals(other.tags, _tags)&&(identical(other.theme, theme) || other.theme == theme)&&(identical(other.type, type) || other.type == type)&&(identical(other.uploaderAvatar, uploaderAvatar) || other.uploaderAvatar == uploaderAvatar)&&(identical(other.uploaderName, uploaderName) || other.uploaderName == uploaderName)&&(identical(other.views, views) || other.views == views)&&const DeepCollectionEquality().equals(other.failed, _failed));
 }
 
 
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,file,id,rating,title,uploader,category,comments,description,extension,favorites,favouriteLink,fileSize,noteLink,posted,preview,resolution,species,const DeepCollectionEquality().hash(_tags),theme,type,uploaderAvatar,uploaderName,views,const DeepCollectionEquality().hash(_failed)]);
+    return Object.hashAll([runtimeType,file,id,rating,title,uploader,category,comments,description,extension,favorites,favouriteLink,favourited,fileSize,noteLink,posted,preview,resolution,species,const DeepCollectionEquality().hash(_tags),theme,type,uploaderAvatar,uploaderName,views,const DeepCollectionEquality().hash(_failed)]);
 }
 
 @override
 String toString() {
-    return 'Submission(file: $file, id: $id, rating: $rating, title: $title, uploader: $uploader, category: $category, comments: $comments, description: $description, extension: $extension, favorites: $favorites, favouriteLink: $favouriteLink, fileSize: $fileSize, noteLink: $noteLink, posted: $posted, preview: $preview, resolution: $resolution, species: $species, tags: $tags, theme: $theme, type: $type, uploaderAvatar: $uploaderAvatar, uploaderName: $uploaderName, views: $views, failed: $failed)';
+    return 'Submission(file: $file, id: $id, rating: $rating, title: $title, uploader: $uploader, category: $category, comments: $comments, description: $description, extension: $extension, favorites: $favorites, favouriteLink: $favouriteLink, favourited: $favourited, fileSize: $fileSize, noteLink: $noteLink, posted: $posted, preview: $preview, resolution: $resolution, species: $species, tags: $tags, theme: $theme, type: $type, uploaderAvatar: $uploaderAvatar, uploaderName: $uploaderName, views: $views, failed: $failed)';
 }
 
 
@@ -366,7 +370,7 @@ abstract mixin class _$SubmissionCopyWith<$Res> implements $SubmissionCopyWith<$
   factory _$SubmissionCopyWith(_Submission value, $Res Function(_Submission) _then) = __$SubmissionCopyWithImpl;
 @override @useResult
 $Res call({
- String file, int id, SubmissionRating rating, String title, String uploader, String? category, int? comments, String? description, String? extension, int? favorites, String? favouriteLink, String? fileSize, String? noteLink, DateTime? posted, String? preview, String? resolution, String? species, List<String>? tags, String? theme, SubmissionType? type, String? uploaderAvatar, String? uploaderName, int? views, Map<String, String> failed
+ String file, int id, SubmissionRating rating, String title, String uploader, String? category, int? comments, String? description, String? extension, int? favorites, String? favouriteLink, bool? favourited, String? fileSize, String? noteLink, DateTime? posted, String? preview, String? resolution, String? species, List<String>? tags, String? theme, SubmissionType? type, String? uploaderAvatar, String? uploaderName, int? views, Map<String, String> failed
 });
 
 
@@ -383,7 +387,7 @@ class __$SubmissionCopyWithImpl<$Res>
 
 /// Create a copy of Submission
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? file = null,Object? id = null,Object? rating = null,Object? title = null,Object? uploader = null,Object? category = freezed,Object? comments = freezed,Object? description = freezed,Object? extension = freezed,Object? favorites = freezed,Object? favouriteLink = freezed,Object? fileSize = freezed,Object? noteLink = freezed,Object? posted = freezed,Object? preview = freezed,Object? resolution = freezed,Object? species = freezed,Object? tags = freezed,Object? theme = freezed,Object? type = freezed,Object? uploaderAvatar = freezed,Object? uploaderName = freezed,Object? views = freezed,Object? failed = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? file = null,Object? id = null,Object? rating = null,Object? title = null,Object? uploader = null,Object? category = freezed,Object? comments = freezed,Object? description = freezed,Object? extension = freezed,Object? favorites = freezed,Object? favouriteLink = freezed,Object? favourited = freezed,Object? fileSize = freezed,Object? noteLink = freezed,Object? posted = freezed,Object? preview = freezed,Object? resolution = freezed,Object? species = freezed,Object? tags = freezed,Object? theme = freezed,Object? type = freezed,Object? uploaderAvatar = freezed,Object? uploaderName = freezed,Object? views = freezed,Object? failed = null,}) {
   return _then(_Submission(
 file: null == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
 as String,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
@@ -396,7 +400,8 @@ as int?,description: freezed == description ? _self.description : description //
 as String?,extension: freezed == extension ? _self.extension : extension // ignore: cast_nullable_to_non_nullable
 as String?,favorites: freezed == favorites ? _self.favorites : favorites // ignore: cast_nullable_to_non_nullable
 as int?,favouriteLink: freezed == favouriteLink ? _self.favouriteLink : favouriteLink // ignore: cast_nullable_to_non_nullable
-as String?,fileSize: freezed == fileSize ? _self.fileSize : fileSize // ignore: cast_nullable_to_non_nullable
+as String?,favourited: freezed == favourited ? _self.favourited : favourited // ignore: cast_nullable_to_non_nullable
+as bool?,fileSize: freezed == fileSize ? _self.fileSize : fileSize // ignore: cast_nullable_to_non_nullable
 as String?,noteLink: freezed == noteLink ? _self.noteLink : noteLink // ignore: cast_nullable_to_non_nullable
 as String?,posted: freezed == posted ? _self.posted : posted // ignore: cast_nullable_to_non_nullable
 as DateTime?,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable

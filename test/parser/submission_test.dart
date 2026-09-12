@@ -9,9 +9,10 @@ import 'package:html/parser.dart' as html;
 void main() {
   late ParseOutcome outcome;
   late Submission submission;
+  late RuleSet rules;
 
   setUpAll(() {
-    final RuleSet rules = RuleSet.fromJson(
+    rules = RuleSet.fromJson(
       decodeRules(File('assets/rules/v1.yaml').readAsStringSync()),
     );
     outcome = rules.parseSlot(
@@ -77,5 +78,31 @@ void main() {
     expect(submission.species, 'Bramble28 (Mallow73)');
     expect(submission.resolution, '1614 x 2283');
     expect(submission.fileSize, '1.71 MB');
+  });
+
+  group('favourited', () {
+    bool? read(String options) {
+      final String markup =
+          '<html><body><div id="submission-options">$options</div></body></html>';
+      return rules
+          .parseSlot(
+            rules.pages['submission']!.slots['submission']!,
+            html.parse(markup),
+            base: Uri.parse(faOrigin),
+          )
+          .get<bool>('favourited');
+    }
+
+    test('an unfavourite link means it is already favourited', () {
+      expect(read('<a href="/unfav/123/?key=abc">Remove</a>'), isTrue);
+    });
+
+    test('a favourite link means it is not', () {
+      expect(read('<a href="/fav/123/?key=abc">Add</a>'), isFalse);
+    });
+
+    test('neither link leaves it unknown rather than false', () {
+      expect(read('<span>gorse71</span>'), isNull);
+    });
   });
 }

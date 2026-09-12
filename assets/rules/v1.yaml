@@ -1,5 +1,5 @@
 schema: 1
-revision: 5
+revision: 6
 refs:
   viewLink:
     - op: select
@@ -321,6 +321,18 @@ entities:
               css: div[title="Favorites"] > div
             - op: text
             - op: trim
+      favourited:
+        type: bool
+        description: Absent when signed out.
+        steps:
+          - - op: select
+              css: div#submission-options a[href^="/unfav/"]
+            - op: literal
+              value: 'true'
+          - - op: select
+              css: div#submission-options a[href^="/fav/"]
+            - op: literal
+              value: 'false'
       favouriteLink:
         steps:
           - - op: select

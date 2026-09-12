@@ -25,6 +25,7 @@ const Map<String, List<String>> ruleManifest = {
     'extension',
     'favorites',
     'favouriteLink',
+    'favourited',
     'file',
     'fileSize',
     'id',

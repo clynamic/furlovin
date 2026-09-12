@@ -52,6 +52,9 @@ abstract class Submission with _$Submission {
     /// out.
     String? favouriteLink,
 
+    /// Absent when signed out.
+    bool? favourited,
+
     /// The size of the uploaded file, as FA renders it.
     String? fileSize,
 
@@ -118,6 +121,7 @@ abstract class Submission with _$Submission {
       extension: outcome.get<String>('extension'),
       favorites: outcome.get<int>('favorites'),
       favouriteLink: outcome.get<String>('favouriteLink'),
+      favourited: outcome.get<bool>('favourited'),
       fileSize: outcome.get<String>('fileSize'),
       noteLink: outcome.get<String>('noteLink'),
       posted: outcome.get<DateTime>('posted'),
