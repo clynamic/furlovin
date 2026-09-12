@@ -19,22 +19,10 @@ class BrowsePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SubmissionPagedGrid(
       controller: ref.watch(browseProvider),
-      header: SliverAppBar(
-        title: const Text('Browse'),
+      header: const SliverAppBar(
+        title: Text('Browse'),
         floating: true,
         snap: true,
-        actions: [
-          IconButton(
-            tooltip: 'Search',
-            onPressed: context.openSearch,
-            icon: const Icon(Icons.search),
-          ),
-          IconButton(
-            tooltip: 'Settings',
-            onPressed: context.openSettings,
-            icon: const Icon(Icons.settings_outlined),
-          ),
-        ],
       ),
     );
   }

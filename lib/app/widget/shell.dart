@@ -1,7 +1,6 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/identity/identity.dart';
+import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/shared/shared.dart';
-import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 const double barHeight = 64;
@@ -12,12 +11,14 @@ class ShellDestination {
     required this.icon,
     required this.selected,
     required this.label,
+    required this.path,
     this.alerts,
   });
 
   final IconData icon;
   final IconData selected;
   final String label;
+  final String path;
   final int? Function(Viewer viewer)? alerts;
 }
 
@@ -26,98 +27,24 @@ const List<ShellDestination> shellDestinations = [
     icon: Icons.inbox_outlined,
     selected: Icons.inbox,
     label: 'Inbox',
+    path: inboxPath,
     alerts: _submissionAlerts,
   ),
   ShellDestination(
     icon: Icons.explore_outlined,
     selected: Icons.explore,
     label: 'Browse',
+    path: browsePath,
   ),
   ShellDestination(
     icon: Icons.person_outline,
     selected: Icons.person,
     label: 'You',
+    path: mePath,
   ),
 ];
 
 int? _submissionAlerts(Viewer viewer) => viewer.submissionAlerts;
-
-class HomeShell extends ConsumerStatefulWidget {
-  const HomeShell({super.key, required this.shell});
-
-  final StatefulNavigationShell shell;
-
-  @override
-  ConsumerState<HomeShell> createState() => _HomeShellState();
-}
-
-class _HomeShellState extends ConsumerState<HomeShell> {
-  final RetreatController retreat = RetreatController();
-
-  @override
-  void dispose() {
-    retreat.dispose();
-    super.dispose();
-  }
-
-  void _go(int index) {
-    retreat.show();
-    widget.shell.goBranch(
-      index,
-      initialLocation: index == widget.shell.currentIndex,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final Viewer? viewer = ref.watch(viewerProvider).asData?.value;
-    final MediaQueryData media = MediaQuery.of(context);
-    final bool wide = media.size.width >= Layout.compact;
-    return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: MediaQuery(
-              data: media.copyWith(
-                padding: media.padding.copyWith(
-                  bottom: media.padding.bottom + barSpace,
-                ),
-              ),
-              child: ScrollRetreat(controller: retreat, child: widget.shell),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: RetreatSlide(
-              controller: retreat,
-              child: SafeArea(
-                top: false,
-                child: Align(
-                  alignment: wide ? Alignment.centerRight : Alignment.center,
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      Layout.gutterOf(context),
-                      0,
-                      Layout.gutterOf(context),
-                      Space.snug,
-                    ),
-                    child: ShellBar(
-                      index: widget.shell.currentIndex,
-                      viewer: viewer,
-                      onGo: _go,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class ShellBar extends StatelessWidget {
   const ShellBar({
@@ -125,11 +52,13 @@ class ShellBar extends StatelessWidget {
     required this.index,
     required this.viewer,
     required this.onGo,
+    required this.onSearch,
   });
 
   final int index;
   final Viewer? viewer;
   final ValueChanged<int> onGo;
+  final VoidCallback onSearch;
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +83,17 @@ class ShellBar extends StatelessWidget {
                     : destination.alerts?.call(viewer!),
                 onTap: () => onGo(at),
               ),
+            ShellTab(
+              destination: const ShellDestination(
+                icon: Icons.search,
+                selected: Icons.search,
+                label: 'Search',
+                path: searchPath,
+              ),
+              chosen: false,
+              count: null,
+              onTap: onSearch,
+            ),
           ],
         ),
       ),

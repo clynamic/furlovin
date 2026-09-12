@@ -37,7 +37,7 @@ class MePage extends ConsumerWidget {
     }
 
     if (viewer.asData?.value case final Viewer known) {
-      return UserPage(name: known.name);
+      return UserPage(name: known.name, onSettings: context.openSettings);
     }
 
     return Scaffold(

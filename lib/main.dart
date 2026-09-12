@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:furlovin/app/data/routes.dart';
+import 'package:furlovin/app/app.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/logs/logs.dart';
 import 'package:furlovin/shared/shared.dart';
@@ -32,6 +32,8 @@ class _AppState extends ConsumerState<App> {
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
       routerConfig: router,
+      builder: (context, child) =>
+          AppChrome(router: router, child: child ?? const SizedBox.shrink()),
     );
   }
 }

@@ -23,7 +23,7 @@ GoRouter buildRouter(IdentityStore store) => GoRouter(
   initialLocation: browsePath,
   routes: [
     StatefulShellRoute.indexedStack(
-      builder: (context, state, shell) => HomeShell(shell: shell),
+      builder: (context, state, shell) => shell,
       branches: [
         StatefulShellBranch(
           routes: [

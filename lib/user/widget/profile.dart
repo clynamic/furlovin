@@ -11,9 +11,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class UserPage extends ConsumerWidget {
-  const UserPage({super.key, required this.name});
+  const UserPage({super.key, required this.name, this.onSettings});
 
   final String name;
+  final VoidCallback? onSettings;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,7 +39,20 @@ class UserPage extends ConsumerWidget {
           SliverAppBar(
             pinned: true,
             expandedHeight: 190,
-            leading: const ScrimBackButton(),
+            automaticallyImplyLeading: onSettings == null,
+            leading: onSettings == null ? const ScrimBackButton() : null,
+            actions: [
+              if (onSettings case final VoidCallback open)
+                IconButton(
+                  tooltip: 'Settings',
+                  onPressed: open,
+                  icon: const Icon(
+                    Icons.settings_outlined,
+                    color: Colors.white,
+                    shadows: [Shadow(color: scrimShadow, blurRadius: 10)],
+                  ),
+                ),
+            ],
             backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
             flexibleSpace: FlexibleSpaceBar(

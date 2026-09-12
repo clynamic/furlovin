@@ -23,7 +23,8 @@ class SubmissionViewer extends ConsumerStatefulWidget {
   ConsumerState<SubmissionViewer> createState() => _SubmissionViewerState();
 }
 
-class _SubmissionViewerState extends ConsumerState<SubmissionViewer> {
+class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
+    with BottomClaimant {
   late final DismissController dismiss = DismissController(
     DismissRoute.of(context),
   );
