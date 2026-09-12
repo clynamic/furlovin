@@ -61,19 +61,24 @@ final Map<String, Widget Function(GoRouterState state)> _roots = {
   mePath: (state) => const MePage(),
 };
 
-StatefulShellBranch _branch(ShellDestination destination) =>
-    StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: destination.path,
-          pageBuilder: (context, state) => DismissPage<void>(
-            key: state.pageKey,
+StatefulShellBranch _branch(ShellDestination destination) {
+  final int at = shellDestinations.indexOf(destination);
+  return StatefulShellBranch(
+    routes: [
+      GoRoute(
+        path: destination.path,
+        pageBuilder: (context, state) => DismissPage<void>(
+          key: state.pageKey,
+          child: BranchScroll(
+            branch: at,
             child: _roots[destination.path]!(state),
           ),
-          routes: _reachable(),
         ),
-      ],
-    );
+        routes: _reachable(),
+      ),
+    ],
+  );
+}
 
 GoRoute _entry(String path) => GoRoute(
   path: path,
