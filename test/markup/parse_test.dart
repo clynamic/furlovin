@@ -1,0 +1,198 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:furlovin/markup/markup.dart';
+import 'package:material_ui/material_ui.dart' show Color;
+
+void main() {
+  List<MarkupSpan> spansOf(List<MarkupBlock> blocks, [int index = 0]) =>
+      (blocks[index] as MarkupParagraph).spans;
+
+  String textOf(List<MarkupBlock> blocks) => blocks
+      .whereType<MarkupParagraph>()
+      .expand((e) => e.spans)
+      .whereType<MarkupText>()
+      .map((e) => e.text)
+      .join();
+
+  test('keeps text from markup it does not know', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      'plain <marquee><custom-tag>kept</custom-tag></marquee> text',
+    );
+    expect(textOf(blocks), 'plain kept text');
+  });
+
+  test('reads the bbcode styles', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      '<b class="bbcode bbcode_b">bold</b> '
+      '<i class="bbcode bbcode_i">italic</i> '
+      '<u class="bbcode bbcode_u">under</u>',
+    );
+    final List<MarkupText> spans = spansOf(blocks)
+        .whereType<MarkupText>()
+        .where((e) => e.text.trim().isNotEmpty)
+        .toList();
+    expect(spans[0].style.bold, isTrue);
+    expect(spans[1].style.italic, isTrue);
+    expect(spans[2].style.underline, isTrue);
+  });
+
+  test('nests styles', () {
+    final List<MarkupBlock> blocks = parseMarkup('<b><i>both</i></b>');
+    final MarkupText span = spansOf(blocks).single as MarkupText;
+    expect(span.style.bold, isTrue);
+    expect(span.style.italic, isTrue);
+  });
+
+  test('reads colour off the style attribute', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      '<span class="bbcode" style="color:#FFA500;">warm</span>',
+    );
+    final MarkupText span = spansOf(blocks).single as MarkupText;
+    expect(span.style.color, const Color(0xffffa500));
+  });
+
+  test('breaks the paragraph on a rule, mid sentence', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      'before<span class="bbcode bbcode_hr"></span>after',
+    );
+    expect(blocks, hasLength(3));
+    expect(blocks[1], isA<MarkupRule>());
+    expect((spansOf(blocks).single as MarkupText).text, 'before');
+    expect((spansOf(blocks, 2).single as MarkupText).text, 'after');
+  });
+
+  test('turns a smilie into an emote, not an italic', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      'hi <i class="smilie veryhappy"></i>',
+    );
+    final MarkupEmote emote = spansOf(blocks).last as MarkupEmote;
+    expect(emote.name, 'veryhappy');
+  });
+
+  test('drops a smilie it has no offset for', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      'hi <i class="smilie brandnew"></i>',
+    );
+    expect(spansOf(blocks).whereType<MarkupEmote>(), isEmpty);
+  });
+
+  test('keeps links with their text', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      'see <a class="auto_link" href="/view/123/">this</a>',
+    );
+    final MarkupLink link = spansOf(blocks).last as MarkupLink;
+    expect(link.href, '/view/123/');
+    expect((link.spans.single as MarkupText).text, 'this');
+  });
+
+  test('collapses whitespace but honours breaks', () {
+    final List<MarkupBlock> blocks = parseMarkup('a\n   \n b<br />c');
+    final List<MarkupSpan> spans = spansOf(blocks);
+    expect((spans[0] as MarkupText).text, 'a b');
+    expect(spans[1], isA<MarkupBreak>());
+    expect((spans[2] as MarkupText).text, 'c');
+  });
+
+  test('does not end a paragraph on a trailing break', () {
+    final List<MarkupBlock> blocks = parseMarkup('text<br /><br />');
+    expect(spansOf(blocks), hasLength(1));
+  });
+
+  test('reads alignment', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      '<span class="bbcode bbcode_center">middle</span>',
+    );
+    expect((blocks.single as MarkupParagraph).align, MarkupAlign.center);
+  });
+
+  test('routes FA links by shape', () {
+    expect(readTarget('/view/123/'), isA<SubmissionTarget>());
+    expect((readTarget('/view/123/') as SubmissionTarget).id, 123);
+    expect(
+      (readTarget(
+        'https://www.furaffinity.net/user/olive33/',
+      ) as UserTarget).name,
+      'olive33',
+    );
+    expect(readTarget('/gallery/olive33/'), isA<ElsewhereTarget>());
+    expect(
+      readTarget('/gallery/birch92/folder/1616500/ychs-open/'),
+      isA<ElsewhereTarget>(),
+    );
+    expect(readTarget('https://example.com/x'), isA<ElsewhereTarget>());
+    expect(readTarget('/browse/2/'), isA<ElsewhereTarget>());
+  });
+
+  test('unwraps the external link interstitial', () {
+    const String wrapped =
+        'https://www.furaffinity.net/externalurl/'
+        '?q=https%3A%2F%2Fbsky.app%2Fprofile%2Fbirch92.bsky.social';
+    final MarkupTarget target = readTarget(wrapped);
+    expect(target, isA<ElsewhereTarget>());
+    expect(
+      (target as ElsewhereTarget).url,
+      'https://bsky.app/profile/birch92.bsky.social',
+    );
+  });
+
+  test('unwraps to an in-app route when FA wraps its own link', () {
+    expect(
+      readTarget(
+        '/externalurl/?q=https%3A%2F%2Fwww.furaffinity.net%2Fview%2F7%2F',
+      ),
+      isA<SubmissionTarget>(),
+    );
+  });
+
+  test('gives up on a wrapper with nothing inside', () {
+    final MarkupTarget target = readTarget('/externalurl/?q=');
+    expect((target as ElsewhereTarget).url, contains('/externalurl/'));
+  });
+
+  test('reads a mention with an avatar and a display name', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      'see <a href="/user/yarrow53" class="iconusername"> '
+      '<img src="//a.furaffinity.net/1.gif" title="yarrow53" alt="yarrow53"> '
+      '<span class="c-usernameBlockSimple__displayName">Yarrow53</span> '
+      '</a>',
+    );
+    final MarkupMention mention = spansOf(blocks)
+        .whereType<MarkupMention>()
+        .single;
+    expect(mention.name, 'yarrow53');
+    expect(mention.display, 'Yarrow53');
+    expect(mention.avatar, 'https://a.furaffinity.net/1.gif');
+    expect(textOf(blocks), 'see ');
+  });
+
+  test('leaves the name off a mention the site renders without one', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      '<a href="/user/willow74" class="iconusername"> '
+      '<img src="//a.furaffinity.net/2.gif" alt="willow74"></a>',
+    );
+    final MarkupMention mention = spansOf(blocks)
+        .whereType<MarkupMention>()
+        .single;
+    expect(mention.name, 'willow74');
+    expect(mention.display, isNull);
+  });
+
+  test('leaves an ordinary user link alone', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      '<a href="/user/someone">someone</a>',
+    );
+    expect(spansOf(blocks).whereType<MarkupMention>(), isEmpty);
+    expect(spansOf(blocks).whereType<MarkupLink>(), hasLength(1));
+  });
+
+  test('routes FA tag links into a search', () {
+    final MarkupTarget target = readTarget('/search/@keywords female');
+    expect((target as SearchTarget).text, '@keywords female');
+    expect(
+      (readTarget(
+        'https://www.furaffinity.net/search/?q=ginkgo29',
+      ) as SearchTarget).text,
+      'ginkgo29',
+    );
+    expect(readTarget('/search/'), isA<ElsewhereTarget>());
+  });
+}

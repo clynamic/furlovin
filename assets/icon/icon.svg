@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="1024" height="1024">
+  <defs>
+      <linearGradient id="splash" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FF140A"/>
+        <stop offset="0.03125" stop-color="#FF2809"/>
+        <stop offset="0.09375" stop-color="#FF5106"/>
+        <stop offset="0.15625" stop-color="#FF7B04"/>
+        <stop offset="0.21875" stop-color="#FF9F04"/>
+        <stop offset="0.28125" stop-color="#FFC006"/>
+        <stop offset="0.34375" stop-color="#F9DF0A"/>
+        <stop offset="0.40625" stop-color="#BADA1E"/>
+        <stop offset="0.46875" stop-color="#7AD531"/>
+        <stop offset="0.53125" stop-color="#50CE5B"/>
+        <stop offset="0.59375" stop-color="#3DC699"/>
+        <stop offset="0.65625" stop-color="#2ABDD7"/>
+        <stop offset="0.71875" stop-color="#3399DF"/>
+        <stop offset="0.78125" stop-color="#3F72E4"/>
+        <stop offset="0.84375" stop-color="#5153E5"/>
+        <stop offset="0.90625" stop-color="#7242E1"/>
+        <stop offset="0.96875" stop-color="#9031DE"/>
+        <stop offset="1" stop-color="#A028DC"/>
+      </linearGradient>
+    </defs>
+  <rect width="100" height="100" rx="21" fill="url(#splash)"/>
+  <g transform="translate(50 50) scale(0.7) translate(-50 -50)">
+    <mask id="im" maskUnits="userSpaceOnUse" x="-40" y="-40" width="180" height="180">
+      <rect x="-40" y="-40" width="180" height="180" fill="#fff"/>
+      <path d="M 10.4,-9.37 L 6.5,-5 L 6.5,5 L 0,10 L -6.5,5 L -6.5,-5 Z" transform="translate(26.96 41.26) rotate(-48) scale(0.95)" fill="#000" stroke="#000" stroke-width="5" stroke-linejoin="miter"/>
+      <path d="M 4.09,-13.39 L 6.5,-5 L 6.5,5 L 0,10 L -6.5,5 L -6.5,-5 Z" transform="translate(40.94 32.35) rotate(-17) scale(1)" fill="#000" stroke="#000" stroke-width="5" stroke-linejoin="miter"/>
+      <path d="M -4.09,-13.39 L 6.5,-5 L 6.5,5 L 0,10 L -6.5,5 L -6.5,-5 Z" transform="translate(59.06 32.35) rotate(17) scale(1)" fill="#000" stroke="#000" stroke-width="5" stroke-linejoin="miter"/>
+      <path d="M -10.4,-9.37 L 6.5,-5 L 6.5,5 L 0,10 L -6.5,5 L -6.5,-5 Z" transform="translate(73.04 41.26) rotate(48) scale(0.95)" fill="#000" stroke="#000" stroke-width="5" stroke-linejoin="miter"/>
+    </mask>
+    <g fill="#111111" transform="translate(50 50) scale(1.23) translate(-50 -50) translate(0 -4.1)">
+      <path d="M 10.4,-9.37 L 6.5,-5 L 6.5,5 L 0,10 L -6.5,5 L -6.5,-5 Z" transform="translate(26.96 41.26) rotate(-48) scale(0.95)" />
+      <path d="M 4.09,-13.39 L 6.5,-5 L 6.5,5 L 0,10 L -6.5,5 L -6.5,-5 Z" transform="translate(40.94 32.35) rotate(-17) scale(1)" />
+      <path d="M -4.09,-13.39 L 6.5,-5 L 6.5,5 L 0,10 L -6.5,5 L -6.5,-5 Z" transform="translate(59.06 32.35) rotate(17) scale(1)" />
+      <path d="M -10.4,-9.37 L 6.5,-5 L 6.5,5 L 0,10 L -6.5,5 L -6.5,-5 Z" transform="translate(73.04 41.26) rotate(48) scale(0.95)" />
+      <path d="M 50,88 L 26,64 L 26,51 L 40,45 L 50,53 L 60,45 L 74,51 L 74,64 Z" transform="translate(50 69) scale(1.04) translate(-50 -68)" mask="url(#im)"/>
+    </g>
+  </g>
+</svg>

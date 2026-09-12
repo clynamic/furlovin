@@ -1,0 +1,88 @@
+# Maintained baseline, kept current by the package.
+include: package:flutter_lints/flutter.yaml
+
+# https://dart.dev/tools/linter-rules
+linter:
+  rules:
+    - always_declare_return_types
+    - always_use_package_imports
+    - avoid_bool_literals_in_conditional_expressions
+    - avoid_catches_without_on_clauses
+    - avoid_catching_errors
+    - avoid_double_and_int_checks
+    - avoid_equals_and_hash_code_on_mutable_classes
+    - avoid_field_initializers_in_const_classes
+    - avoid_final_parameters
+    - avoid_implementing_value_types
+    - avoid_js_rounded_ints
+    - avoid_multiple_declarations_per_line
+    - avoid_redundant_argument_values
+    - avoid_setters_without_getters
+    - avoid_slow_async_io
+    - avoid_type_to_string
+    - cancel_subscriptions
+    - cast_nullable_to_non_nullable
+    - close_sinks
+    - combinators_ordering
+    - comment_references
+    - conditional_uri_does_not_exist
+    - deprecated_consistency
+    - directives_ordering
+    - do_not_use_environment
+    - eol_at_end_of_file
+    - join_return_with_assignment
+    - leading_newlines_in_multiline_strings
+    - library_names
+    - literal_only_boolean_expressions
+    - missing_whitespace_between_adjacent_strings
+    - no_adjacent_strings_in_list
+    - noop_primitive_operations
+    - only_throw_errors
+    - package_prefixed_library_names
+    - prefer_asserts_in_initializer_lists
+    - prefer_asserts_with_message
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+    - prefer_constructors_over_static_methods
+    - prefer_if_elements_to_conditional_expressions
+    - prefer_int_literals
+    - prefer_null_aware_method_calls
+    - prefer_single_quotes
+    - prefer_void_to_null
+    - sized_box_shrink_expand
+    - sort_constructors_first
+    - sort_unnamed_constructors_first
+    - test_types_in_equals
+    - throw_in_finally
+    - tighten_type_of_initializing_formals
+    - type_annotate_public_apis
+    - unnecessary_library_directive
+    - unnecessary_null_aware_operator_on_extension_on_nullable
+    - unnecessary_statements
+    - unreachable_from_main
+    - use_colored_box
+    - use_decorated_box
+    - use_enums
+    - use_is_even_rather_than_modulo
+    - use_named_constants
+    - use_raw_strings
+    - use_setters_to_change_properties
+    - use_string_buffers
+    - use_test_throws_matchers
+    - use_to_and_as_if_applicable
+    - overridden_fields: false
+    - avoid_classes_with_only_static_members: false
+
+analyzer:
+  exclude:
+    - build/**
+    - lib/**.freezed.dart
+    - lib/**.g.dart
+    - lib/**.drift.dart
+    - lib/**.rules.dart
+    - android/**
+    - ios/**
+    - linux/**
+  errors:
+    invalid_annotation_target: ignore

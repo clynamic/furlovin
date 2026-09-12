@@ -1,0 +1,873 @@
+schema: 1
+revision: 5
+refs:
+  viewLink:
+    - op: select
+      css: figcaption a[href^="/view/"]
+  userLink:
+    - op: select
+      css: figcaption a[href^="/user/"]
+enums:
+  SubmissionRating:
+    feature: submission
+    description: The content rating the site assigns to a submission.
+    values:
+      - general
+      - mature
+      - adult
+  SubmissionType:
+    feature: submission
+    description: The kind of content a submission holds.
+    values:
+      - image
+      - text
+      - audio
+      - flash
+entities:
+  submissionPreview:
+    feature: submission
+    fields:
+      id:
+        type: int
+        required: true
+        steps:
+          - - op: attr
+              name: id
+            - op: regex
+              pattern: sid[-_](\d+)
+        description: The submission's numeric identifier.
+      rating:
+        type: SubmissionRating
+        required: true
+        steps:
+          - - op: class
+              prefix: r-
+        description: The submission's content rating.
+      type:
+        type: SubmissionType
+        steps:
+          - - op: class
+              prefix: t-
+        description: Content type, such as image, text, music or flash.
+      title:
+        steps:
+          - - $ref: viewLink
+            - op: attr
+              name: title
+            - op: trim
+          - - $ref: viewLink
+            - op: text
+            - op: trim
+          - - op: select
+              css: img
+            - op: attr
+              name: title
+            - op: trim
+        description: |-
+          Listing titles are sanitised by the site and may lose leading
+          punctuation. The submission page carries the canonical title.
+      uploader:
+        required: true
+        steps:
+          - - $ref: userLink
+            - op: attr
+              name: href
+            - op: regex
+              pattern: /user/([^/]+)
+          - - op: attr
+              name: data-user
+            - op: regex
+              pattern: u-(.+)
+          - - op: class
+              prefix: u-
+          - - op: select
+              css: img
+            - op: attr
+              name: data-tags
+            - op: regex
+              pattern: (?:^|\s)u_(\S+)
+        description: |-
+          The url form of the name of whoever posted the submission,
+          lowercased and with underscores removed.
+      uploaderName:
+        steps:
+          - - $ref: userLink
+            - op: text
+            - op: trim
+        description: The name of whoever posted the submission, as displayed.
+      link:
+        required: true
+        steps:
+          - - op: select
+              css: a[href^="/view/"]
+            - op: attr
+              name: href
+            - op: url
+        description: Absolute url of the submission page.
+      thumbnail:
+        required: true
+        steps:
+          - - op: select
+              css: img
+            - op: attr
+              name: src
+            - op: url
+        description: |-
+          Absolute url of the thumbnail. The size segment constrains the
+          longest edge to that many pixels.
+      thumbnailWidth:
+        type: float
+        steps:
+          - - op: select
+              css: img
+            - op: attr
+              name: data-width
+        description: |-
+          Thumbnail width in pixels, as declared by the site rather than
+          measured from the image.
+      thumbnailHeight:
+        type: float
+        steps:
+          - - op: select
+              css: img
+            - op: attr
+              name: data-height
+        description: Thumbnail height in pixels, which the site fixes at 200.
+      favouriteId:
+        type: int
+        steps:
+          - - op: attr
+              name: data-fav-id
+        description: |-
+          Identifies a favourite rather than the submission, and exists only
+          where a submission appears as somebody's favourite.
+    description: A submission as it appears in a listing.
+  submission:
+    feature: submission
+    description: A submission as its own page carries it.
+    fields:
+      id:
+        type: int
+        required: true
+        description: The submission's numeric identifier.
+        steps:
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-content-id
+      title:
+        required: true
+        description: The submission's title, free of the padding the page markup adds.
+        steps:
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-artwork-title
+          - - op: select
+              css: div.submission-title h2
+            - op: text
+            - op: trim
+      uploader:
+        required: true
+        description: |-
+          The url form of the name of whoever posted the submission,
+          lowercased and with underscores removed.
+        steps:
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-artist-name
+      uploaderName:
+        description: The name of whoever posted the submission, as displayed.
+        steps:
+          - - op: select
+              css: span.c-usernameBlockSimple__displayName
+            - op: text
+            - op: trim
+      uploaderAvatar:
+        description: Absolute url of the avatar of whoever posted the submission.
+        steps:
+          - - op: select
+              css: img.submission-user-icon
+            - op: attr
+              name: src
+            - op: url
+      rating:
+        type: SubmissionRating
+        required: true
+        description: The submission's content rating.
+        steps:
+          - - op: select
+              css: div[class*="c-contentRating--"]
+            - op: class
+              prefix: c-contentRating--
+      type:
+        type: SubmissionType
+        description: The kind of content a submission holds.
+        steps:
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-content-type
+      category:
+        description: The kind of work, as the artist filed it.
+        steps:
+          - - op: selectAll
+              css: div.submission-content-stats span:not(.highlight) span
+            - op: index
+              at: 0
+            - op: text
+            - op: trim
+      theme:
+        description: The subject matter the artist filed the work under.
+        steps:
+          - - op: selectAll
+              css: div.submission-content-stats span:not(.highlight) span
+            - op: index
+              at: 1
+            - op: text
+            - op: trim
+      species:
+        description: The species the artist filed the work under.
+        steps:
+          - - op: selectAll
+              css: div.submission-content-stats span:not(.highlight) span
+            - op: index
+              at: 2
+            - op: text
+            - op: trim
+      resolution:
+        description: The image's pixel dimensions, as FA renders them.
+        steps:
+          - - op: selectAll
+              css: div.submission-content-stats span:not(.highlight) span
+            - op: index
+              at: 3
+            - op: text
+            - op: trim
+      fileSize:
+        description: The size of the uploaded file, as FA renders it.
+        steps:
+          - - op: selectAll
+              css: div.submission-content-stats span:not(.highlight) span
+            - op: index
+              at: 4
+            - op: text
+            - op: trim
+      extension:
+        description: The file's extension, without a leading dot.
+        steps:
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-content-extension
+      posted:
+        type: timestamp
+        description: When the submission was posted.
+        steps:
+          - - op: select
+              css: span.popup_date
+            - op: attr
+              name: data-time
+      file:
+        required: true
+        description: Absolute url of the submitted file at full resolution.
+        steps:
+          - - op: select
+              css: img#submissionImg
+            - op: attr
+              name: data-fullview-src
+            - op: url
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-content-url
+            - op: url
+      preview:
+        description: Absolute url of a reduced copy of the submitted file.
+        steps:
+          - - op: select
+              css: img#submissionImg
+            - op: attr
+              name: data-preview-src
+            - op: url
+      description:
+        description: The rendered description, as markup rather than text.
+        steps:
+          - - op: select
+              css: div.submission-description-text
+            - op: html
+      views:
+        type: int
+        description: How many times the submission has been viewed.
+        steps:
+          - - op: select
+              css: div[title="Views"] > div
+            - op: text
+            - op: trim
+      comments:
+        type: int
+        description: How many comments the submission carries.
+        steps:
+          - - op: select
+              css: div[title="Comments"] > div
+            - op: text
+            - op: trim
+      favorites:
+        type: int
+        description: How many people have favourited the submission.
+        steps:
+          - - op: select
+              css: div[title="Favorites"] > div
+            - op: text
+            - op: trim
+      favouriteLink:
+        steps:
+          - - op: select
+              css: div#submission-options a[href^="/fav/"]
+            - op: attr
+              name: href
+            - op: url
+          - - op: select
+              css: div#submission-options a[href^="/unfav/"]
+            - op: attr
+              name: href
+            - op: url
+        description: |-
+          Absolute url that adds or removes the submission from your
+          favourites. The site only writes one of the two, so which it is
+          says whether you have favourited it already. Absent when signed
+          out.
+      noteLink:
+        steps:
+          - - op: select
+              css: div#submission-options a[href^="/newpm/"]
+            - op: attr
+              name: href
+            - op: url
+        description: |-
+          Absolute url that opens a new note to whoever posted it. Absent
+          when signed out.
+      tags:
+        repeated: true
+        description: Keywords the artist attached to the submission.
+        steps:
+          - - op: selectAll
+              css: span.tags a[href^="/search/"]
+            - op: text
+            - op: trim
+  comment:
+    feature: comment
+    description: A comment on a submission or a journal.
+    fields:
+      id:
+        type: int
+        required: true
+        description: The comment's numeric identifier.
+        steps:
+          - - op: select
+              css: a.comment_anchor[id^="cid:"]
+            - op: attr
+              name: id
+            - op: regex
+              pattern: cid:(\d+)
+      posted:
+        type: timestamp
+        description: When the comment was posted.
+        steps:
+          - - op: attr
+              name: data-timestamp
+      author:
+        description: |-
+          The url form of the commenter name, lowercased and with
+          underscores removed.
+        steps:
+          - - op: select
+              css: a.c-usernameBlock__userName
+            - op: attr
+              name: href
+            - op: regex
+              pattern: /user/([^/]+)
+      authorName:
+        description: The commenter name as displayed.
+        steps:
+          - - op: select
+              css: a.c-usernameBlock__displayName span
+            - op: text
+            - op: trim
+      authorAvatar:
+        description: Absolute url of the commenter's avatar.
+        steps:
+          - - op: select
+              css: img.comment_useravatar
+            - op: attr
+              name: src
+            - op: url
+      body:
+        description: The rendered comment, as markup rather than text.
+        steps:
+          - - op: select
+              css: comment-user-text div.user-submitted-links
+            - op: html
+      width:
+        type: int
+        description: |-
+          The percentage width the site renders the comment at.
+          Replies are narrower than their parent, so this encodes depth.
+        steps:
+          - - op: attr
+              name: style
+            - op: regex
+              pattern: width:\s*(\d+)
+  user:
+    feature: user
+    description: A member as their profile page carries them.
+    fields:
+      name:
+        required: true
+        steps:
+          - - op: select
+              css: userpage-nav-avatar a
+            - op: attr
+              name: href
+            - op: regex
+              pattern: /user/([^/]+)
+        description: The url form of the name, lowercased and with underscores removed.
+      displayName:
+        steps:
+          - - op: select
+              css: a.c-usernameBlock__displayName span
+            - op: text
+            - op: trim
+        description: The name as displayed.
+      symbol:
+        steps:
+          - - op: select
+              css: span.c-usernameBlock__symbol
+            - op: attr
+              name: title
+        description: The account class the site marks the name with.
+      title:
+        steps:
+          - - op: select
+              css: span.user-title
+            - op: text
+            - op: regex
+              pattern: ^\s*(.+?)\s*\|
+            - op: trim
+        description: The one line the member writes under their name.
+      avatar:
+        steps:
+          - - op: select
+              css: userpage-nav-avatar img
+            - op: attr
+              name: src
+            - op: url
+        description: Absolute url of the avatar.
+      banner:
+        steps:
+          - - op: select
+              css: site-banner picture img
+            - op: attr
+              name: src
+            - op: url
+        description: Absolute url of the banner across the top of the profile.
+      registered:
+        type: timestamp
+        steps:
+          - - op: select
+              css: span.user-title span.popup_date
+            - op: attr
+              name: data-time
+        description: When the account was made.
+      profile:
+        steps:
+          - - op: select
+              css: div.section-body.userpage-profile
+            - op: html
+        description: The profile text, as markup rather than text.
+      views:
+        type: int
+        steps:
+          - - op: select
+              css: div.userpage-section-right div.table
+            - op: text
+            - op: regex
+              pattern: Views:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+        description: How many times the profile has been viewed.
+      submissions:
+        type: int
+        steps:
+          - - op: select
+              css: div.userpage-section-right div.table
+            - op: text
+            - op: regex
+              pattern: Submissions:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+        description: How many submissions the member has posted.
+      favorites:
+        type: int
+        steps:
+          - - op: select
+              css: div.userpage-section-right div.table
+            - op: text
+            - op: regex
+              pattern: Favs:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+        description: How many submissions the member has favourited.
+      commentsEarned:
+        type: int
+        steps:
+          - - op: select
+              css: div.userpage-section-right div.table
+            - op: text
+            - op: regex
+              pattern: Comments Earned:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+        description: How many comments the member has received.
+      commentsMade:
+        type: int
+        steps:
+          - - op: select
+              css: div.userpage-section-right div.table
+            - op: text
+            - op: regex
+              pattern: Comments Made:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+        description: How many comments the member has written.
+      journals:
+        type: int
+        steps:
+          - - op: select
+              css: div.userpage-section-right div.table
+            - op: text
+            - op: regex
+              pattern: Journals:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+        description: How many journals the member has posted.
+      watchedBy:
+        type: int
+        steps:
+          - - op: select
+              css: section.watched-by-block
+            - op: text
+            - op: regex
+              pattern: Watched by\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+        description: How many members watch this one.
+      watching:
+        type: int
+        steps:
+          - - op: select
+              css: section.is-watching-block
+            - op: text
+            - op: regex
+              pattern: Watching\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+        description: How many members this one watches.
+  contact:
+    feature: user
+    description: A way to reach a member, as listed on their profile.
+    fields:
+      kind:
+        required: true
+        steps:
+          - - op: select
+              css: img.contact-icon
+            - op: class
+              prefix: contact-icon-
+        description: The service the entry points at.
+      icon:
+        steps:
+          - - op: select
+              css: img.contact-icon
+            - op: attr
+              name: src
+            - op: url
+        description: Absolute url of the badge the site draws for the service.
+      label:
+        steps:
+          - - op: select
+              css: div.user-contact-user-info strong
+            - op: text
+            - op: trim
+        description: The service name as the site writes it.
+      value:
+        required: true
+        steps:
+          - - op: select
+              css: div.user-contact-user-info a
+            - op: text
+            - op: trim
+        description: The handle or address the member gave.
+      link:
+        steps:
+          - - op: select
+              css: div.user-contact-user-info a[href^="http"]
+            - op: attr
+              name: href
+          - - op: select
+              css: div.user-contact-user-info a[href^="mailto"]
+            - op: attr
+              name: href
+        description: |-
+          Absolute url the entry points at, where the site made
+          one. Handles the site cannot link carry no url.
+  shout:
+    feature: user
+    description: A message left on a member profile.
+    fields:
+      id:
+        type: int
+        required: true
+        steps:
+          - - op: select
+              css: a.comment_anchor
+            - op: attr
+              name: id
+            - op: regex
+              pattern: shout-(\d+)
+        description: The message's numeric identifier.
+      author:
+        steps:
+          - - op: select
+              css: a.c-usernameBlock__userName
+            - op: attr
+              name: href
+            - op: regex
+              pattern: /user/([^/]+)
+        description: The url form of the writer name.
+      authorName:
+        steps:
+          - - op: select
+              css: a.c-usernameBlock__displayName span
+            - op: text
+            - op: trim
+        description: The writer name as displayed.
+      authorAvatar:
+        steps:
+          - - op: select
+              css: img.comment_useravatar
+            - op: attr
+              name: src
+            - op: url
+        description: Absolute url of the writer's avatar.
+      posted:
+        type: timestamp
+        steps:
+          - - op: select
+              css: span.popup_date
+            - op: attr
+              name: data-time
+        description: When the message was left.
+      body:
+        steps:
+          - - op: select
+              css: comment-user-text
+            - op: html
+        description: The message, as markup rather than text.
+  fact:
+    feature: user
+    description: A question the site asks on a profile, and its answer.
+    fields:
+      label:
+        required: true
+        steps:
+          - - op: select
+              css: div.userpage-profile-question
+            - op: text
+            - op: trim
+        description: The question, as the site words it.
+      value:
+        required: true
+        steps:
+          - - op: text
+              own: true
+            - op: trim
+        description: The answer the member gave.
+      group:
+        steps:
+          - - op: select
+              css: div.userpage-profile-question
+            - op: class
+              prefix: font-
+        description: |-
+          Which block of questions the row sits in. The site separates the
+          availability answers from the rest and renders the rest smaller.
+  viewer:
+    feature: identity
+    description: Whoever the site thinks is signed in.
+    fields:
+      name:
+        required: true
+        steps:
+          - - op: select
+              css: img.loggedin_user_avatar
+            - op: attr
+              name: alt
+            - op: trim
+        description: |-
+          The url form of the name, lowercased and with underscores
+          removed.
+      displayName:
+        steps:
+          - - op: select
+              css: a#my-username
+            - op: text
+              own: true
+            - op: trim
+        description: The name as displayed.
+      avatar:
+        steps:
+          - - op: select
+              css: img.loggedin_user_avatar
+            - op: attr
+              name: src
+            - op: url
+        description: Absolute url of the avatar.
+      submissionAlerts:
+        type: int
+        steps:
+          - - op: select
+              css: a.notification-container[href="/msg/submissions/"]
+            - op: attr
+              name: title
+            - op: regex
+              pattern: ^(\d+)
+        description: How many new submissions are waiting.
+      watchAlerts:
+        type: int
+        steps:
+          - - op: select
+              css: a.notification-container[href="/msg/others/#watches"]
+            - op: attr
+              name: title
+            - op: regex
+              pattern: ^(\d+)
+        description: How many new watchers are waiting.
+      commentAlerts:
+        type: int
+        steps:
+          - - op: select
+              css: a.notification-container[href="/msg/others/#comments"]
+            - op: attr
+              name: title
+            - op: regex
+              pattern: ^(\d+)
+        description: How many new comments are waiting.
+      favouriteAlerts:
+        type: int
+        steps:
+          - - op: select
+              css: a.notification-container[href="/msg/others/#favorites"]
+            - op: attr
+              name: title
+            - op: regex
+              pattern: ^(\d+)
+        description: How many new favourites are waiting.
+pages:
+  browse:
+    feature: submission
+    slots:
+      submissions:
+        entity: submissionPreview
+        selector: section#gallery-browse > figure[id^="sid-"]
+        list: true
+  gallery:
+    feature: submission
+    slots:
+      submissions:
+        entity: submissionPreview
+        selector: section#gallery-gallery > figure[id^="sid-"]
+        list: true
+  favorites:
+    feature: submission
+    slots:
+      submissions:
+        entity: submissionPreview
+        selector: section#gallery-favorites > figure[id^="sid-"]
+        list: true
+  search:
+    feature: submission
+    slots:
+      submissions:
+        entity: submissionPreview
+        selector: section#gallery-search-results > figure[id^="sid-"]
+        list: true
+  frontpage:
+    feature: submission
+    slots:
+      submissions:
+        entity: submissionPreview
+        selector: section[id^="gallery-frontpage"] > figure[id^="sid-"]
+        list: true
+  submissions:
+    feature: submission
+    slots:
+      submissions:
+        entity: submissionPreview
+        selector: section.gallery > figure[id^="sid-"]
+        list: true
+  submission:
+    feature: submission
+    slots:
+      submission:
+        entity: submission
+        selector: body
+      related:
+        entity: submissionPreview
+        selector: section.minigallery-container figure[id^="sid_"]
+        list: true
+      comments:
+        entity: comment
+        selector: div.comment_container:not(.collapsed_height)
+        list: true
+  user:
+    feature: user
+    slots:
+      profile:
+        entity: user
+        selector: body
+      contacts:
+        entity: contact
+        selector: div.user-contact-item
+        list: true
+      gallery:
+        entity: submissionPreview
+        selector: '#gallery-latest-submissions figure[id^="sid-"]'
+        list: true
+      favorites:
+        entity: submissionPreview
+        selector: '#gallery-latest-favorites figure[id^="sid-"]'
+        list: true
+      shouts:
+        entity: shout
+        selector: div#shouts div.comment_container
+        list: true
+      facts:
+        entity: fact
+        selector: div#userpage-contact-item div.table-row
+        list: true
+  controls:
+    feature: identity
+    slots:
+      viewer:
+        entity: viewer
+        selector: body

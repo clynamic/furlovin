@@ -1,0 +1,3 @@
+# furlovin
+
+A FurAffinity client

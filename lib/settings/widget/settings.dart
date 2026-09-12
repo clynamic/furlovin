@@ -1,0 +1,90 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:furlovin/client/client.dart';
+import 'package:furlovin/identity/identity.dart';
+import 'package:furlovin/routing/routing.dart';
+import 'package:furlovin/shared/shared.dart';
+import 'package:material_ui/material_ui.dart';
+
+class SettingsPage extends ConsumerWidget {
+  const SettingsPage({super.key});
+
+  Future<void> _forget(BuildContext context, WidgetRef ref) async {
+    final IdentityStore store = ref.read(identityStoreProvider);
+    final bool? sure = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Sign out'),
+          ),
+        ],
+      ),
+    );
+    if (sure != true) return;
+    await store.clear();
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ThemeData theme = Theme.of(context);
+    final bool authenticated = ref.watch(authenticatedProvider);
+    final Viewer? viewer = ref
+        .watch(viewerProvider)
+        .maybeWhen(data: (e) => e, orElse: () => null);
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: ListView(
+        padding:
+            Layout.pageOf(context) + const EdgeInsets.only(top: Space.page),
+        children: [
+          Text(
+            'Account',
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: Space.small),
+          Card(
+            child: ListTile(
+              leading: authenticated
+                  ? Avatar(
+                      url: viewer?.avatar,
+                      name: viewer?.displayName ?? viewer?.name,
+                      size: 40,
+                    )
+                  : Icon(
+                      Icons.person_outline,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+              title: Text(
+                authenticated
+                    ? (viewer?.displayName ?? viewer?.name ?? 'Signed in')
+                    : 'Not signed in',
+              ),
+              subtitle: Text(
+                authenticated
+                    ? (viewer?.name == null ? 'Signed in' : '@${viewer!.name}')
+                    : 'You can continue browsing anonymously.',
+              ),
+              trailing: authenticated
+                  ? TextButton(
+                      onPressed: () => _forget(context, ref),
+                      child: const Text('Sign out'),
+                    )
+                  : FilledButton(
+                      onPressed: () => context.openLogin(),
+                      child: const Text('Sign in'),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
