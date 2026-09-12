@@ -1,6 +1,7 @@
 export 'dismiss.dart';
 export 'failure.dart';
 export 'image.dart';
+export 'retreat.dart';
 export 'scrim.dart';
 export 'scroll.dart';
 export 'section.dart';
