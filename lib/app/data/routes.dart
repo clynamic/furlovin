@@ -51,12 +51,20 @@ List<RouteBase> _reachable() => [
   ),
 ];
 
-StatefulShellBranch _branch(String root, Widget Function() page) =>
+final Map<String, Widget Function()> _roots = {
+  browsePath: () => const BrowsePage(),
+  searchPath: () =>
+      const SearchPage(query: SearchQuery(text: ''), editing: true),
+  inboxPath: () => const InboxPage(),
+  mePath: () => const MePage(),
+};
+
+StatefulShellBranch _branch(ShellDestination destination) =>
     StatefulShellBranch(
       routes: [
         GoRoute(
-          path: root,
-          builder: (context, state) => page(),
+          path: destination.path,
+          builder: (context, state) => _roots[destination.path]!(),
           routes: _reachable(),
         ),
       ],
@@ -76,13 +84,10 @@ GoRouter buildRouter(IdentityStore store) => GoRouter(
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => HomeShell(shell: shell),
       branches: [
-        _branch(inboxPath, () => const InboxPage()),
-        _branch(browsePath, () => const BrowsePage()),
-        _branch(mePath, () => const MePage()),
+        for (final ShellDestination at in shellDestinations) _branch(at),
       ],
     ),
     _entry('$submissionPath/:id'),
-    _entry(searchPath),
     _entry('$galleryPath/:name'),
     _entry('$userPath/:name'),
     GoRoute(

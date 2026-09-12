@@ -26,17 +26,23 @@ class ShellDestination {
 
 const List<ShellDestination> shellDestinations = [
   ShellDestination(
+    icon: Icons.explore_outlined,
+    selected: Icons.explore,
+    label: 'Browse',
+    path: browsePath,
+  ),
+  ShellDestination(
+    icon: Icons.search_outlined,
+    selected: Icons.search,
+    label: 'Search',
+    path: searchPath,
+  ),
+  ShellDestination(
     icon: Icons.inbox_outlined,
     selected: Icons.inbox,
     label: 'Inbox',
     path: inboxPath,
     alerts: _submissionAlerts,
-  ),
-  ShellDestination(
-    icon: Icons.explore_outlined,
-    selected: Icons.explore,
-    label: 'Browse',
-    path: browsePath,
   ),
   ShellDestination(
     icon: Icons.person_outline,
@@ -119,7 +125,6 @@ class _HomeShellState extends ConsumerState<HomeShell> {
                           index: widget.shell.currentIndex,
                           viewer: ref.watch(viewerProvider).asData?.value,
                           onGo: _go,
-                          onSearch: context.openSearch,
                         ),
                       ),
                     ),
@@ -139,13 +144,11 @@ class ShellBar extends StatelessWidget {
     required this.index,
     required this.viewer,
     required this.onGo,
-    required this.onSearch,
   });
 
   final int index;
   final Viewer? viewer;
   final ValueChanged<int> onGo;
-  final VoidCallback onSearch;
 
   @override
   Widget build(BuildContext context) {
@@ -170,17 +173,6 @@ class ShellBar extends StatelessWidget {
                     : destination.alerts?.call(viewer!),
                 onTap: () => onGo(at),
               ),
-            ShellTab(
-              destination: const ShellDestination(
-                icon: Icons.search,
-                selected: Icons.search,
-                label: 'Search',
-                path: searchPath,
-              ),
-              chosen: false,
-              count: null,
-              onTap: onSearch,
-            ),
           ],
         ),
       ),

@@ -4,7 +4,7 @@ import 'package:material_ui/material_ui.dart';
 const String inboxPath = '/inbox';
 const String browsePath = '/browse';
 const String mePath = '/me';
-const List<String> branchRoots = [inboxPath, browsePath, mePath];
+const List<String> branchRoots = [browsePath, searchPath, inboxPath, mePath];
 
 const String submissionPath = '/view';
 const String userPath = '/user';
@@ -47,8 +47,9 @@ extension AppRouting on BuildContext {
       goSearch({if (text.isNotEmpty) searchTextKey: text});
 
   void goSearch(Map<String, String> location, {bool replace = false}) {
+    final String here = branch;
     final String target = Uri(
-      path: '$branch$searchPath',
+      path: here == searchPath ? searchPath : '$here$searchPath',
       queryParameters: location.isEmpty ? null : location,
     ).toString();
     if (replace) {
