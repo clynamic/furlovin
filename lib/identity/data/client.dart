@@ -14,6 +14,6 @@ class ViewerClient {
     rules,
     ControlsDocument.ruleType,
     controlsPath,
-    (outcome, report) => ControlsDocument.fromOutcome(outcome, report: report),
+    (outcome, errors) => ControlsDocument.fromOutcome(outcome, errors: errors),
   )).viewer;
 }

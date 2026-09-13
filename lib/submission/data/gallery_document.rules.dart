@@ -17,14 +17,14 @@ abstract class GalleryDocument with _$GalleryDocument {
     @Default(const []) List<SubmissionPreview> submissions,
     @Default(const []) List<FolderRow> folders,
     @Default(const {}) Map<String, ParseException> failed,
-    ReadReport? report,
+    DocumentErrors? errors,
   }) = _GalleryDocument;
 
   static const String ruleType = 'galleryDocument';
 
   static GalleryDocument? fromOutcome(
     ParseOutcome outcome, {
-    ReadReport? report,
+    DocumentErrors? errors,
   }) {
     return GalleryDocument(
       submissions: [
@@ -38,7 +38,7 @@ abstract class GalleryDocument with _$GalleryDocument {
           if (item is ParseOutcome) ?FolderRow.fromOutcome(item),
       ],
       failed: outcome.failed,
-      report: report,
+      errors: errors,
     );
   }
 }

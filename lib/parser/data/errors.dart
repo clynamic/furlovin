@@ -3,11 +3,11 @@ import 'package:furlovin/parser/data/outcome.dart';
 import 'package:furlovin/parser/data/schema.dart';
 import 'package:meta/meta.dart';
 
-enum IssueKind { unreadable, dropped, missing }
+enum FieldErrorKind { unreadable, dropped, missing }
 
 @immutable
-class ReadIssue {
-  const ReadIssue({
+class FieldError {
+  const FieldError({
     required this.slot,
     required this.kind,
     required this.error,
@@ -18,14 +18,14 @@ class ReadIssue {
 
   final String slot;
   final String? field;
-  final IssueKind kind;
+  final FieldErrorKind kind;
   final ParseException error;
   final int count;
   final int? of;
 
   @override
   bool operator ==(Object other) =>
-      other is ReadIssue &&
+      other is FieldError &&
       other.slot == slot &&
       other.field == field &&
       other.kind == kind &&
@@ -39,8 +39,9 @@ class ReadIssue {
   @override
   String toString() {
     final String subject = switch (kind) {
-      IssueKind.missing => '$slot.$field missing${count > 1 ? ' ×$count' : ''}',
-      IssueKind.dropped || IssueKind.unreadable when of != null =>
+      FieldErrorKind.missing =>
+        '$slot.$field missing${count > 1 ? ' ×$count' : ''}',
+      FieldErrorKind.dropped || FieldErrorKind.unreadable when of != null =>
         '${kind.name} $slot: dropped $count of $of'
             '${field == null ? '' : ' over $field'}',
       _ => '${kind.name} $slot${field == null ? '' : ' over $field'}',
@@ -57,10 +58,10 @@ class ReadIssue {
 
 final RegExp _theme = RegExp('/themes/([a-z]+)/');
 
-class ReadReport {
-  ReadReport({this.page, this.rules, this.theme});
+class DocumentErrors {
+  DocumentErrors({this.page, this.rules, this.theme});
 
-  ReadReport.forPage({
+  DocumentErrors.forPage({
     required String url,
     required String body,
     required RuleSet ruleSet,
@@ -72,26 +73,26 @@ class ReadReport {
   final String? rules;
   final String? theme;
 
-  final List<ReadIssue> _issues = [];
+  final List<FieldError> _errors = [];
 
-  List<ReadIssue> get issues => List.unmodifiable(_issues);
+  List<FieldError> get all => List.unmodifiable(_errors);
 
-  bool get isEmpty => _issues.isEmpty;
+  bool get isEmpty => _errors.isEmpty;
 
-  void add(ReadIssue issue) => _issues.add(issue);
+  void add(FieldError issue) => _errors.add(issue);
 
   void collect(ParseOutcome root, String type, RuleSet ruleSet) {
-    final Map<String, ReadIssue> merged = {};
+    final Map<String, FieldError> merged = {};
     void walk(ParseOutcome outcome, TypeRule rule, List<String> path) {
       for (final TypeField field in rule.fields.values) {
         final List<String> at = [...path, field.name];
         if (outcome.failed[field.name] case final ParseException error) {
-          final ReadIssue issue = _issue(at, error);
+          final FieldError issue = _issue(at, error);
           final String key = '${issue.slot}|${issue.field}|${issue.kind.name}';
-          final ReadIssue? known = merged[key];
+          final FieldError? known = merged[key];
           merged[key] = known == null
               ? issue
-              : ReadIssue(
+              : FieldError(
                   slot: known.slot,
                   field: known.field,
                   kind: known.kind,
@@ -114,41 +115,43 @@ class ReadReport {
     }
 
     walk(root, ruleSet[type]!, const []);
-    _issues.addAll(merged.values);
+    _errors.addAll(merged.values);
   }
 
-  static ReadIssue _issue(List<String> path, ParseException error) {
+  static FieldError _issue(List<String> path, ParseException error) {
     final String slot = path.first;
     final List<String> rest = path.skip(1).toList();
     return switch (error) {
       DroppedItems(:final count, :final of, :final field, :final cause) =>
-        ReadIssue(
+        FieldError(
           slot: slot,
           field: [...rest, ?field].join('.').emptyAsNull,
-          kind: count == of ? IssueKind.unreadable : IssueKind.dropped,
+          kind: count == of
+              ? FieldErrorKind.unreadable
+              : FieldErrorKind.dropped,
           error: cause,
           count: count,
           of: of,
         ),
-      StepException(op: 'in' || 'at') => ReadIssue(
+      StepException(op: 'in' || 'at') => FieldError(
         slot: slot,
         field: rest.join('.').emptyAsNull,
-        kind: IssueKind.unreadable,
+        kind: FieldErrorKind.unreadable,
         error: error,
       ),
-      _ => ReadIssue(
+      _ => FieldError(
         slot: slot,
         field: rest.isEmpty ? path.last : rest.join('.'),
-        kind: IssueKind.missing,
+        kind: FieldErrorKind.missing,
         error: error,
       ),
     };
   }
 
-  Iterable<ReadIssue> of(String slot) => _issues.where((e) => e.slot == slot);
+  Iterable<FieldError> of(String slot) => _errors.where((e) => e.slot == slot);
 
   bool unreadable(String slot) =>
-      of(slot).any((e) => e.kind == IssueKind.unreadable);
+      of(slot).any((e) => e.kind == FieldErrorKind.unreadable);
 }
 
 extension on String {

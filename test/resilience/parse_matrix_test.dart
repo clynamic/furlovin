@@ -37,13 +37,14 @@ void main() {
       document,
       base: Uri.parse(faOrigin),
     );
-    final ReadReport report = ReadReport()..collect(outcome, type, rules);
+    final DocumentErrors errors = DocumentErrors()
+      ..collect(outcome, type, rules);
     return {
       for (final TypeField field in rules[type]!.fields.values)
         field.name: (
           value: summary(outcome[field.name]),
           issues: {
-            for (final ReadIssue issue in report.of(field.name))
+            for (final FieldError issue in errors.of(field.name))
               [issue.kind.name, ?issue.field].join(' '),
           },
         ),

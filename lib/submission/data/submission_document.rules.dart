@@ -21,14 +21,14 @@ abstract class SubmissionDocument with _$SubmissionDocument {
     @Default(const []) List<Folder> folders,
     MiniGallery? miniGallery,
     @Default(const {}) Map<String, ParseException> failed,
-    ReadReport? report,
+    DocumentErrors? errors,
   }) = _SubmissionDocument;
 
   static const String ruleType = 'submissionDocument';
 
   static SubmissionDocument? fromOutcome(
     ParseOutcome outcome, {
-    ReadReport? report,
+    DocumentErrors? errors,
   }) {
     final Submission? submission = switch (outcome['submission']) {
       final ParseOutcome child => Submission.fromOutcome(child),
@@ -52,7 +52,7 @@ abstract class SubmissionDocument with _$SubmissionDocument {
         _ => null,
       },
       failed: outcome.failed,
-      report: report,
+      errors: errors,
     );
   }
 }

@@ -15,14 +15,14 @@ abstract class InboxDocument with _$InboxDocument {
   const factory InboxDocument({
     @Default(const []) List<SubmissionPreview> submissions,
     @Default(const {}) Map<String, ParseException> failed,
-    ReadReport? report,
+    DocumentErrors? errors,
   }) = _InboxDocument;
 
   static const String ruleType = 'inboxDocument';
 
   static InboxDocument? fromOutcome(
     ParseOutcome outcome, {
-    ReadReport? report,
+    DocumentErrors? errors,
   }) {
     return InboxDocument(
       submissions: [
@@ -31,7 +31,7 @@ abstract class InboxDocument with _$InboxDocument {
           if (item is ParseOutcome) ?SubmissionPreview.fromOutcome(item),
       ],
       failed: outcome.failed,
-      report: report,
+      errors: errors,
     );
   }
 }

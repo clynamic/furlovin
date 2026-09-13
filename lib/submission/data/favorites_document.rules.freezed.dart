@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$FavoritesDocument {
 
- List<Favorite> get favorites; Map<String, ParseException> get failed; ReadReport? get report;
+ List<Favorite> get favorites; Map<String, ParseException> get failed; DocumentErrors? get errors;
 /// Create a copy of FavoritesDocument
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +27,20 @@ $FavoritesDocumentCopyWith<FavoritesDocument> get copyWith => _$FavoritesDocumen
 @override
 bool operator ==(Object other) {
   final _this = this as FavoritesDocument;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FavoritesDocument&&const DeepCollectionEquality().equals(other.favorites, _this.favorites)&&const DeepCollectionEquality().equals(other.failed, _this.failed)&&(identical(other.report, _this.report) || other.report == _this.report));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FavoritesDocument&&const DeepCollectionEquality().equals(other.favorites, _this.favorites)&&const DeepCollectionEquality().equals(other.failed, _this.failed)&&(identical(other.errors, _this.errors) || other.errors == _this.errors));
 }
 
 
 @override
 int get hashCode {
   final _this = this as FavoritesDocument;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.favorites),const DeepCollectionEquality().hash(_this.failed),_this.report);
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.favorites),const DeepCollectionEquality().hash(_this.failed),_this.errors);
 }
 
 @override
 String toString() {
   final _this = this as FavoritesDocument;
-  return 'FavoritesDocument(favorites: ${_this.favorites}, failed: ${_this.failed}, report: ${_this.report})';
+  return 'FavoritesDocument(favorites: ${_this.favorites}, failed: ${_this.failed}, errors: ${_this.errors})';
 }
 
 
@@ -51,7 +51,7 @@ abstract mixin class $FavoritesDocumentCopyWith<$Res>  {
   factory $FavoritesDocumentCopyWith(FavoritesDocument value, $Res Function(FavoritesDocument) _then) = _$FavoritesDocumentCopyWithImpl;
 @useResult
 $Res call({
- List<Favorite> favorites, Map<String, ParseException> failed, ReadReport? report
+ List<Favorite> favorites, Map<String, ParseException> failed, DocumentErrors? errors
 });
 
 
@@ -68,12 +68,12 @@ class _$FavoritesDocumentCopyWithImpl<$Res>
 
 /// Create a copy of FavoritesDocument
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? favorites = null,Object? failed = null,Object? report = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? favorites = null,Object? failed = null,Object? errors = freezed,}) {
   return _then(FavoritesDocument(
 favorites: null == favorites ? _self.favorites : favorites // ignore: cast_nullable_to_non_nullable
 as List<Favorite>,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, ParseException>,report: freezed == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
-as ReadReport?,
+as Map<String, ParseException>,errors: freezed == errors ? _self.errors : errors // ignore: cast_nullable_to_non_nullable
+as DocumentErrors?,
   ));
 }
 
@@ -158,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Favorite> favorites,  Map<String, ParseException> failed,  ReadReport? report)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Favorite> favorites,  Map<String, ParseException> failed,  DocumentErrors? errors)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FavoritesDocument() when $default != null:
-return $default(_that.favorites,_that.failed,_that.report);case _:
+return $default(_that.favorites,_that.failed,_that.errors);case _:
   return orElse();
 
 }
@@ -179,10 +179,10 @@ return $default(_that.favorites,_that.failed,_that.report);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Favorite> favorites,  Map<String, ParseException> failed,  ReadReport? report)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Favorite> favorites,  Map<String, ParseException> failed,  DocumentErrors? errors)  $default,) {final _that = this;
 switch (_that) {
 case _FavoritesDocument():
-return $default(_that.favorites,_that.failed,_that.report);case _:
+return $default(_that.favorites,_that.failed,_that.errors);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +199,10 @@ return $default(_that.favorites,_that.failed,_that.report);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Favorite> favorites,  Map<String, ParseException> failed,  ReadReport? report)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Favorite> favorites,  Map<String, ParseException> failed,  DocumentErrors? errors)?  $default,) {final _that = this;
 switch (_that) {
 case _FavoritesDocument() when $default != null:
-return $default(_that.favorites,_that.failed,_that.report);case _:
+return $default(_that.favorites,_that.failed,_that.errors);case _:
   return null;
 
 }
@@ -214,7 +214,7 @@ return $default(_that.favorites,_that.failed,_that.report);case _:
 
 
 class _FavoritesDocument extends FavoritesDocument {
-  const _FavoritesDocument({ List<Favorite> favorites = const [],  Map<String, ParseException> failed = const {}, this.report}): _favorites = favorites,_failed = failed,super._();
+  const _FavoritesDocument({ List<Favorite> favorites = const [],  Map<String, ParseException> failed = const {}, this.errors}): _favorites = favorites,_failed = failed,super._();
   
 
  final  List<Favorite> _favorites;
@@ -231,7 +231,7 @@ class _FavoritesDocument extends FavoritesDocument {
   return EqualUnmodifiableMapView(_failed);
 }
 
-@override final  ReadReport? report;
+@override final  DocumentErrors? errors;
 
 /// Create a copy of FavoritesDocument
 /// with the given fields replaced by the non-null parameter values.
@@ -243,18 +243,18 @@ _$FavoritesDocumentCopyWith<_FavoritesDocument> get copyWith => __$FavoritesDocu
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FavoritesDocument&&const DeepCollectionEquality().equals(other.favorites, _favorites)&&const DeepCollectionEquality().equals(other.failed, _failed)&&(identical(other.report, report) || other.report == report));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FavoritesDocument&&const DeepCollectionEquality().equals(other.favorites, _favorites)&&const DeepCollectionEquality().equals(other.failed, _failed)&&(identical(other.errors, errors) || other.errors == errors));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_favorites),const DeepCollectionEquality().hash(_failed),report);
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_favorites),const DeepCollectionEquality().hash(_failed),errors);
 }
 
 @override
 String toString() {
-    return 'FavoritesDocument(favorites: $favorites, failed: $failed, report: $report)';
+    return 'FavoritesDocument(favorites: $favorites, failed: $failed, errors: $errors)';
 }
 
 
@@ -265,7 +265,7 @@ abstract mixin class _$FavoritesDocumentCopyWith<$Res> implements $FavoritesDocu
   factory _$FavoritesDocumentCopyWith(_FavoritesDocument value, $Res Function(_FavoritesDocument) _then) = __$FavoritesDocumentCopyWithImpl;
 @override @useResult
 $Res call({
- List<Favorite> favorites, Map<String, ParseException> failed, ReadReport? report
+ List<Favorite> favorites, Map<String, ParseException> failed, DocumentErrors? errors
 });
 
 
@@ -282,12 +282,12 @@ class __$FavoritesDocumentCopyWithImpl<$Res>
 
 /// Create a copy of FavoritesDocument
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? favorites = null,Object? failed = null,Object? report = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? favorites = null,Object? failed = null,Object? errors = freezed,}) {
   return _then(_FavoritesDocument(
 favorites: null == favorites ? _self._favorites : favorites // ignore: cast_nullable_to_non_nullable
 as List<Favorite>,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, ParseException>,report: freezed == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
-as ReadReport?,
+as Map<String, ParseException>,errors: freezed == errors ? _self.errors : errors // ignore: cast_nullable_to_non_nullable
+as DocumentErrors?,
   ));
 }
 

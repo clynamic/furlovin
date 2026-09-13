@@ -12,6 +12,6 @@ class UserClient {
     rules,
     UserDocument.ruleType,
     '/user/$name/',
-    (outcome, report) => UserDocument.fromOutcome(outcome, report: report),
+    (outcome, errors) => UserDocument.fromOutcome(outcome, errors: errors),
   );
 }

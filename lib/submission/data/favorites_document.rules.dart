@@ -15,14 +15,14 @@ abstract class FavoritesDocument with _$FavoritesDocument {
   const factory FavoritesDocument({
     @Default(const []) List<Favorite> favorites,
     @Default(const {}) Map<String, ParseException> failed,
-    ReadReport? report,
+    DocumentErrors? errors,
   }) = _FavoritesDocument;
 
   static const String ruleType = 'favoritesDocument';
 
   static FavoritesDocument? fromOutcome(
     ParseOutcome outcome, {
-    ReadReport? report,
+    DocumentErrors? errors,
   }) {
     return FavoritesDocument(
       favorites: [
@@ -31,7 +31,7 @@ abstract class FavoritesDocument with _$FavoritesDocument {
           if (item is ParseOutcome) ?Favorite.fromOutcome(item),
       ],
       failed: outcome.failed,
-      report: report,
+      errors: errors,
     );
   }
 }

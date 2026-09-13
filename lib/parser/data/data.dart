@@ -1,12 +1,12 @@
 export 'document.dart';
 export 'engine.dart';
+export 'errors.dart';
 export 'failure.dart';
 export 'hydrate.dart';
 export 'loader.dart';
 export 'manifest.rules.dart';
 export 'outcome.dart';
 export 'providers.dart';
-export 'report.dart';
 export 'rule.dart';
 export 'schema.dart';
 export 'step.dart';

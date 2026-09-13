@@ -15,14 +15,14 @@ abstract class ControlsDocument with _$ControlsDocument {
   const factory ControlsDocument({
     Viewer? viewer,
     @Default(const {}) Map<String, ParseException> failed,
-    ReadReport? report,
+    DocumentErrors? errors,
   }) = _ControlsDocument;
 
   static const String ruleType = 'controlsDocument';
 
   static ControlsDocument? fromOutcome(
     ParseOutcome outcome, {
-    ReadReport? report,
+    DocumentErrors? errors,
   }) {
     return ControlsDocument(
       viewer: switch (outcome['viewer']) {
@@ -30,7 +30,7 @@ abstract class ControlsDocument with _$ControlsDocument {
         _ => null,
       },
       failed: outcome.failed,
-      report: report,
+      errors: errors,
     );
   }
 }
