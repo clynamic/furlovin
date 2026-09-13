@@ -34,21 +34,3 @@ class ParseOutcome {
   String toString() =>
       'ParseOutcome(${values.length} values, ${failed.length} failed)';
 }
-
-@immutable
-class PageOutcome {
-  const PageOutcome({
-    this.single = const {},
-    this.items = const {},
-    this.missing = const {},
-  });
-
-  final Map<String, ParseOutcome> single;
-  final Map<String, List<ParseOutcome>> items;
-  final Map<String, ParseException> missing;
-
-  @override
-  String toString() =>
-      'PageOutcome(${single.length} single, ${items.length} lists, '
-      '${missing.length} missing)';
-}

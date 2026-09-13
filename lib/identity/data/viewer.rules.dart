@@ -37,7 +37,7 @@ abstract class Viewer with _$Viewer {
     @Default(const {}) Map<String, ParseException> failed,
   }) = _Viewer;
 
-  static const String entity = 'viewer';
+  static const String ruleType = 'viewer';
 
   static Viewer? fromOutcome(ParseOutcome outcome) {
     final String? name = outcome.get<String>('name');

@@ -25,7 +25,7 @@ abstract class Fact with _$Fact {
     @Default(const {}) Map<String, ParseException> failed,
   }) = _Fact;
 
-  static const String entity = 'fact';
+  static const String ruleType = 'fact';
 
   static Fact? fromOutcome(ParseOutcome outcome) {
     final String? label = outcome.get<String>('label');

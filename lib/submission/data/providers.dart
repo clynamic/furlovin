@@ -128,14 +128,19 @@ final ProviderFamily<GalleryListing, GallerySource> galleryProvider = Provider
 
 final ProviderFamily<SubmissionPaging, String> favoritesProvider = Provider
     .autoDispose
-    .family<SubmissionPaging, String>(
-      (ref, user) => retainedPaging(
-        ref,
-        ('favorites', user),
-        (client, after) => client.favorites(user, after: after),
-        nextKey: (state) => state.items?.lastOrNull?.favouriteId ?? 0,
-      ),
-    );
+    .family<SubmissionPaging, String>((ref, user) {
+      final Map<int, int> cursors = {};
+      return retainedPaging(ref, ('favorites', user), (client, after) async {
+        final List<Favorite> favorites = await client.favorites(
+          user,
+          after: after,
+        );
+        if (favorites.lastOrNull case final Favorite last) {
+          cursors[last.submission.id] = last.id;
+        }
+        return [for (final Favorite favorite in favorites) favorite.submission];
+      }, nextKey: (state) => cursors[state.items?.lastOrNull?.id] ?? 0);
+    });
 
 const int submissionRetention = 12;
 
@@ -143,8 +148,8 @@ final Provider<Retention> submissionRetentionProvider = Provider<Retention>(
   (ref) => Retention(submissionRetention),
 );
 
-final FutureProviderFamily<SubmissionDetail, int> submissionProvider =
-    FutureProvider.autoDispose.family<SubmissionDetail, int>((ref, id) async {
+final FutureProviderFamily<SubmissionDocument, int> submissionProvider =
+    FutureProvider.autoDispose.family<SubmissionDocument, int>((ref, id) async {
       final Retention retention = ref.read(submissionRetentionProvider);
       final KeepAliveLink link = ref.keepAlive();
       ref.onDispose(() => retention.release(id));
@@ -152,7 +157,7 @@ final FutureProviderFamily<SubmissionDetail, int> submissionProvider =
         submissionClientProvider.future,
       );
       try {
-        final SubmissionDetail detail = await client.submission(id);
+        final SubmissionDocument detail = await client.submission(id);
         retention.hold(id, link);
         return detail;
       } on Object {

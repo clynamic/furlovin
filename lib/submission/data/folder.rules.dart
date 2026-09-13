@@ -32,7 +32,7 @@ abstract class Folder with _$Folder {
     @Default(const {}) Map<String, ParseException> failed,
   }) = _Folder;
 
-  static const String entity = 'folder';
+  static const String ruleType = 'folder';
 
   static Folder? fromOutcome(ParseOutcome outcome) {
     final int? id = outcome.get<int>('id');

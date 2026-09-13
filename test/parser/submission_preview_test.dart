@@ -1,29 +1,24 @@
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:furlovin/client/client.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/submission.dart';
-import 'package:html/parser.dart' as html;
+
+import '../_support/documents.dart';
 
 void main() {
   late RuleSet rules;
   late List<ParseOutcome> items;
 
   setUpAll(() {
-    rules = RuleSet.fromJson(
-      decodeRules(File('assets/rules/v1.yaml').readAsStringSync()),
-    );
-    items = rules.parseSlotAll(
-      rules.pages['browse']!.slots['submissions']!,
-      html.parse(File('test/_fixtures/browse.html').readAsStringSync()),
-      base: Uri.parse(faOrigin),
+    rules = loadRules();
+    items = children(
+      parseFixture(rules, BrowseDocument.ruleType, 'browse'),
+      'submissions',
     );
   });
 
   test('rule set is supported', () {
     expect(rules.isSupported, isTrue);
-    expect(rules[SubmissionPreview.entity], isNotNull);
+    expect(rules[SubmissionPreview.ruleType], isNotNull);
   });
 
   test('finds every figure on the page', () {
@@ -73,18 +68,16 @@ void main() {
   });
 
   test('favourites carry the id their next page continues after', () {
-    final List<ParseOutcome> favourites = rules.parseSlotAll(
-      rules.pages['favorites']!.slots['submissions']!,
-      html.parse(File('test/_fixtures/favorites.html').readAsStringSync()),
-      base: Uri.parse(faOrigin),
-    );
+    final List<Favorite> favourites = FavoritesDocument.fromOutcome(
+      parseFixture(rules, FavoritesDocument.ruleType, 'favorites'),
+    )!.favorites;
     expect(favourites, hasLength(48));
-    for (final ParseOutcome item in favourites) {
-      expect(item.get<int>('favouriteId'), isA<int>());
-      expect(item.failed, isEmpty);
+    for (final Favorite favourite in favourites) {
+      expect(favourite.id, greaterThan(0));
+      expect(favourite.failed, isEmpty);
+      expect(favourite.submission.id, greaterThan(0));
     }
-    expect(favourites.last.get<int>('favouriteId'), 1732255726);
-    expect(items.map((e) => e.get<int>('favouriteId')), everyElement(isNull));
+    expect(favourites.last.id, 1732255726);
   });
 
   test('aspect ratio is usable before the image loads', () {

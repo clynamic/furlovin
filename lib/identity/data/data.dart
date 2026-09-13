@@ -1,5 +1,5 @@
 export 'client.dart';
-export 'pages.rules.dart';
+export 'controls_document.rules.dart';
 export 'providers.dart';
 export 'store.dart';
 export 'table.dart';

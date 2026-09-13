@@ -19,7 +19,7 @@ class UserPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<UserDetail> detail = ref.watch(userProvider(name));
+    final AsyncValue<UserDocument> detail = ref.watch(userProvider(name));
 
     if (detail case AsyncError(:final Object error)) {
       return Scaffold(
@@ -31,7 +31,7 @@ class UserPage extends ConsumerWidget {
       );
     }
 
-    final UserDetail? loaded = detail.asData?.value;
+    final UserDocument? loaded = detail.asData?.value;
     final User? user = loaded?.user;
     final ReadReport? report = loaded?.report;
 

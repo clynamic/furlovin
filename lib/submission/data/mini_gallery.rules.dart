@@ -4,6 +4,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:furlovin/parser/parser.dart';
+import 'package:furlovin/submission/data/submission_preview.rules.dart';
 
 part 'mini_gallery.rules.freezed.dart';
 
@@ -18,10 +19,12 @@ abstract class MiniGallery with _$MiniGallery {
     /// Which listing the neighbours come from, such as the main gallery.
     required String name,
     int? count,
+    @Default(const []) List<SubmissionPreview> newer,
+    @Default(const []) List<SubmissionPreview> older,
     @Default(const {}) Map<String, ParseException> failed,
   }) = _MiniGallery;
 
-  static const String entity = 'miniGallery';
+  static const String ruleType = 'miniGallery';
 
   static MiniGallery? fromOutcome(ParseOutcome outcome) {
     final String? link = outcome.get<String>('link');
@@ -32,6 +35,16 @@ abstract class MiniGallery with _$MiniGallery {
       link: link,
       name: name,
       count: outcome.get<int>('count'),
+      newer: [
+        for (final Object? item
+            in (outcome['newer'] as List<Object?>?) ?? const [])
+          if (item is ParseOutcome) ?SubmissionPreview.fromOutcome(item),
+      ],
+      older: [
+        for (final Object? item
+            in (outcome['older'] as List<Object?>?) ?? const [])
+          if (item is ParseOutcome) ?SubmissionPreview.fromOutcome(item),
+      ],
       failed: outcome.failed,
     );
   }

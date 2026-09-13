@@ -32,10 +32,6 @@ abstract class SubmissionPreview with _$SubmissionPreview {
     /// lowercased and with underscores removed.
     required String uploader,
 
-    /// Identifies a favourite rather than the submission, and exists only
-    /// where a submission appears as somebody's favourite.
-    int? favouriteId,
-
     /// Thumbnail height in pixels, which the site fixes at 200.
     double? thumbnailHeight,
 
@@ -55,7 +51,7 @@ abstract class SubmissionPreview with _$SubmissionPreview {
     @Default(const {}) Map<String, ParseException> failed,
   }) = _SubmissionPreview;
 
-  static const String entity = 'submissionPreview';
+  static const String ruleType = 'submissionPreview';
 
   static SubmissionPreview? fromOutcome(ParseOutcome outcome) {
     final int? id = outcome.get<int>('id');
@@ -76,7 +72,6 @@ abstract class SubmissionPreview with _$SubmissionPreview {
       rating: rating,
       thumbnail: thumbnail,
       uploader: uploader,
-      favouriteId: outcome.get<int>('favouriteId'),
       thumbnailHeight: outcome.get<double>('thumbnailHeight'),
       thumbnailWidth: outcome.get<double>('thumbnailWidth'),
       title: outcome.get<String>('title'),

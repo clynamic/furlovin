@@ -33,7 +33,7 @@ abstract class Shout with _$Shout {
     @Default(const {}) Map<String, ParseException> failed,
   }) = _Shout;
 
-  static const String entity = 'shout';
+  static const String ruleType = 'shout';
 
   static Shout? fromOutcome(ParseOutcome outcome) {
     final int? id = outcome.get<int>('id');

@@ -39,7 +39,7 @@ mixin _$Submission {
  String? get preview;/// The image's pixel dimensions, as FA renders them.
  String? get resolution;/// The species the uploader filed the work under.
  String? get species;/// Keywords the uploader attached to the submission.
- List<String>? get tags;/// The subject matter the uploader filed the work under.
+ List<String> get tags;/// The subject matter the uploader filed the work under.
  String? get theme;/// The kind of content a submission holds.
  SubmissionType? get type;/// Absolute url of the avatar of whoever posted the submission.
  String? get uploaderAvatar;/// The name of whoever posted the submission, as displayed.
@@ -80,7 +80,7 @@ abstract mixin class $SubmissionCopyWith<$Res>  {
   factory $SubmissionCopyWith(Submission value, $Res Function(Submission) _then) = _$SubmissionCopyWithImpl;
 @useResult
 $Res call({
- String file, int id, SubmissionRating rating, String title, String uploader, String? category, int? comments, String? description, String? extension, int? favorites, String? favouriteLink, bool? favourited, String? fileSize, String? noteLink, DateTime? posted, String? preview, String? resolution, String? species, List<String>? tags, String? theme, SubmissionType? type, String? uploaderAvatar, String? uploaderName, int? views, Map<String, ParseException> failed
+ String file, int id, SubmissionRating rating, String title, String uploader, String? category, int? comments, String? description, String? extension, int? favorites, String? favouriteLink, bool? favourited, String? fileSize, String? noteLink, DateTime? posted, String? preview, String? resolution, String? species, List<String> tags, String? theme, SubmissionType? type, String? uploaderAvatar, String? uploaderName, int? views, Map<String, ParseException> failed
 });
 
 
@@ -97,7 +97,7 @@ class _$SubmissionCopyWithImpl<$Res>
 
 /// Create a copy of Submission
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? file = null,Object? id = null,Object? rating = null,Object? title = null,Object? uploader = null,Object? category = freezed,Object? comments = freezed,Object? description = freezed,Object? extension = freezed,Object? favorites = freezed,Object? favouriteLink = freezed,Object? favourited = freezed,Object? fileSize = freezed,Object? noteLink = freezed,Object? posted = freezed,Object? preview = freezed,Object? resolution = freezed,Object? species = freezed,Object? tags = freezed,Object? theme = freezed,Object? type = freezed,Object? uploaderAvatar = freezed,Object? uploaderName = freezed,Object? views = freezed,Object? failed = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? file = null,Object? id = null,Object? rating = null,Object? title = null,Object? uploader = null,Object? category = freezed,Object? comments = freezed,Object? description = freezed,Object? extension = freezed,Object? favorites = freezed,Object? favouriteLink = freezed,Object? favourited = freezed,Object? fileSize = freezed,Object? noteLink = freezed,Object? posted = freezed,Object? preview = freezed,Object? resolution = freezed,Object? species = freezed,Object? tags = null,Object? theme = freezed,Object? type = freezed,Object? uploaderAvatar = freezed,Object? uploaderName = freezed,Object? views = freezed,Object? failed = null,}) {
   return _then(Submission(
 file: null == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
 as String,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
@@ -117,8 +117,8 @@ as String?,posted: freezed == posted ? _self.posted : posted // ignore: cast_nul
 as DateTime?,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
 as String?,resolution: freezed == resolution ? _self.resolution : resolution // ignore: cast_nullable_to_non_nullable
 as String?,species: freezed == species ? _self.species : species // ignore: cast_nullable_to_non_nullable
-as String?,tags: freezed == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
-as List<String>?,theme: freezed == theme ? _self.theme : theme // ignore: cast_nullable_to_non_nullable
+as String?,tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
+as List<String>,theme: freezed == theme ? _self.theme : theme // ignore: cast_nullable_to_non_nullable
 as String?,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as SubmissionType?,uploaderAvatar: freezed == uploaderAvatar ? _self.uploaderAvatar : uploaderAvatar // ignore: cast_nullable_to_non_nullable
 as String?,uploaderName: freezed == uploaderName ? _self.uploaderName : uploaderName // ignore: cast_nullable_to_non_nullable
@@ -209,7 +209,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  bool? favourited,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String>? tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  bool? favourited,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String> tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Submission() when $default != null:
 return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_that.category,_that.comments,_that.description,_that.extension,_that.favorites,_that.favouriteLink,_that.favourited,_that.fileSize,_that.noteLink,_that.posted,_that.preview,_that.resolution,_that.species,_that.tags,_that.theme,_that.type,_that.uploaderAvatar,_that.uploaderName,_that.views,_that.failed);case _:
@@ -230,7 +230,7 @@ return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  bool? favourited,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String>? tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, ParseException> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  bool? favourited,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String> tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _Submission():
 return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_that.category,_that.comments,_that.description,_that.extension,_that.favorites,_that.favouriteLink,_that.favourited,_that.fileSize,_that.noteLink,_that.posted,_that.preview,_that.resolution,_that.species,_that.tags,_that.theme,_that.type,_that.uploaderAvatar,_that.uploaderName,_that.views,_that.failed);case _:
@@ -250,7 +250,7 @@ return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  bool? favourited,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String>? tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, ParseException> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String file,  int id,  SubmissionRating rating,  String title,  String uploader,  String? category,  int? comments,  String? description,  String? extension,  int? favorites,  String? favouriteLink,  bool? favourited,  String? fileSize,  String? noteLink,  DateTime? posted,  String? preview,  String? resolution,  String? species,  List<String> tags,  String? theme,  SubmissionType? type,  String? uploaderAvatar,  String? uploaderName,  int? views,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _Submission() when $default != null:
 return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_that.category,_that.comments,_that.description,_that.extension,_that.favorites,_that.favouriteLink,_that.favourited,_that.fileSize,_that.noteLink,_that.posted,_that.preview,_that.resolution,_that.species,_that.tags,_that.theme,_that.type,_that.uploaderAvatar,_that.uploaderName,_that.views,_that.failed);case _:
@@ -265,7 +265,7 @@ return $default(_that.file,_that.id,_that.rating,_that.title,_that.uploader,_tha
 
 
 class _Submission extends Submission {
-  const _Submission({required this.file, required this.id, required this.rating, required this.title, required this.uploader, this.category, this.comments, this.description, this.extension, this.favorites, this.favouriteLink, this.favourited, this.fileSize, this.noteLink, this.posted, this.preview, this.resolution, this.species,  List<String>? tags, this.theme, this.type, this.uploaderAvatar, this.uploaderName, this.views,  Map<String, ParseException> failed = const {}}): _tags = tags,_failed = failed,super._();
+  const _Submission({required this.file, required this.id, required this.rating, required this.title, required this.uploader, this.category, this.comments, this.description, this.extension, this.favorites, this.favouriteLink, this.favourited, this.fileSize, this.noteLink, this.posted, this.preview, this.resolution, this.species,  List<String> tags = const [], this.theme, this.type, this.uploaderAvatar, this.uploaderName, this.views,  Map<String, ParseException> failed = const {}}): _tags = tags,_failed = failed,super._();
   
 
 /// Absolute url of the submitted file at full resolution.
@@ -310,14 +310,12 @@ class _Submission extends Submission {
 /// The species the uploader filed the work under.
 @override final  String? species;
 /// Keywords the uploader attached to the submission.
- final  List<String>? _tags;
+ final  List<String> _tags;
 /// Keywords the uploader attached to the submission.
-@override List<String>? get tags {
-  final value = _tags;
-  if (value == null) return null;
+@override@JsonKey() List<String> get tags {
   if (_tags is EqualUnmodifiableListView) return _tags;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(value);
+  return EqualUnmodifiableListView(_tags);
 }
 
 /// The subject matter the uploader filed the work under.
@@ -370,7 +368,7 @@ abstract mixin class _$SubmissionCopyWith<$Res> implements $SubmissionCopyWith<$
   factory _$SubmissionCopyWith(_Submission value, $Res Function(_Submission) _then) = __$SubmissionCopyWithImpl;
 @override @useResult
 $Res call({
- String file, int id, SubmissionRating rating, String title, String uploader, String? category, int? comments, String? description, String? extension, int? favorites, String? favouriteLink, bool? favourited, String? fileSize, String? noteLink, DateTime? posted, String? preview, String? resolution, String? species, List<String>? tags, String? theme, SubmissionType? type, String? uploaderAvatar, String? uploaderName, int? views, Map<String, ParseException> failed
+ String file, int id, SubmissionRating rating, String title, String uploader, String? category, int? comments, String? description, String? extension, int? favorites, String? favouriteLink, bool? favourited, String? fileSize, String? noteLink, DateTime? posted, String? preview, String? resolution, String? species, List<String> tags, String? theme, SubmissionType? type, String? uploaderAvatar, String? uploaderName, int? views, Map<String, ParseException> failed
 });
 
 
@@ -387,7 +385,7 @@ class __$SubmissionCopyWithImpl<$Res>
 
 /// Create a copy of Submission
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? file = null,Object? id = null,Object? rating = null,Object? title = null,Object? uploader = null,Object? category = freezed,Object? comments = freezed,Object? description = freezed,Object? extension = freezed,Object? favorites = freezed,Object? favouriteLink = freezed,Object? favourited = freezed,Object? fileSize = freezed,Object? noteLink = freezed,Object? posted = freezed,Object? preview = freezed,Object? resolution = freezed,Object? species = freezed,Object? tags = freezed,Object? theme = freezed,Object? type = freezed,Object? uploaderAvatar = freezed,Object? uploaderName = freezed,Object? views = freezed,Object? failed = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? file = null,Object? id = null,Object? rating = null,Object? title = null,Object? uploader = null,Object? category = freezed,Object? comments = freezed,Object? description = freezed,Object? extension = freezed,Object? favorites = freezed,Object? favouriteLink = freezed,Object? favourited = freezed,Object? fileSize = freezed,Object? noteLink = freezed,Object? posted = freezed,Object? preview = freezed,Object? resolution = freezed,Object? species = freezed,Object? tags = null,Object? theme = freezed,Object? type = freezed,Object? uploaderAvatar = freezed,Object? uploaderName = freezed,Object? views = freezed,Object? failed = null,}) {
   return _then(_Submission(
 file: null == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
 as String,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
@@ -407,8 +405,8 @@ as String?,posted: freezed == posted ? _self.posted : posted // ignore: cast_nul
 as DateTime?,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
 as String?,resolution: freezed == resolution ? _self.resolution : resolution // ignore: cast_nullable_to_non_nullable
 as String?,species: freezed == species ? _self.species : species // ignore: cast_nullable_to_non_nullable
-as String?,tags: freezed == tags ? _self._tags : tags // ignore: cast_nullable_to_non_nullable
-as List<String>?,theme: freezed == theme ? _self.theme : theme // ignore: cast_nullable_to_non_nullable
+as String?,tags: null == tags ? _self._tags : tags // ignore: cast_nullable_to_non_nullable
+as List<String>,theme: freezed == theme ? _self.theme : theme // ignore: cast_nullable_to_non_nullable
 as String?,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as SubmissionType?,uploaderAvatar: freezed == uploaderAvatar ? _self.uploaderAvatar : uploaderAvatar // ignore: cast_nullable_to_non_nullable
 as String?,uploaderName: freezed == uploaderName ? _self.uploaderName : uploaderName // ignore: cast_nullable_to_non_nullable

@@ -1,7 +1,6 @@
 export 'document.dart';
 export 'engine.dart';
 export 'failure.dart';
-export 'harvest.dart';
 export 'hydrate.dart';
 export 'loader.dart';
 export 'manifest.rules.dart';
@@ -10,7 +9,6 @@ export 'providers.dart';
 export 'report.dart';
 export 'rule.dart';
 export 'schema.dart';
-export 'slot.dart';
 export 'step.dart';
 export 'tree.dart';
 export 'type.dart';

@@ -1,10 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:html/parser.dart' as html;
+
+import '../_support/documents.dart';
 
 void main() {
   late ParseOutcome outcome;
@@ -12,13 +12,10 @@ void main() {
   late RuleSet rules;
 
   setUpAll(() {
-    rules = RuleSet.fromJson(
-      decodeRules(File('assets/rules/v1.yaml').readAsStringSync()),
-    );
-    outcome = rules.parseSlot(
-      rules.pages['submission']!.slots['submission']!,
-      html.parse(File('test/_fixtures/view.html').readAsStringSync()),
-      base: Uri.parse(faOrigin),
+    rules = loadRules();
+    outcome = child(
+      parseFixture(rules, SubmissionDocument.ruleType, 'view'),
+      'submission',
     );
     submission = Submission.fromOutcome(outcome)!;
   });
@@ -61,8 +58,7 @@ void main() {
   });
 
   test('reads tags as a list', () {
-    expect(submission.tags, isNotNull);
-    expect(submission.tags!.length, greaterThan(3));
+    expect(submission.tags.length, greaterThan(3));
     expect(submission.tags, contains('cedar35'));
     expect(submission.tags, everyElement(isNot(contains(' '))));
   });
@@ -84,12 +80,8 @@ void main() {
     bool? read(String options) {
       final String markup =
           '<html><body><div id="submission-options">$options</div></body></html>';
-      return rules
-          .parseSlot(
-            rules.pages['submission']!.slots['submission']!,
-            html.parse(markup),
-            base: Uri.parse(faOrigin),
-          )
+      return TreeEngine(types: rules, base: Uri.parse(faOrigin))
+          .parseType(rules['submission']!, html.parse(markup))
           .get<bool>('favourited');
     }
 

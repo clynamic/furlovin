@@ -4,16 +4,12 @@ import 'package:html/parser.dart' as html;
 
 RuleSet _rules(String brokenSelector) => RuleSet.fromJson({
   'schema': generatedSchema,
-  'revision': 1,
-  'enums': <String, Object?>{},
-  'entities': {
+  'types': {
     'thing': {
       'feature': 'test',
       'fields': {
         'value': {
-          'type': 'string',
-          'required': false,
-          'steps': [
+          'read': [
             [
               {'op': 'text'},
             ],
@@ -21,80 +17,55 @@ RuleSet _rules(String brokenSelector) => RuleSet.fromJson({
         },
       },
     },
-  },
-  'pages': {
     'page': {
       'feature': 'test',
-      'slots': {
+      'page': true,
+      'fields': {
         'broken': {
-          'entity': 'thing',
-          'selector': brokenSelector,
-          'list': false,
+          'type': 'thing',
+          'at': [brokenSelector],
         },
-        'good': {'entity': 'thing', 'selector': 'span.good', 'list': false},
+        'good': {
+          'type': 'thing',
+          'at': ['span.good'],
+        },
       },
     },
   },
 });
 
 void main() {
-  test('a slot with an unparseable selector does not take the page down', () {
-    final PageOutcome outcome = _rules('div[').parseDocument(
-      'page',
-      html.parse('<span class="good">kept</span>'),
-      base: Uri.parse('https://www.furaffinity.net'),
-    );
+  ParseOutcome parse(String selector) => _rules(selector).parsePage(
+    'page',
+    html.parse('<span class="good">kept</span>'),
+    base: Uri.parse('https://www.furaffinity.net'),
+  );
 
-    expect(outcome.missing, contains('broken'));
-    expect(outcome.single['good']?['value'], 'kept');
+  test('a field with an unparseable selector does not take the page down', () {
+    final ParseOutcome outcome = parse('div[');
+    expect(outcome.failed['broken'], isA<UnexpectedParseError>());
+    expect((outcome['good']! as ParseOutcome)['value'], 'kept');
   });
 
-  test('a slot that matches nothing is reported, not thrown', () {
-    final PageOutcome outcome = _rules('span.absent').parseDocument(
-      'page',
-      html.parse('<span class="good">kept</span>'),
-      base: Uri.parse('https://www.furaffinity.net'),
-    );
-
-    expect(outcome.missing, contains('broken'));
-    expect(outcome.single['good']?['value'], 'kept');
+  test('an optional field that matches nothing stays quiet', () {
+    final ParseOutcome outcome = parse('span.absent');
+    expect(outcome.failed, isEmpty);
+    expect(outcome['broken'], isNull);
+    expect((outcome['good']! as ParseOutcome)['value'], 'kept');
   });
 
   test('a gap in the middle of a list does not shift the ones after it', () {
-    final RuleSet rules = RuleSet.fromJson({
-      'schema': generatedSchema,
-      'revision': 1,
-      'enums': <String, Object?>{},
-      'entities': {
-        'thing': {
-          'feature': 'test',
-          'fields': {
-            'third': {
-              'type': 'string',
-              'required': false,
-              'steps': [
-                [
-                  {'op': 'selectAll', 'css': 'span'},
-                  {'op': 'attr', 'name': 'v'},
-                  {'op': 'index', 'at': 2},
-                ],
-              ],
-            },
-          },
-        },
-      },
-    });
-
-    final ParseOutcome outcome =
-        ParseEngine(base: Uri.parse('https://www.furaffinity.net')).parseOne(
-          rules['thing']!,
+    final Object? third =
+        ParseEngine(base: Uri.parse('https://www.furaffinity.net')).evaluate(
+          const FieldRule([
+            [SelectAllStep('span'), AttrStep('v'), IndexStep(2)],
+          ]),
           html
               .parse(
                 '<div><span v="a">1</span><span>2</span><span v="c">3</span></div>',
               )
               .querySelector('div'),
         );
-
-    expect(outcome['third'], 'c');
+    expect(third, 'c');
   });
 }

@@ -22,9 +22,7 @@ mixin _$SubmissionPreview {
 /// longest edge to that many pixels.
  String get thumbnail;/// The url form of the name of whoever posted the submission,
 /// lowercased and with underscores removed.
- String get uploader;/// Identifies a favourite rather than the submission, and exists only
-/// where a submission appears as somebody's favourite.
- int? get favouriteId;/// Thumbnail height in pixels, which the site fixes at 200.
+ String get uploader;/// Thumbnail height in pixels, which the site fixes at 200.
  double? get thumbnailHeight;/// Thumbnail width in pixels, as declared by the site rather than
 /// measured from the image.
  double? get thumbnailWidth;/// Listing titles are sanitised by the site and may lose leading
@@ -43,20 +41,20 @@ $SubmissionPreviewCopyWith<SubmissionPreview> get copyWith => _$SubmissionPrevie
 @override
 bool operator ==(Object other) {
   final _this = this as SubmissionPreview;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmissionPreview&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.link, _this.link) || other.link == _this.link)&&(identical(other.rating, _this.rating) || other.rating == _this.rating)&&(identical(other.thumbnail, _this.thumbnail) || other.thumbnail == _this.thumbnail)&&(identical(other.uploader, _this.uploader) || other.uploader == _this.uploader)&&(identical(other.favouriteId, _this.favouriteId) || other.favouriteId == _this.favouriteId)&&(identical(other.thumbnailHeight, _this.thumbnailHeight) || other.thumbnailHeight == _this.thumbnailHeight)&&(identical(other.thumbnailWidth, _this.thumbnailWidth) || other.thumbnailWidth == _this.thumbnailWidth)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.uploaderName, _this.uploaderName) || other.uploaderName == _this.uploaderName)&&const DeepCollectionEquality().equals(other.failed, _this.failed));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmissionPreview&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.link, _this.link) || other.link == _this.link)&&(identical(other.rating, _this.rating) || other.rating == _this.rating)&&(identical(other.thumbnail, _this.thumbnail) || other.thumbnail == _this.thumbnail)&&(identical(other.uploader, _this.uploader) || other.uploader == _this.uploader)&&(identical(other.thumbnailHeight, _this.thumbnailHeight) || other.thumbnailHeight == _this.thumbnailHeight)&&(identical(other.thumbnailWidth, _this.thumbnailWidth) || other.thumbnailWidth == _this.thumbnailWidth)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.uploaderName, _this.uploaderName) || other.uploaderName == _this.uploaderName)&&const DeepCollectionEquality().equals(other.failed, _this.failed));
 }
 
 
 @override
 int get hashCode {
   final _this = this as SubmissionPreview;
-  return Object.hash(runtimeType,_this.id,_this.link,_this.rating,_this.thumbnail,_this.uploader,_this.favouriteId,_this.thumbnailHeight,_this.thumbnailWidth,_this.title,_this.type,_this.uploaderName,const DeepCollectionEquality().hash(_this.failed));
+  return Object.hash(runtimeType,_this.id,_this.link,_this.rating,_this.thumbnail,_this.uploader,_this.thumbnailHeight,_this.thumbnailWidth,_this.title,_this.type,_this.uploaderName,const DeepCollectionEquality().hash(_this.failed));
 }
 
 @override
 String toString() {
   final _this = this as SubmissionPreview;
-  return 'SubmissionPreview(id: ${_this.id}, link: ${_this.link}, rating: ${_this.rating}, thumbnail: ${_this.thumbnail}, uploader: ${_this.uploader}, favouriteId: ${_this.favouriteId}, thumbnailHeight: ${_this.thumbnailHeight}, thumbnailWidth: ${_this.thumbnailWidth}, title: ${_this.title}, type: ${_this.type}, uploaderName: ${_this.uploaderName}, failed: ${_this.failed})';
+  return 'SubmissionPreview(id: ${_this.id}, link: ${_this.link}, rating: ${_this.rating}, thumbnail: ${_this.thumbnail}, uploader: ${_this.uploader}, thumbnailHeight: ${_this.thumbnailHeight}, thumbnailWidth: ${_this.thumbnailWidth}, title: ${_this.title}, type: ${_this.type}, uploaderName: ${_this.uploaderName}, failed: ${_this.failed})';
 }
 
 
@@ -67,7 +65,7 @@ abstract mixin class $SubmissionPreviewCopyWith<$Res>  {
   factory $SubmissionPreviewCopyWith(SubmissionPreview value, $Res Function(SubmissionPreview) _then) = _$SubmissionPreviewCopyWithImpl;
 @useResult
 $Res call({
- int id, String link, SubmissionRating rating, String thumbnail, String uploader, int? favouriteId, double? thumbnailHeight, double? thumbnailWidth, String? title, SubmissionType? type, String? uploaderName, Map<String, ParseException> failed
+ int id, String link, SubmissionRating rating, String thumbnail, String uploader, double? thumbnailHeight, double? thumbnailWidth, String? title, SubmissionType? type, String? uploaderName, Map<String, ParseException> failed
 });
 
 
@@ -84,15 +82,14 @@ class _$SubmissionPreviewCopyWithImpl<$Res>
 
 /// Create a copy of SubmissionPreview
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? link = null,Object? rating = null,Object? thumbnail = null,Object? uploader = null,Object? favouriteId = freezed,Object? thumbnailHeight = freezed,Object? thumbnailWidth = freezed,Object? title = freezed,Object? type = freezed,Object? uploaderName = freezed,Object? failed = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? link = null,Object? rating = null,Object? thumbnail = null,Object? uploader = null,Object? thumbnailHeight = freezed,Object? thumbnailWidth = freezed,Object? title = freezed,Object? type = freezed,Object? uploaderName = freezed,Object? failed = null,}) {
   return _then(SubmissionPreview(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,link: null == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
 as String,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
 as SubmissionRating,thumbnail: null == thumbnail ? _self.thumbnail : thumbnail // ignore: cast_nullable_to_non_nullable
 as String,uploader: null == uploader ? _self.uploader : uploader // ignore: cast_nullable_to_non_nullable
-as String,favouriteId: freezed == favouriteId ? _self.favouriteId : favouriteId // ignore: cast_nullable_to_non_nullable
-as int?,thumbnailHeight: freezed == thumbnailHeight ? _self.thumbnailHeight : thumbnailHeight // ignore: cast_nullable_to_non_nullable
+as String,thumbnailHeight: freezed == thumbnailHeight ? _self.thumbnailHeight : thumbnailHeight // ignore: cast_nullable_to_non_nullable
 as double?,thumbnailWidth: freezed == thumbnailWidth ? _self.thumbnailWidth : thumbnailWidth // ignore: cast_nullable_to_non_nullable
 as double?,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
@@ -183,10 +180,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  int? favouriteId,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SubmissionPreview() when $default != null:
-return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,_that.favouriteId,_that.thumbnailHeight,_that.thumbnailWidth,_that.title,_that.type,_that.uploaderName,_that.failed);case _:
+return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,_that.thumbnailHeight,_that.thumbnailWidth,_that.title,_that.type,_that.uploaderName,_that.failed);case _:
   return orElse();
 
 }
@@ -204,10 +201,10 @@ return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  int? favouriteId,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, ParseException> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _SubmissionPreview():
-return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,_that.favouriteId,_that.thumbnailHeight,_that.thumbnailWidth,_that.title,_that.type,_that.uploaderName,_that.failed);case _:
+return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,_that.thumbnailHeight,_that.thumbnailWidth,_that.title,_that.type,_that.uploaderName,_that.failed);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -224,10 +221,10 @@ return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  int? favouriteId,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, ParseException> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _SubmissionPreview() when $default != null:
-return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,_that.favouriteId,_that.thumbnailHeight,_that.thumbnailWidth,_that.title,_that.type,_that.uploaderName,_that.failed);case _:
+return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,_that.thumbnailHeight,_that.thumbnailWidth,_that.title,_that.type,_that.uploaderName,_that.failed);case _:
   return null;
 
 }
@@ -239,7 +236,7 @@ return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,
 
 
 class _SubmissionPreview extends SubmissionPreview {
-  const _SubmissionPreview({required this.id, required this.link, required this.rating, required this.thumbnail, required this.uploader, this.favouriteId, this.thumbnailHeight, this.thumbnailWidth, this.title, this.type, this.uploaderName,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
+  const _SubmissionPreview({required this.id, required this.link, required this.rating, required this.thumbnail, required this.uploader, this.thumbnailHeight, this.thumbnailWidth, this.title, this.type, this.uploaderName,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 /// The submission's numeric identifier.
@@ -254,9 +251,6 @@ class _SubmissionPreview extends SubmissionPreview {
 /// The url form of the name of whoever posted the submission,
 /// lowercased and with underscores removed.
 @override final  String uploader;
-/// Identifies a favourite rather than the submission, and exists only
-/// where a submission appears as somebody's favourite.
-@override final  int? favouriteId;
 /// Thumbnail height in pixels, which the site fixes at 200.
 @override final  double? thumbnailHeight;
 /// Thumbnail width in pixels, as declared by the site rather than
@@ -287,18 +281,18 @@ _$SubmissionPreviewCopyWith<_SubmissionPreview> get copyWith => __$SubmissionPre
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmissionPreview&&(identical(other.id, id) || other.id == id)&&(identical(other.link, link) || other.link == link)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.thumbnail, thumbnail) || other.thumbnail == thumbnail)&&(identical(other.uploader, uploader) || other.uploader == uploader)&&(identical(other.favouriteId, favouriteId) || other.favouriteId == favouriteId)&&(identical(other.thumbnailHeight, thumbnailHeight) || other.thumbnailHeight == thumbnailHeight)&&(identical(other.thumbnailWidth, thumbnailWidth) || other.thumbnailWidth == thumbnailWidth)&&(identical(other.title, title) || other.title == title)&&(identical(other.type, type) || other.type == type)&&(identical(other.uploaderName, uploaderName) || other.uploaderName == uploaderName)&&const DeepCollectionEquality().equals(other.failed, _failed));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmissionPreview&&(identical(other.id, id) || other.id == id)&&(identical(other.link, link) || other.link == link)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.thumbnail, thumbnail) || other.thumbnail == thumbnail)&&(identical(other.uploader, uploader) || other.uploader == uploader)&&(identical(other.thumbnailHeight, thumbnailHeight) || other.thumbnailHeight == thumbnailHeight)&&(identical(other.thumbnailWidth, thumbnailWidth) || other.thumbnailWidth == thumbnailWidth)&&(identical(other.title, title) || other.title == title)&&(identical(other.type, type) || other.type == type)&&(identical(other.uploaderName, uploaderName) || other.uploaderName == uploaderName)&&const DeepCollectionEquality().equals(other.failed, _failed));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,link,rating,thumbnail,uploader,favouriteId,thumbnailHeight,thumbnailWidth,title,type,uploaderName,const DeepCollectionEquality().hash(_failed));
+    return Object.hash(runtimeType,id,link,rating,thumbnail,uploader,thumbnailHeight,thumbnailWidth,title,type,uploaderName,const DeepCollectionEquality().hash(_failed));
 }
 
 @override
 String toString() {
-    return 'SubmissionPreview(id: $id, link: $link, rating: $rating, thumbnail: $thumbnail, uploader: $uploader, favouriteId: $favouriteId, thumbnailHeight: $thumbnailHeight, thumbnailWidth: $thumbnailWidth, title: $title, type: $type, uploaderName: $uploaderName, failed: $failed)';
+    return 'SubmissionPreview(id: $id, link: $link, rating: $rating, thumbnail: $thumbnail, uploader: $uploader, thumbnailHeight: $thumbnailHeight, thumbnailWidth: $thumbnailWidth, title: $title, type: $type, uploaderName: $uploaderName, failed: $failed)';
 }
 
 
@@ -309,7 +303,7 @@ abstract mixin class _$SubmissionPreviewCopyWith<$Res> implements $SubmissionPre
   factory _$SubmissionPreviewCopyWith(_SubmissionPreview value, $Res Function(_SubmissionPreview) _then) = __$SubmissionPreviewCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String link, SubmissionRating rating, String thumbnail, String uploader, int? favouriteId, double? thumbnailHeight, double? thumbnailWidth, String? title, SubmissionType? type, String? uploaderName, Map<String, ParseException> failed
+ int id, String link, SubmissionRating rating, String thumbnail, String uploader, double? thumbnailHeight, double? thumbnailWidth, String? title, SubmissionType? type, String? uploaderName, Map<String, ParseException> failed
 });
 
 
@@ -326,15 +320,14 @@ class __$SubmissionPreviewCopyWithImpl<$Res>
 
 /// Create a copy of SubmissionPreview
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? link = null,Object? rating = null,Object? thumbnail = null,Object? uploader = null,Object? favouriteId = freezed,Object? thumbnailHeight = freezed,Object? thumbnailWidth = freezed,Object? title = freezed,Object? type = freezed,Object? uploaderName = freezed,Object? failed = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? link = null,Object? rating = null,Object? thumbnail = null,Object? uploader = null,Object? thumbnailHeight = freezed,Object? thumbnailWidth = freezed,Object? title = freezed,Object? type = freezed,Object? uploaderName = freezed,Object? failed = null,}) {
   return _then(_SubmissionPreview(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,link: null == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
 as String,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
 as SubmissionRating,thumbnail: null == thumbnail ? _self.thumbnail : thumbnail // ignore: cast_nullable_to_non_nullable
 as String,uploader: null == uploader ? _self.uploader : uploader // ignore: cast_nullable_to_non_nullable
-as String,favouriteId: freezed == favouriteId ? _self.favouriteId : favouriteId // ignore: cast_nullable_to_non_nullable
-as int?,thumbnailHeight: freezed == thumbnailHeight ? _self.thumbnailHeight : thumbnailHeight // ignore: cast_nullable_to_non_nullable
+as String,thumbnailHeight: freezed == thumbnailHeight ? _self.thumbnailHeight : thumbnailHeight // ignore: cast_nullable_to_non_nullable
 as double?,thumbnailWidth: freezed == thumbnailWidth ? _self.thumbnailWidth : thumbnailWidth // ignore: cast_nullable_to_non_nullable
 as double?,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable

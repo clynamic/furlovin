@@ -36,8 +36,8 @@ class TypeRule {
   final Map<String, TypeField> fields;
 }
 
-class TypeSet {
-  const TypeSet({
+class RuleSet {
+  const RuleSet({
     required this.schema,
     required this.revision,
     required this.types,
@@ -45,7 +45,7 @@ class TypeSet {
     required this.json,
   });
 
-  factory TypeSet.fromJson(Map<String, Object?> json) {
+  factory RuleSet.fromJson(Map<String, Object?> json) {
     final Map<String, List<Step>> refs = {
       for (final MapEntry<Object?, Object?> entry
           in ((json['refs'] as Map?) ?? const {}).entries)
@@ -75,7 +75,7 @@ class TypeSet {
           refs,
         ),
     };
-    final TypeSet set = TypeSet(
+    final RuleSet set = RuleSet(
       schema: (json['schema']! as num).toInt(),
       revision: (json['revision'] as num?)?.toInt() ?? 0,
       types: types,
@@ -100,7 +100,41 @@ class TypeSet {
     'bool',
   };
 
+  static int get currentSchema => generatedSchema;
+
+  bool get isSupported => schema == currentSchema;
+
   TypeRule? operator [](String name) => types[name];
+
+  Map<String, Map<String, String>> get signature => {
+    for (final TypeRule type in types.values)
+      type.name: {
+        for (final TypeField field in type.fields.values)
+          field.name:
+              '${field.list ? '[${field.type}]' : field.type}'
+              '${field.presence == Presence.required ? '!' : ''}',
+      },
+  };
+
+  List<String> validateAgainst(Map<String, Map<String, String>> manifest) {
+    final Map<String, Map<String, String>> own = signature;
+    final List<String> problems = [];
+    for (final MapEntry<String, Map<String, String>> type in manifest.entries) {
+      final Map<String, String>? fields = own[type.key];
+      if (fields == null) {
+        problems.add('missing type "${type.key}"');
+        continue;
+      }
+      for (final MapEntry<String, String> field in type.value.entries) {
+        if (fields[field.key] == field.value) continue;
+        problems.add(
+          '${type.key}.${field.key} is ${fields[field.key] ?? 'missing'}, '
+          'expected ${field.value}',
+        );
+      }
+    }
+    return problems;
+  }
 
   bool isType(String name) => types.containsKey(name);
 

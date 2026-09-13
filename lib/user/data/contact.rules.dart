@@ -31,7 +31,7 @@ abstract class Contact with _$Contact {
     @Default(const {}) Map<String, ParseException> failed,
   }) = _Contact;
 
-  static const String entity = 'contact';
+  static const String ruleType = 'contact';
 
   static Contact? fromOutcome(ParseOutcome outcome) {
     final String? kind = outcome.get<String>('kind');

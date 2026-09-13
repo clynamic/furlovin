@@ -63,7 +63,7 @@ abstract class User with _$User {
     @Default(const {}) Map<String, ParseException> failed,
   }) = _User;
 
-  static const String entity = 'user';
+  static const String ruleType = 'user';
 
   static User? fromOutcome(ParseOutcome outcome) {
     final String? name = outcome.get<String>('name');
