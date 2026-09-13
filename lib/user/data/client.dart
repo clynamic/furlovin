@@ -22,7 +22,11 @@ class UserClient {
       ),
     );
     final Logger scope = logger.child({'user': name});
-    final ReadReport report = ReadReport();
+    final ReadReport report = ReadReport.forPage(
+      url: Uri.parse(faOrigin).resolve('/user/$name/').toString(),
+      body: body,
+      ruleSet: rules,
+    );
     final User? parsed = outcome.read(
       UserSlots.profile,
       logger: scope,

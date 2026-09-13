@@ -47,9 +47,11 @@ void main() {
     expect(report.issues, const [
       ReadIssue(
         slot: 'folders',
+        field: 'id',
         kind: IssueKind.dropped,
         error: NoMatch(),
         count: 2,
+        of: 3,
       ),
     ]);
   });

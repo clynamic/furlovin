@@ -23,11 +23,14 @@ extension PageOutcomeHarvest on PageOutcome {
         'entity': slot.entity,
         'failed': outcome.failed,
       });
+      final MapEntry<String, ParseException>? cause =
+          outcome.failed.entries.firstOrNull;
       report?.add(
         ReadIssue(
           slot: slot.name,
+          field: cause?.key,
           kind: IssueKind.unreadable,
-          error: outcome.failed.values.firstOrNull ?? const NoMatch(),
+          error: cause?.value ?? const NoMatch(),
         ),
       );
       return null;
@@ -73,12 +76,13 @@ extension PageOutcomeHarvest on PageOutcome {
     final List<T> built = <T>[];
     final Map<String, int> gaps = {};
     final Map<String, ParseException> first = {};
-    ParseException? droppedBy;
+    MapEntry<String, ParseException>? droppedBy;
     for (final ParseOutcome outcome in outcomes) {
       if (slot.build(outcome) case final T value) {
         built.add(value);
       } else {
-        droppedBy ??= outcome.failed.values.firstOrNull ?? const NoMatch();
+        droppedBy ??=
+            outcome.failed.entries.firstOrNull ?? const MapEntry('', NoMatch());
         continue;
       }
       for (final MapEntry<String, ParseException> failure
@@ -106,11 +110,13 @@ extension PageOutcomeHarvest on PageOutcome {
         report.add(
           ReadIssue(
             slot: slot.name,
+            field: droppedBy.key.isEmpty ? null : droppedBy.key,
             kind: dropped == outcomes.length
                 ? IssueKind.unreadable
                 : IssueKind.dropped,
-            error: droppedBy,
+            error: droppedBy.value,
             count: dropped,
+            of: outcomes.length,
           ),
         );
       }
