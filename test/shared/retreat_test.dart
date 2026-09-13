@@ -98,10 +98,10 @@ void main() {
   testWidgets('a claimed bottom leaves it as it was', (tester) async {
     await pump(tester);
     await move(tester, retreatThreshold + 200);
-    claim.take();
+    claim.cover(#detail, 1);
     scroll.jumpTo(0);
     await tester.pump();
-    claim.drop();
+    claim.cover(#detail, 0);
     expect(retreat.shown, isFalse);
   });
 }

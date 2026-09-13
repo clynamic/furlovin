@@ -5,18 +5,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 class BottomClaim extends ChangeNotifier {
-  int _held = 0;
+  final Map<Object, double> _shares = {};
 
-  bool get claimed => _held > 0;
+  double get coverage => _shares.values.fold(0, math.max);
 
-  void take() {
-    _held++;
-    if (_held == 1) _announce();
-  }
+  bool get claimed => coverage > 0;
 
-  void drop() {
-    _held--;
-    if (_held == 0) _announce();
+  void cover(Object claimant, double share) {
+    final double before = coverage;
+    if (share <= 0) {
+      _shares.remove(claimant);
+    } else {
+      _shares[claimant] = share.clamp(0, 1);
+    }
+    if (coverage != before) _announce();
   }
 
   void _announce() {
@@ -80,36 +82,34 @@ final Provider<BottomClaim> bottomClaimProvider = Provider<BottomClaim>((ref) {
 
 mixin BottomClaimant<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   late final BottomClaim _bottom = ref.read(bottomClaimProvider);
-  Animation<double>? _covered;
-  bool _holding = false;
+  ModalRoute<Object?>? _route;
 
-  void _hold(bool wanted) {
-    if (_holding == wanted) return;
-    _holding = wanted;
-    if (wanted) {
-      _bottom.take();
-      return;
-    }
-    _bottom.drop();
+  void _onMove() {
+    final ModalRoute<Object?>? route = _route;
+    if (route == null) return;
+    final double shown = route.animation?.value ?? 1;
+    final double covered = route.secondaryAnimation?.value ?? 0;
+    _bottom.cover(this, shown * (1 - covered));
   }
-
-  void _onCover() => _hold((_covered?.value ?? 0) < 0.5);
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final Animation<double>? now = ModalRoute.of(context)?.secondaryAnimation;
-    if (now == _covered) return;
-    _covered?.removeListener(_onCover);
-    _covered = now;
-    _covered?.addListener(_onCover);
-    _onCover();
+    final ModalRoute<Object?>? now = ModalRoute.of(context);
+    if (now == _route) return;
+    _route?.animation?.removeListener(_onMove);
+    _route?.secondaryAnimation?.removeListener(_onMove);
+    _route = now;
+    _route?.animation?.addListener(_onMove);
+    _route?.secondaryAnimation?.addListener(_onMove);
+    _onMove();
   }
 
   @override
   void dispose() {
-    _covered?.removeListener(_onCover);
-    _hold(false);
+    _route?.animation?.removeListener(_onMove);
+    _route?.secondaryAnimation?.removeListener(_onMove);
+    _bottom.cover(this, 0);
     super.dispose();
   }
 }

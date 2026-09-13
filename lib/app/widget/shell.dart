@@ -107,62 +107,67 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final BottomClaim claim = ref.watch(bottomClaimProvider);
     final MediaQueryData media = MediaQuery.of(context);
     final bool wide = media.size.width >= Layout.compact;
-    return ListenableBuilder(
-      listenable: claim,
-      builder: (context, _) {
-        final bool claimed = claim.claimed;
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: MediaQuery(
-                data: media.copyWith(
-                  padding: media.padding.copyWith(
-                    bottom: media.padding.bottom + barSpace,
-                  ),
-                ),
-                child: BottomReserve(
-                  space: barSpace,
-                  child: ScrollRetreat(
-                    controller: retreat,
-                    claim: claim,
-                    child: widget.shell,
-                  ),
-                ),
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: MediaQuery(
+            data: media.copyWith(
+              padding: media.padding.copyWith(
+                bottom: media.padding.bottom + barSpace,
               ),
             ),
-            if (!claimed)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: RetreatSlide(
-                  controller: retreat,
-                  child: SafeArea(
-                    top: false,
-                    child: Align(
-                      alignment: wide
-                          ? Alignment.centerRight
-                          : Alignment.center,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          Layout.gutterOf(context),
-                          0,
-                          Layout.gutterOf(context),
-                          Space.snug,
-                        ),
-                        child: ShellBar(
-                          index: widget.shell.currentIndex,
-                          viewer: ref.watch(viewerProvider).asData?.value,
-                          onGo: _go,
-                        ),
-                      ),
+            child: BottomReserve(
+              space: barSpace,
+              child: ScrollRetreat(
+                controller: retreat,
+                claim: claim,
+                child: widget.shell,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: ListenableBuilder(
+            listenable: claim,
+            builder: (context, child) {
+              final double coverage = claim.coverage;
+              if (coverage >= 1) return const SizedBox.shrink();
+              return FractionalTranslation(
+                translation: Offset(
+                  0,
+                  1.4 * Curves.easeInOut.transform(coverage),
+                ),
+                child: IgnorePointer(ignoring: coverage > 0, child: child),
+              );
+            },
+            child: RetreatSlide(
+              controller: retreat,
+              child: SafeArea(
+                top: false,
+                child: Align(
+                  alignment: wide ? Alignment.centerRight : Alignment.center,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      Layout.gutterOf(context),
+                      0,
+                      Layout.gutterOf(context),
+                      Space.snug,
+                    ),
+                    child: ShellBar(
+                      index: widget.shell.currentIndex,
+                      viewer: ref.watch(viewerProvider).asData?.value,
+                      onGo: _go,
                     ),
                   ),
                 ),
               ),
-          ],
-        );
-      },
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

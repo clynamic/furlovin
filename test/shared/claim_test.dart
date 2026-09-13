@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
@@ -36,4 +37,71 @@ void main() {
   testWidgets('other pages keep the reserved space', (tester) async {
     expect(await bottomOf(tester, (probe) => probe), 100);
   });
+
+  testWidgets('a claiming page covers the bottom as far as it has arrived', (
+    tester,
+  ) async {
+    final ProviderContainer container = ProviderContainer();
+    addTearDown(container.dispose);
+    final BottomClaim claim = container.read(bottomClaimProvider);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: Text('grid'))),
+      ),
+    );
+
+    final NavigatorState navigator = tester.state(find.byType(Navigator));
+    navigator.push(
+      MaterialPageRoute<void>(builder: (context) => const _Claimant()),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 150));
+    expect(claim.coverage, inExclusiveRange(0, 1));
+
+    await tester.pumpAndSettle();
+    expect(claim.coverage, 1);
+
+    navigator.pop();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(claim.coverage, inExclusiveRange(0, 1));
+
+    await tester.pumpAndSettle();
+    expect(claim.coverage, 0);
+  });
+
+  testWidgets('a page pushed over a claiming page uncovers the bottom', (
+    tester,
+  ) async {
+    final ProviderContainer container = ProviderContainer();
+    addTearDown(container.dispose);
+    final BottomClaim claim = container.read(bottomClaimProvider);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: _Claimant()),
+      ),
+    );
+    expect(claim.coverage, 1);
+
+    final NavigatorState navigator = tester.state(find.byType(Navigator));
+    navigator.push(
+      MaterialPageRoute<void>(builder: (context) => const Text('profile')),
+    );
+    await tester.pumpAndSettle();
+    expect(claim.coverage, 0);
+  });
+}
+
+class _Claimant extends ConsumerStatefulWidget {
+  const _Claimant();
+
+  @override
+  ConsumerState<_Claimant> createState() => _ClaimantState();
+}
+
+class _ClaimantState extends ConsumerState<_Claimant> with BottomClaimant {
+  @override
+  Widget build(BuildContext context) => const Scaffold(body: Text('detail'));
 }
