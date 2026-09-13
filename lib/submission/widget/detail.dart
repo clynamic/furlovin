@@ -66,7 +66,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
     }
 
     final Submission? loaded = detail.asData?.value.submission;
-    final ReadReport? report = detail.asData?.value.report;
+    final DocumentErrors? errors = detail.asData?.value.errors;
     final List<CommentRow> comments = threadComments(
       detail.asData?.value.comments ?? const [],
     );
@@ -104,7 +104,10 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                     actions: [
                       DismissFade(
                         controller: dismiss,
-                        child: ReadIssuesButton(report: report, onImage: true),
+                        child: DocumentErrorsButton(
+                          errors: errors,
+                          onImage: true,
+                        ),
                       ),
                     ],
                     backgroundColor: Colors.transparent,
@@ -163,7 +166,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                             ],
                           ),
                         ),
-                        if (report case final ReadReport broken
+                        if (errors case final DocumentErrors broken
                             when broken.unreadable('miniGallery'))
                           UnreadableSection(broken, 'miniGallery', 'Gallery'),
                         if (detail.asData?.value
@@ -228,7 +231,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                               child: SubmissionTags(tags: tags),
                             ),
                           ),
-                        if (report case final ReadReport broken
+                        if (errors case final DocumentErrors broken
                             when broken.unreadable('folders'))
                           UnreadableSection(broken, 'folders', 'Folders'),
                         if (detail.asData?.value.folders
@@ -244,7 +247,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                   FolderTile(folder: folders[index]),
                             ),
                           ),
-                        if (report case final ReadReport broken
+                        if (errors case final DocumentErrors broken
                             when broken.unreadable('comments'))
                           UnreadableSection(broken, 'comments', 'Comments'),
                         if (comments.isNotEmpty)

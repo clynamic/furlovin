@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SubmissionDocument {
 
- Submission get submission; List<Comment> get comments; List<Folder> get folders; MiniGallery? get miniGallery; Map<String, ParseException> get failed; ReadReport? get report;
+ Submission get submission; List<Comment> get comments; List<Folder> get folders; MiniGallery? get miniGallery; Map<String, ParseException> get failed; DocumentErrors? get errors;
 /// Create a copy of SubmissionDocument
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +27,20 @@ $SubmissionDocumentCopyWith<SubmissionDocument> get copyWith => _$SubmissionDocu
 @override
 bool operator ==(Object other) {
   final _this = this as SubmissionDocument;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmissionDocument&&(identical(other.submission, _this.submission) || other.submission == _this.submission)&&const DeepCollectionEquality().equals(other.comments, _this.comments)&&const DeepCollectionEquality().equals(other.folders, _this.folders)&&(identical(other.miniGallery, _this.miniGallery) || other.miniGallery == _this.miniGallery)&&const DeepCollectionEquality().equals(other.failed, _this.failed)&&(identical(other.report, _this.report) || other.report == _this.report));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmissionDocument&&(identical(other.submission, _this.submission) || other.submission == _this.submission)&&const DeepCollectionEquality().equals(other.comments, _this.comments)&&const DeepCollectionEquality().equals(other.folders, _this.folders)&&(identical(other.miniGallery, _this.miniGallery) || other.miniGallery == _this.miniGallery)&&const DeepCollectionEquality().equals(other.failed, _this.failed)&&(identical(other.errors, _this.errors) || other.errors == _this.errors));
 }
 
 
 @override
 int get hashCode {
   final _this = this as SubmissionDocument;
-  return Object.hash(runtimeType,_this.submission,const DeepCollectionEquality().hash(_this.comments),const DeepCollectionEquality().hash(_this.folders),_this.miniGallery,const DeepCollectionEquality().hash(_this.failed),_this.report);
+  return Object.hash(runtimeType,_this.submission,const DeepCollectionEquality().hash(_this.comments),const DeepCollectionEquality().hash(_this.folders),_this.miniGallery,const DeepCollectionEquality().hash(_this.failed),_this.errors);
 }
 
 @override
 String toString() {
   final _this = this as SubmissionDocument;
-  return 'SubmissionDocument(submission: ${_this.submission}, comments: ${_this.comments}, folders: ${_this.folders}, miniGallery: ${_this.miniGallery}, failed: ${_this.failed}, report: ${_this.report})';
+  return 'SubmissionDocument(submission: ${_this.submission}, comments: ${_this.comments}, folders: ${_this.folders}, miniGallery: ${_this.miniGallery}, failed: ${_this.failed}, errors: ${_this.errors})';
 }
 
 
@@ -51,7 +51,7 @@ abstract mixin class $SubmissionDocumentCopyWith<$Res>  {
   factory $SubmissionDocumentCopyWith(SubmissionDocument value, $Res Function(SubmissionDocument) _then) = _$SubmissionDocumentCopyWithImpl;
 @useResult
 $Res call({
- Submission submission, List<Comment> comments, List<Folder> folders, MiniGallery? miniGallery, Map<String, ParseException> failed, ReadReport? report
+ Submission submission, List<Comment> comments, List<Folder> folders, MiniGallery? miniGallery, Map<String, ParseException> failed, DocumentErrors? errors
 });
 
 
@@ -68,15 +68,15 @@ class _$SubmissionDocumentCopyWithImpl<$Res>
 
 /// Create a copy of SubmissionDocument
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? submission = null,Object? comments = null,Object? folders = null,Object? miniGallery = freezed,Object? failed = null,Object? report = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? submission = null,Object? comments = null,Object? folders = null,Object? miniGallery = freezed,Object? failed = null,Object? errors = freezed,}) {
   return _then(SubmissionDocument(
 submission: null == submission ? _self.submission : submission // ignore: cast_nullable_to_non_nullable
 as Submission,comments: null == comments ? _self.comments : comments // ignore: cast_nullable_to_non_nullable
 as List<Comment>,folders: null == folders ? _self.folders : folders // ignore: cast_nullable_to_non_nullable
 as List<Folder>,miniGallery: freezed == miniGallery ? _self.miniGallery : miniGallery // ignore: cast_nullable_to_non_nullable
 as MiniGallery?,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, ParseException>,report: freezed == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
-as ReadReport?,
+as Map<String, ParseException>,errors: freezed == errors ? _self.errors : errors // ignore: cast_nullable_to_non_nullable
+as DocumentErrors?,
   ));
 }
 /// Create a copy of SubmissionDocument
@@ -182,10 +182,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Submission submission,  List<Comment> comments,  List<Folder> folders,  MiniGallery? miniGallery,  Map<String, ParseException> failed,  ReadReport? report)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Submission submission,  List<Comment> comments,  List<Folder> folders,  MiniGallery? miniGallery,  Map<String, ParseException> failed,  DocumentErrors? errors)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SubmissionDocument() when $default != null:
-return $default(_that.submission,_that.comments,_that.folders,_that.miniGallery,_that.failed,_that.report);case _:
+return $default(_that.submission,_that.comments,_that.folders,_that.miniGallery,_that.failed,_that.errors);case _:
   return orElse();
 
 }
@@ -203,10 +203,10 @@ return $default(_that.submission,_that.comments,_that.folders,_that.miniGallery,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Submission submission,  List<Comment> comments,  List<Folder> folders,  MiniGallery? miniGallery,  Map<String, ParseException> failed,  ReadReport? report)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Submission submission,  List<Comment> comments,  List<Folder> folders,  MiniGallery? miniGallery,  Map<String, ParseException> failed,  DocumentErrors? errors)  $default,) {final _that = this;
 switch (_that) {
 case _SubmissionDocument():
-return $default(_that.submission,_that.comments,_that.folders,_that.miniGallery,_that.failed,_that.report);case _:
+return $default(_that.submission,_that.comments,_that.folders,_that.miniGallery,_that.failed,_that.errors);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -223,10 +223,10 @@ return $default(_that.submission,_that.comments,_that.folders,_that.miniGallery,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Submission submission,  List<Comment> comments,  List<Folder> folders,  MiniGallery? miniGallery,  Map<String, ParseException> failed,  ReadReport? report)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Submission submission,  List<Comment> comments,  List<Folder> folders,  MiniGallery? miniGallery,  Map<String, ParseException> failed,  DocumentErrors? errors)?  $default,) {final _that = this;
 switch (_that) {
 case _SubmissionDocument() when $default != null:
-return $default(_that.submission,_that.comments,_that.folders,_that.miniGallery,_that.failed,_that.report);case _:
+return $default(_that.submission,_that.comments,_that.folders,_that.miniGallery,_that.failed,_that.errors);case _:
   return null;
 
 }
@@ -238,7 +238,7 @@ return $default(_that.submission,_that.comments,_that.folders,_that.miniGallery,
 
 
 class _SubmissionDocument extends SubmissionDocument {
-  const _SubmissionDocument({required this.submission,  List<Comment> comments = const [],  List<Folder> folders = const [], this.miniGallery,  Map<String, ParseException> failed = const {}, this.report}): _comments = comments,_folders = folders,_failed = failed,super._();
+  const _SubmissionDocument({required this.submission,  List<Comment> comments = const [],  List<Folder> folders = const [], this.miniGallery,  Map<String, ParseException> failed = const {}, this.errors}): _comments = comments,_folders = folders,_failed = failed,super._();
   
 
 @override final  Submission submission;
@@ -264,7 +264,7 @@ class _SubmissionDocument extends SubmissionDocument {
   return EqualUnmodifiableMapView(_failed);
 }
 
-@override final  ReadReport? report;
+@override final  DocumentErrors? errors;
 
 /// Create a copy of SubmissionDocument
 /// with the given fields replaced by the non-null parameter values.
@@ -276,18 +276,18 @@ _$SubmissionDocumentCopyWith<_SubmissionDocument> get copyWith => __$SubmissionD
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmissionDocument&&(identical(other.submission, submission) || other.submission == submission)&&const DeepCollectionEquality().equals(other.comments, _comments)&&const DeepCollectionEquality().equals(other.folders, _folders)&&(identical(other.miniGallery, miniGallery) || other.miniGallery == miniGallery)&&const DeepCollectionEquality().equals(other.failed, _failed)&&(identical(other.report, report) || other.report == report));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmissionDocument&&(identical(other.submission, submission) || other.submission == submission)&&const DeepCollectionEquality().equals(other.comments, _comments)&&const DeepCollectionEquality().equals(other.folders, _folders)&&(identical(other.miniGallery, miniGallery) || other.miniGallery == miniGallery)&&const DeepCollectionEquality().equals(other.failed, _failed)&&(identical(other.errors, errors) || other.errors == errors));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,submission,const DeepCollectionEquality().hash(_comments),const DeepCollectionEquality().hash(_folders),miniGallery,const DeepCollectionEquality().hash(_failed),report);
+    return Object.hash(runtimeType,submission,const DeepCollectionEquality().hash(_comments),const DeepCollectionEquality().hash(_folders),miniGallery,const DeepCollectionEquality().hash(_failed),errors);
 }
 
 @override
 String toString() {
-    return 'SubmissionDocument(submission: $submission, comments: $comments, folders: $folders, miniGallery: $miniGallery, failed: $failed, report: $report)';
+    return 'SubmissionDocument(submission: $submission, comments: $comments, folders: $folders, miniGallery: $miniGallery, failed: $failed, errors: $errors)';
 }
 
 
@@ -298,7 +298,7 @@ abstract mixin class _$SubmissionDocumentCopyWith<$Res> implements $SubmissionDo
   factory _$SubmissionDocumentCopyWith(_SubmissionDocument value, $Res Function(_SubmissionDocument) _then) = __$SubmissionDocumentCopyWithImpl;
 @override @useResult
 $Res call({
- Submission submission, List<Comment> comments, List<Folder> folders, MiniGallery? miniGallery, Map<String, ParseException> failed, ReadReport? report
+ Submission submission, List<Comment> comments, List<Folder> folders, MiniGallery? miniGallery, Map<String, ParseException> failed, DocumentErrors? errors
 });
 
 
@@ -315,15 +315,15 @@ class __$SubmissionDocumentCopyWithImpl<$Res>
 
 /// Create a copy of SubmissionDocument
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? submission = null,Object? comments = null,Object? folders = null,Object? miniGallery = freezed,Object? failed = null,Object? report = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? submission = null,Object? comments = null,Object? folders = null,Object? miniGallery = freezed,Object? failed = null,Object? errors = freezed,}) {
   return _then(_SubmissionDocument(
 submission: null == submission ? _self.submission : submission // ignore: cast_nullable_to_non_nullable
 as Submission,comments: null == comments ? _self._comments : comments // ignore: cast_nullable_to_non_nullable
 as List<Comment>,folders: null == folders ? _self._folders : folders // ignore: cast_nullable_to_non_nullable
 as List<Folder>,miniGallery: freezed == miniGallery ? _self.miniGallery : miniGallery // ignore: cast_nullable_to_non_nullable
 as MiniGallery?,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, ParseException>,report: freezed == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
-as ReadReport?,
+as Map<String, ParseException>,errors: freezed == errors ? _self.errors : errors // ignore: cast_nullable_to_non_nullable
+as DocumentErrors?,
   ));
 }
 

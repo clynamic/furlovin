@@ -50,9 +50,9 @@ class PersistentSliverSection extends ConsumerWidget {
 }
 
 class UnreadableSection extends StatelessWidget {
-  const UnreadableSection(this.report, this.slot, this.title, {super.key});
+  const UnreadableSection(this.errors, this.slot, this.title, {super.key});
 
-  final ReadReport report;
+  final DocumentErrors errors;
   final String slot;
   final String title;
 
@@ -61,8 +61,8 @@ class UnreadableSection extends StatelessWidget {
     name: slot,
     title: title,
     sliver: SliverToBoxAdapter(
-      child: ReadIssueFallback(
-        report: report,
+      child: FieldErrorFallback(
+        errors: errors,
         slot: slot,
         name: title.toLowerCase(),
       ),

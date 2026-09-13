@@ -15,14 +15,14 @@ abstract class FrontpageDocument with _$FrontpageDocument {
   const factory FrontpageDocument({
     @Default(const []) List<SubmissionPreview> submissions,
     @Default(const {}) Map<String, ParseException> failed,
-    ReadReport? report,
+    DocumentErrors? errors,
   }) = _FrontpageDocument;
 
   static const String ruleType = 'frontpageDocument';
 
   static FrontpageDocument? fromOutcome(
     ParseOutcome outcome, {
-    ReadReport? report,
+    DocumentErrors? errors,
   }) {
     return FrontpageDocument(
       submissions: [
@@ -31,7 +31,7 @@ abstract class FrontpageDocument with _$FrontpageDocument {
           if (item is ParseOutcome) ?SubmissionPreview.fromOutcome(item),
       ],
       failed: outcome.failed,
-      report: report,
+      errors: errors,
     );
   }
 }

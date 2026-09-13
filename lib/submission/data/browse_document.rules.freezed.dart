@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BrowseDocument {
 
- List<SubmissionPreview> get submissions; Map<String, ParseException> get failed; ReadReport? get report;
+ List<SubmissionPreview> get submissions; Map<String, ParseException> get failed; DocumentErrors? get errors;
 /// Create a copy of BrowseDocument
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +27,20 @@ $BrowseDocumentCopyWith<BrowseDocument> get copyWith => _$BrowseDocumentCopyWith
 @override
 bool operator ==(Object other) {
   final _this = this as BrowseDocument;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrowseDocument&&const DeepCollectionEquality().equals(other.submissions, _this.submissions)&&const DeepCollectionEquality().equals(other.failed, _this.failed)&&(identical(other.report, _this.report) || other.report == _this.report));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrowseDocument&&const DeepCollectionEquality().equals(other.submissions, _this.submissions)&&const DeepCollectionEquality().equals(other.failed, _this.failed)&&(identical(other.errors, _this.errors) || other.errors == _this.errors));
 }
 
 
 @override
 int get hashCode {
   final _this = this as BrowseDocument;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.submissions),const DeepCollectionEquality().hash(_this.failed),_this.report);
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.submissions),const DeepCollectionEquality().hash(_this.failed),_this.errors);
 }
 
 @override
 String toString() {
   final _this = this as BrowseDocument;
-  return 'BrowseDocument(submissions: ${_this.submissions}, failed: ${_this.failed}, report: ${_this.report})';
+  return 'BrowseDocument(submissions: ${_this.submissions}, failed: ${_this.failed}, errors: ${_this.errors})';
 }
 
 
@@ -51,7 +51,7 @@ abstract mixin class $BrowseDocumentCopyWith<$Res>  {
   factory $BrowseDocumentCopyWith(BrowseDocument value, $Res Function(BrowseDocument) _then) = _$BrowseDocumentCopyWithImpl;
 @useResult
 $Res call({
- List<SubmissionPreview> submissions, Map<String, ParseException> failed, ReadReport? report
+ List<SubmissionPreview> submissions, Map<String, ParseException> failed, DocumentErrors? errors
 });
 
 
@@ -68,12 +68,12 @@ class _$BrowseDocumentCopyWithImpl<$Res>
 
 /// Create a copy of BrowseDocument
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? submissions = null,Object? failed = null,Object? report = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? submissions = null,Object? failed = null,Object? errors = freezed,}) {
   return _then(BrowseDocument(
 submissions: null == submissions ? _self.submissions : submissions // ignore: cast_nullable_to_non_nullable
 as List<SubmissionPreview>,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, ParseException>,report: freezed == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
-as ReadReport?,
+as Map<String, ParseException>,errors: freezed == errors ? _self.errors : errors // ignore: cast_nullable_to_non_nullable
+as DocumentErrors?,
   ));
 }
 
@@ -158,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<SubmissionPreview> submissions,  Map<String, ParseException> failed,  ReadReport? report)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<SubmissionPreview> submissions,  Map<String, ParseException> failed,  DocumentErrors? errors)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BrowseDocument() when $default != null:
-return $default(_that.submissions,_that.failed,_that.report);case _:
+return $default(_that.submissions,_that.failed,_that.errors);case _:
   return orElse();
 
 }
@@ -179,10 +179,10 @@ return $default(_that.submissions,_that.failed,_that.report);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<SubmissionPreview> submissions,  Map<String, ParseException> failed,  ReadReport? report)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<SubmissionPreview> submissions,  Map<String, ParseException> failed,  DocumentErrors? errors)  $default,) {final _that = this;
 switch (_that) {
 case _BrowseDocument():
-return $default(_that.submissions,_that.failed,_that.report);case _:
+return $default(_that.submissions,_that.failed,_that.errors);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +199,10 @@ return $default(_that.submissions,_that.failed,_that.report);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<SubmissionPreview> submissions,  Map<String, ParseException> failed,  ReadReport? report)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<SubmissionPreview> submissions,  Map<String, ParseException> failed,  DocumentErrors? errors)?  $default,) {final _that = this;
 switch (_that) {
 case _BrowseDocument() when $default != null:
-return $default(_that.submissions,_that.failed,_that.report);case _:
+return $default(_that.submissions,_that.failed,_that.errors);case _:
   return null;
 
 }
@@ -214,7 +214,7 @@ return $default(_that.submissions,_that.failed,_that.report);case _:
 
 
 class _BrowseDocument extends BrowseDocument {
-  const _BrowseDocument({ List<SubmissionPreview> submissions = const [],  Map<String, ParseException> failed = const {}, this.report}): _submissions = submissions,_failed = failed,super._();
+  const _BrowseDocument({ List<SubmissionPreview> submissions = const [],  Map<String, ParseException> failed = const {}, this.errors}): _submissions = submissions,_failed = failed,super._();
   
 
  final  List<SubmissionPreview> _submissions;
@@ -231,7 +231,7 @@ class _BrowseDocument extends BrowseDocument {
   return EqualUnmodifiableMapView(_failed);
 }
 
-@override final  ReadReport? report;
+@override final  DocumentErrors? errors;
 
 /// Create a copy of BrowseDocument
 /// with the given fields replaced by the non-null parameter values.
@@ -243,18 +243,18 @@ _$BrowseDocumentCopyWith<_BrowseDocument> get copyWith => __$BrowseDocumentCopyW
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrowseDocument&&const DeepCollectionEquality().equals(other.submissions, _submissions)&&const DeepCollectionEquality().equals(other.failed, _failed)&&(identical(other.report, report) || other.report == report));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrowseDocument&&const DeepCollectionEquality().equals(other.submissions, _submissions)&&const DeepCollectionEquality().equals(other.failed, _failed)&&(identical(other.errors, errors) || other.errors == errors));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_submissions),const DeepCollectionEquality().hash(_failed),report);
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_submissions),const DeepCollectionEquality().hash(_failed),errors);
 }
 
 @override
 String toString() {
-    return 'BrowseDocument(submissions: $submissions, failed: $failed, report: $report)';
+    return 'BrowseDocument(submissions: $submissions, failed: $failed, errors: $errors)';
 }
 
 
@@ -265,7 +265,7 @@ abstract mixin class _$BrowseDocumentCopyWith<$Res> implements $BrowseDocumentCo
   factory _$BrowseDocumentCopyWith(_BrowseDocument value, $Res Function(_BrowseDocument) _then) = __$BrowseDocumentCopyWithImpl;
 @override @useResult
 $Res call({
- List<SubmissionPreview> submissions, Map<String, ParseException> failed, ReadReport? report
+ List<SubmissionPreview> submissions, Map<String, ParseException> failed, DocumentErrors? errors
 });
 
 
@@ -282,12 +282,12 @@ class __$BrowseDocumentCopyWithImpl<$Res>
 
 /// Create a copy of BrowseDocument
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? submissions = null,Object? failed = null,Object? report = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? submissions = null,Object? failed = null,Object? errors = freezed,}) {
   return _then(_BrowseDocument(
 submissions: null == submissions ? _self._submissions : submissions // ignore: cast_nullable_to_non_nullable
 as List<SubmissionPreview>,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, ParseException>,report: freezed == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
-as ReadReport?,
+as Map<String, ParseException>,errors: freezed == errors ? _self.errors : errors // ignore: cast_nullable_to_non_nullable
+as DocumentErrors?,
   ));
 }
 

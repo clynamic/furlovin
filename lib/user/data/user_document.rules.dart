@@ -24,12 +24,15 @@ abstract class UserDocument with _$UserDocument {
     @Default(const []) List<SubmissionPreview> gallery,
     @Default(const []) List<Shout> shouts,
     @Default(const {}) Map<String, ParseException> failed,
-    ReadReport? report,
+    DocumentErrors? errors,
   }) = _UserDocument;
 
   static const String ruleType = 'userDocument';
 
-  static UserDocument? fromOutcome(ParseOutcome outcome, {ReadReport? report}) {
+  static UserDocument? fromOutcome(
+    ParseOutcome outcome, {
+    DocumentErrors? errors,
+  }) {
     final User? user = switch (outcome['user']) {
       final ParseOutcome child => User.fromOutcome(child),
       _ => null,
@@ -63,7 +66,7 @@ abstract class UserDocument with _$UserDocument {
           if (item is ParseOutcome) ?Shout.fromOutcome(item),
       ],
       failed: outcome.failed,
-      report: report,
+      errors: errors,
     );
   }
 }

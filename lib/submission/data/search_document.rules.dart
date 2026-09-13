@@ -15,14 +15,14 @@ abstract class SearchDocument with _$SearchDocument {
   const factory SearchDocument({
     @Default(const []) List<SubmissionPreview> submissions,
     @Default(const {}) Map<String, ParseException> failed,
-    ReadReport? report,
+    DocumentErrors? errors,
   }) = _SearchDocument;
 
   static const String ruleType = 'searchDocument';
 
   static SearchDocument? fromOutcome(
     ParseOutcome outcome, {
-    ReadReport? report,
+    DocumentErrors? errors,
   }) {
     return SearchDocument(
       submissions: [
@@ -31,7 +31,7 @@ abstract class SearchDocument with _$SearchDocument {
           if (item is ParseOutcome) ?SubmissionPreview.fromOutcome(item),
       ],
       failed: outcome.failed,
-      report: report,
+      errors: errors,
     );
   }
 }

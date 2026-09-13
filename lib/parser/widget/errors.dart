@@ -10,26 +10,26 @@ final RegExp _hump = RegExp('(?<=[a-z])(?=[A-Z])');
 
 String spokenName(String key) => key.split(_hump).join(' ').toLowerCase();
 
-extension ReadIssueWording on ReadIssue {
+extension FieldErrorWording on FieldError {
   String headline(String Function(String slot) label) => switch (kind) {
-    IssueKind.unreadable => "Couldn't read ${label(slot)}",
-    IssueKind.dropped =>
+    FieldErrorKind.unreadable => "Couldn't read ${label(slot)}",
+    FieldErrorKind.dropped =>
       'Skipped $count ${count == 1 ? 'item' : 'items'} in ${label(slot)}',
-    IssueKind.missing =>
+    FieldErrorKind.missing =>
       '${spokenName(field!)} missing in ${label(slot)}'
           '${count > 1 ? ' ($count times)' : ''}',
   };
 
   IconData get icon => switch (kind) {
-    IssueKind.unreadable => Icons.block,
-    IssueKind.dropped => Icons.filter_alt_off_outlined,
-    IssueKind.missing => Icons.help_outline,
+    FieldErrorKind.unreadable => Icons.block,
+    FieldErrorKind.dropped => Icons.filter_alt_off_outlined,
+    FieldErrorKind.missing => Icons.help_outline,
   };
 }
 
-String issueDetails(
-  ReadReport report,
-  List<ReadIssue> issues,
+String errorDetails(
+  DocumentErrors errors,
+  List<FieldError> issues,
   PackageInfo? app,
 ) {
   final String version = app == null
@@ -38,44 +38,44 @@ String issueDetails(
   return [
     [
       version,
-      if (report.rules case final String rules) 'rules $rules',
+      if (errors.rules case final String rules) 'rules $rules',
       defaultTargetPlatform.name,
-      if (report.theme case final String theme) 'theme $theme',
+      if (errors.theme case final String theme) 'theme $theme',
     ].join(' · '),
-    ?report.page,
-    for (final ReadIssue issue in issues) '$issue',
+    ?errors.page,
+    for (final FieldError issue in issues) '$issue',
   ].join('\n');
 }
 
-Future<void> showReadIssues(
+Future<void> showDocumentErrors(
   BuildContext context,
-  ReadReport report, {
+  DocumentErrors errors, {
   String? slot,
   String Function(String slot) label = spokenName,
 }) => showDialog<void>(
   context: context,
   builder: (context) =>
-      ReadIssuesDialog(report: report, slot: slot, label: label),
+      DocumentErrorsDialog(errors: errors, slot: slot, label: label),
 );
 
-class ReadIssuesDialog extends ConsumerWidget {
-  const ReadIssuesDialog({
+class DocumentErrorsDialog extends ConsumerWidget {
+  const DocumentErrorsDialog({
     super.key,
-    required this.report,
+    required this.errors,
     this.slot,
     this.label = spokenName,
   });
 
-  final ReadReport report;
+  final DocumentErrors errors;
   final String? slot;
   final String Function(String slot) label;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
-    final List<ReadIssue> issues = switch (slot) {
-      final String only => report.of(only).toList(),
-      null => report.issues,
+    final List<FieldError> issues = switch (slot) {
+      final String only => errors.of(only).toList(),
+      null => errors.all,
     };
     final PackageInfo? app = ref.watch(packageInfoProvider).asData?.value;
     return AlertDialog(
@@ -86,7 +86,7 @@ class ReadIssuesDialog extends ConsumerWidget {
         child: ListView(
           shrinkWrap: true,
           children: [
-            for (final ReadIssue issue in issues)
+            for (final FieldError issue in issues)
               ListTile(
                 leading: Icon(issue.icon, color: theme.colorScheme.error),
                 title: Text(issue.headline(label)),
@@ -105,7 +105,7 @@ class ReadIssuesDialog extends ConsumerWidget {
       actions: [
         TextButton.icon(
           onPressed: () => Clipboard.setData(
-            ClipboardData(text: issueDetails(report, issues, app)),
+            ClipboardData(text: errorDetails(errors, issues, app)),
           ),
           icon: const Icon(Icons.copy, size: 18),
           label: const Text('Copy details'),
@@ -119,28 +119,28 @@ class ReadIssuesDialog extends ConsumerWidget {
   }
 }
 
-class ReadIssuesButton extends StatelessWidget {
-  const ReadIssuesButton({
+class DocumentErrorsButton extends StatelessWidget {
+  const DocumentErrorsButton({
     super.key,
-    required this.report,
+    required this.errors,
     this.label = spokenName,
     this.onImage = false,
   });
 
-  final ReadReport? report;
+  final DocumentErrors? errors;
   final String Function(String slot) label;
   final bool onImage;
 
   @override
   Widget build(BuildContext context) {
-    final ReadReport? known = report;
+    final DocumentErrors? known = errors;
     if (known == null || known.isEmpty) return const SizedBox.shrink();
     final ThemeData theme = Theme.of(context);
     return IconButton(
       tooltip: 'Some of this page could not be read',
-      onPressed: () => showReadIssues(context, known, label: label),
+      onPressed: () => showDocumentErrors(context, known, label: label),
       icon: Badge.count(
-        count: known.issues.length,
+        count: known.all.length,
         child: Icon(
           Icons.report_problem_outlined,
           color: onImage ? Colors.white : theme.colorScheme.error,
@@ -153,16 +153,16 @@ class ReadIssuesButton extends StatelessWidget {
   }
 }
 
-class ReadIssueFallback extends StatelessWidget {
-  const ReadIssueFallback({
+class FieldErrorFallback extends StatelessWidget {
+  const FieldErrorFallback({
     super.key,
-    required this.report,
+    required this.errors,
     required this.slot,
     required this.name,
     this.label = spokenName,
   });
 
-  final ReadReport report;
+  final DocumentErrors errors;
   final String slot;
   final String name;
   final String Function(String slot) label;
@@ -193,7 +193,7 @@ class ReadIssueFallback extends StatelessWidget {
           ),
           TextButton(
             onPressed: () =>
-                showReadIssues(context, report, slot: slot, label: label),
+                showDocumentErrors(context, errors, slot: slot, label: label),
             child: const Text('Details'),
           ),
         ],

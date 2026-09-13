@@ -18,8 +18,8 @@ class SubmissionClient {
         rules,
         BrowseDocument.ruleType,
         '/browse/$page/',
-        (outcome, report) =>
-            BrowseDocument.fromOutcome(outcome, report: report),
+        (outcome, errors) =>
+            BrowseDocument.fromOutcome(outcome, errors: errors),
       )).submissions;
 
   Future<List<SubmissionPreview>> inbox({int after = 0}) async =>
@@ -29,7 +29,7 @@ class SubmissionClient {
         after == 0
             ? '/msg/submissions/'
             : '/msg/submissions/new~$after@$inboxPageSize/',
-        (outcome, report) => InboxDocument.fromOutcome(outcome, report: report),
+        (outcome, errors) => InboxDocument.fromOutcome(outcome, errors: errors),
       )).submissions;
 
   Future<GalleryPage> gallery(GallerySource source, {int page = 1}) async {
@@ -37,7 +37,7 @@ class SubmissionClient {
       rules,
       GalleryDocument.ruleType,
       source.path(page),
-      (outcome, report) => GalleryDocument.fromOutcome(outcome, report: report),
+      (outcome, errors) => GalleryDocument.fromOutcome(outcome, errors: errors),
     );
     return GalleryPage(
       submissions: document.submissions,
@@ -52,8 +52,8 @@ class SubmissionClient {
         rules,
         FavoritesDocument.ruleType,
         after == 0 ? '/favorites/$user/' : '/favorites/$user/$after/next',
-        (outcome, report) =>
-            FavoritesDocument.fromOutcome(outcome, report: report),
+        (outcome, errors) =>
+            FavoritesDocument.fromOutcome(outcome, errors: errors),
       )).favorites;
 
   Future<List<SubmissionPreview>> search(
@@ -62,15 +62,15 @@ class SubmissionClient {
     rules,
     SearchDocument.ruleType,
     Uri(path: '/search/', queryParameters: parameters).toString(),
-    (outcome, report) => SearchDocument.fromOutcome(outcome, report: report),
+    (outcome, errors) => SearchDocument.fromOutcome(outcome, errors: errors),
   )).submissions;
 
   Future<SubmissionDocument> submission(int id) => client.page(
     rules,
     SubmissionDocument.ruleType,
     '/view/$id/',
-    (outcome, report) =>
-        SubmissionDocument.fromOutcome(outcome, report: report),
+    (outcome, errors) =>
+        SubmissionDocument.fromOutcome(outcome, errors: errors),
   );
 
   Future<void> favourite(String link) async {

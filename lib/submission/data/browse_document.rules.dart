@@ -15,14 +15,14 @@ abstract class BrowseDocument with _$BrowseDocument {
   const factory BrowseDocument({
     @Default(const []) List<SubmissionPreview> submissions,
     @Default(const {}) Map<String, ParseException> failed,
-    ReadReport? report,
+    DocumentErrors? errors,
   }) = _BrowseDocument;
 
   static const String ruleType = 'browseDocument';
 
   static BrowseDocument? fromOutcome(
     ParseOutcome outcome, {
-    ReadReport? report,
+    DocumentErrors? errors,
   }) {
     return BrowseDocument(
       submissions: [
@@ -31,7 +31,7 @@ abstract class BrowseDocument with _$BrowseDocument {
           if (item is ParseOutcome) ?SubmissionPreview.fromOutcome(item),
       ],
       failed: outcome.failed,
-      report: report,
+      errors: errors,
     );
   }
 }

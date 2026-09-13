@@ -486,9 +486,9 @@ Class _model(
               if (page)
                 Parameter(
                   (b) => b
-                    ..name = 'report'
+                    ..name = 'errors'
                     ..named = true
-                    ..type = refer('ReadReport?', parserUrl),
+                    ..type = refer('DocumentErrors?', parserUrl),
                 ),
             ]),
         ),
@@ -527,9 +527,9 @@ Method _fromOutcome(
       if (page)
         Parameter(
           (b) => b
-            ..name = 'report'
+            ..name = 'errors'
             ..named = true
-            ..type = refer('ReadReport?', parserUrl),
+            ..type = refer('DocumentErrors?', parserUrl),
         ),
     ])
     ..body = Block.of([
@@ -554,7 +554,7 @@ Method _fromOutcome(
                   ? refer(field.name)
                   : CodeExpression(field.read('outcome')),
             'failed': refer('outcome').property('failed'),
-            if (page) 'report': refer('report'),
+            if (page) 'errors': refer('errors'),
           })
           .returned
           .statement,

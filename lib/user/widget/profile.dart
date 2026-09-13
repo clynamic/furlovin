@@ -33,7 +33,7 @@ class UserPage extends ConsumerWidget {
 
     final UserDocument? loaded = detail.asData?.value;
     final User? user = loaded?.user;
-    final ReadReport? report = loaded?.report;
+    final DocumentErrors? errors = loaded?.errors;
 
     return Scaffold(
       body: CustomScrollView(
@@ -44,7 +44,7 @@ class UserPage extends ConsumerWidget {
             automaticallyImplyLeading: onSettings == null,
             leading: onSettings == null ? const ScrimBackButton() : null,
             actions: [
-              ReadIssuesButton(report: loaded?.report, onImage: true),
+              DocumentErrorsButton(errors: loaded?.errors, onImage: true),
               if (onSettings case final VoidCallback open)
                 IconButton(
                   tooltip: 'Settings',
@@ -83,7 +83,7 @@ class UserPage extends ConsumerWidget {
               ],
             ),
           ),
-          if (report case final ReadReport broken
+          if (errors case final DocumentErrors broken
               when broken.unreadable('facts'))
             UnreadableSection(broken, 'facts', 'About'),
           if (loaded?.facts case final List<Fact> facts when facts.isNotEmpty)
@@ -102,7 +102,7 @@ class UserPage extends ConsumerWidget {
                       ),
               ),
             ),
-          if (report case final ReadReport broken
+          if (errors case final DocumentErrors broken
               when broken.unreadable('contacts'))
             UnreadableSection(broken, 'contacts', 'Elsewhere'),
           if (loaded?.contacts case final List<Contact> contacts
@@ -118,7 +118,7 @@ class UserPage extends ConsumerWidget {
                     const SizedBox(height: 10),
               ),
             ),
-          if (report case final ReadReport broken
+          if (errors case final DocumentErrors broken
               when broken.unreadable('gallery'))
             UnreadableSection(broken, 'gallery', 'Gallery'),
           if (loaded?.gallery case final List<SubmissionPreview> gallery
@@ -143,7 +143,7 @@ class UserPage extends ConsumerWidget {
                 child: SubmissionStrip(submissions: gallery),
               ),
             ),
-          if (report case final ReadReport broken
+          if (errors case final DocumentErrors broken
               when broken.unreadable('favorites'))
             UnreadableSection(broken, 'favorites', 'Favourites'),
           if (loaded?.favorites case final List<SubmissionPreview> favorites
@@ -168,7 +168,7 @@ class UserPage extends ConsumerWidget {
                 child: SubmissionStrip(submissions: favorites),
               ),
             ),
-          if (report case final ReadReport broken
+          if (errors case final DocumentErrors broken
               when broken.unreadable('shouts'))
             UnreadableSection(broken, 'shouts', 'Shouts'),
           if (loaded?.shouts case final List<Shout> shouts

@@ -49,7 +49,7 @@ void main() {
             html.parse(source),
             base: Uri.parse(faOrigin),
           );
-          final ReadReport report = ReadReport()
+          final DocumentErrors errors = DocumentErrors()
             ..collect(outcome, page.key, rules);
           String cell(String field) => switch (outcome[field]) {
             null => 'none',
@@ -58,7 +58,7 @@ void main() {
           };
           matrix.writeln(
             '| $date | ${_theme.firstMatch(source)?[1] ?? '?'} | '
-            '${source.length} | ${report.issues.length} | '
+            '${source.length} | ${errors.all.length} | '
             '${fields.heath63(cell).join(' | ')} |',
           );
         }
