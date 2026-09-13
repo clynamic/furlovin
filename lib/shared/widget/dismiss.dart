@@ -78,7 +78,10 @@ class DismissRoute<T> extends PageRoute<T> {
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
-  ) => builder(context);
+  ) => switch (settings) {
+    DismissPage<T>(:final Widget child) => child,
+    _ => builder(context),
+  };
 
   @override
   Widget buildTransitions(

@@ -113,4 +113,28 @@ void main() {
     expect(top.route.direction, -1);
     expect(top.offset, closeTo(-40, 0.001));
   });
+
+  testWidgets('a page updated under the same key shows its new child', (
+    tester,
+  ) async {
+    Widget host(String label) => MaterialApp(
+      home: Navigator(
+        pages: [
+          DismissPage<void>(
+            key: const ValueKey('gallery'),
+            child: Scaffold(body: Text(label)),
+          ),
+        ],
+        onDidRemovePage: (page) {},
+      ),
+    );
+
+    await tester.pumpWidget(host('main'));
+    expect(find.text('main'), findsOneWidget);
+
+    await tester.pumpWidget(host('sketches'));
+    await tester.pump();
+    expect(find.text('sketches'), findsOneWidget);
+    expect(find.text('main'), findsNothing);
+  });
 }
