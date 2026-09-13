@@ -45,7 +45,11 @@ void main() {
           value: summary(outcome[field.name]),
           issues: {
             for (final FieldError issue in errors.of(field.name))
-              [issue.kind.name, ?issue.field].join(' '),
+              [
+                issue.kind.name,
+                ...issue.segments.skip(1),
+                ?issue.over,
+              ].join(' '),
           },
         ),
     };

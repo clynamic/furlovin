@@ -8,43 +8,46 @@ enum FieldErrorKind { unreadable, dropped, missing }
 @immutable
 class FieldError {
   const FieldError({
-    required this.slot,
+    required this.path,
     required this.kind,
     required this.error,
-    this.field,
+    this.over,
     this.count = 1,
     this.of,
   });
 
-  final String slot;
-  final String? field;
+  final String path;
   final FieldErrorKind kind;
   final ParseException error;
+  final String? over;
   final int count;
   final int? of;
+
+  List<String> get segments => path.split('.');
+
+  bool within(String other) => path == other || path.startsWith('$other.');
 
   @override
   bool operator ==(Object other) =>
       other is FieldError &&
-      other.slot == slot &&
-      other.field == field &&
+      other.path == path &&
+      other.over == over &&
       other.kind == kind &&
       other.error == error &&
       other.count == count &&
       other.of == of;
 
   @override
-  int get hashCode => Object.hash(slot, field, kind, error, count, of);
+  int get hashCode => Object.hash(path, over, kind, error, count, of);
 
   @override
   String toString() {
     final String subject = switch (kind) {
-      FieldErrorKind.missing =>
-        '$slot.$field missing${count > 1 ? ' ×$count' : ''}',
+      FieldErrorKind.missing => '$path missing${count > 1 ? ' ×$count' : ''}',
       FieldErrorKind.dropped || FieldErrorKind.unreadable when of != null =>
-        '${kind.name} $slot: dropped $count of $of'
-            '${field == null ? '' : ' over $field'}',
-      _ => '${kind.name} $slot${field == null ? '' : ' over $field'}',
+        '${kind.name} $path: dropped $count of $of'
+            '${over == null ? '' : ' over $over'}',
+      _ => '${kind.name} $path',
     };
     final ParseException cause = error;
     final List<ParseException> causes =
@@ -59,9 +62,10 @@ class FieldError {
 final RegExp _theme = RegExp('/themes/([a-z]+)/');
 
 class DocumentErrors {
-  DocumentErrors({this.page, this.rules, this.theme});
+  DocumentErrors({this.type, this.page, this.rules, this.theme});
 
   DocumentErrors.forPage({
+    required String this.type,
     required String url,
     required String body,
     required RuleSet ruleSet,
@@ -69,6 +73,7 @@ class DocumentErrors {
        rules = '${ruleSet.schema}/${ruleSet.revision}',
        theme = _theme.firstMatch(body)?[1];
 
+  final String? type;
   final String? page;
   final String? rules;
   final String? theme;
@@ -87,14 +92,14 @@ class DocumentErrors {
       for (final TypeField field in rule.fields.values) {
         final List<String> at = [...path, field.name];
         if (outcome.failed[field.name] case final ParseException error) {
-          final FieldError issue = _issue(at, error);
-          final String key = '${issue.slot}|${issue.field}|${issue.kind.name}';
+          final FieldError issue = _issue(at.join('.'), error);
+          final String key = '${issue.path}|${issue.over}|${issue.kind.name}';
           final FieldError? known = merged[key];
           merged[key] = known == null
               ? issue
               : FieldError(
-                  slot: known.slot,
-                  field: known.field,
+                  path: known.path,
+                  over: known.over,
                   kind: known.kind,
                   error: known.error,
                   count: known.count + issue.count,
@@ -118,42 +123,26 @@ class DocumentErrors {
     _errors.addAll(merged.values);
   }
 
-  static FieldError _issue(List<String> path, ParseException error) {
-    final String slot = path.first;
-    final List<String> rest = path.skip(1).toList();
-    return switch (error) {
-      DroppedItems(:final count, :final of, :final field, :final cause) =>
-        FieldError(
-          slot: slot,
-          field: [...rest, ?field].join('.').emptyAsNull,
-          kind: count == of
-              ? FieldErrorKind.unreadable
-              : FieldErrorKind.dropped,
-          error: cause,
-          count: count,
-          of: of,
+  static FieldError _issue(String path, ParseException error) =>
+      switch (error) {
+        DroppedItems(:final count, :final of, :final field, :final cause) =>
+          FieldError(
+            path: path,
+            over: field,
+            kind: count == of
+                ? FieldErrorKind.unreadable
+                : FieldErrorKind.dropped,
+            error: cause,
+            count: count,
+            of: of,
+          ),
+        StepException(op: 'in' || 'at') => FieldError(
+          path: path,
+          kind: FieldErrorKind.unreadable,
+          error: error,
         ),
-      StepException(op: 'in' || 'at') => FieldError(
-        slot: slot,
-        field: rest.join('.').emptyAsNull,
-        kind: FieldErrorKind.unreadable,
-        error: error,
-      ),
-      _ => FieldError(
-        slot: slot,
-        field: rest.isEmpty ? path.last : rest.join('.'),
-        kind: FieldErrorKind.missing,
-        error: error,
-      ),
-    };
-  }
+        _ => FieldError(path: path, kind: FieldErrorKind.missing, error: error),
+      };
 
-  Iterable<FieldError> of(String slot) => _errors.where((e) => e.slot == slot);
-
-  bool unreadable(String slot) =>
-      of(slot).any((e) => e.kind == FieldErrorKind.unreadable);
-}
-
-extension on String {
-  String? get emptyAsNull => isEmpty ? null : this;
+  Iterable<FieldError> of(String path) => _errors.where((e) => e.within(path));
 }

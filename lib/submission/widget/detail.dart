@@ -144,33 +144,48 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                   enabled: loaded == null,
                                   child: SubmissionStats(
                                     submission: loaded,
+                                    errors: errors,
                                     wide: wide,
                                   ),
                                 ),
                               ),
                               const SizedBox(height: Space.large),
-                              Skeletonizer(
-                                enabled: loaded == null,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  spacing: 22,
-                                  children: [
-                                    if (loaded == null)
-                                      Text(BoneMock.paragraph)
-                                    else if (loaded.description
-                                        case final String description)
-                                      MarkupBody(markup: description),
-                                  ],
+                              ErrorBoundary(
+                                errors: errors,
+                                name: 'submission.description',
+                                paths: const ['submission.description'],
+                                builder: (context, broken) => Skeletonizer(
+                                  enabled: loaded == null,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    spacing: 22,
+                                    children: [
+                                      if (broken case final Breakage known)
+                                        BreakageCard(
+                                          broken: known,
+                                          name: 'the description',
+                                        ),
+                                      if (loaded == null)
+                                        Text(BoneMock.paragraph)
+                                      else if (loaded.description
+                                          case final String description)
+                                        MarkupBody(markup: description),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        if (errors case final DocumentErrors broken
-                            when broken.unreadable('miniGallery'))
-                          UnreadableSection(broken, 'miniGallery', 'Gallery'),
-                        if (detail.asData?.value
-                            case SubmissionDocument(
+                        ErrorBoundary(
+                          errors: errors,
+                          name: 'submission.miniGallery',
+                          paths: const ['miniGallery'],
+                          builder: (context, broken) => switch (detail
+                              .asData
+                              ?.value) {
+                            SubmissionDocument(
                               miniGallery: MiniGallery(
                                     :final List<SubmissionPreview> newer,
                                     :final List<SubmissionPreview> older,
@@ -178,98 +193,159 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                   final MiniGallery gallery,
                               :final Submission submission,
                             )
-                            when newer.isNotEmpty || older.isNotEmpty)
-                          PersistentSliverSection(
-                            name: 'miniGallery',
-                            title: gallery.name,
-                            count: gallery.count,
-                            action: TextButton.icon(
-                              onPressed: () =>
-                                  openTarget(context, readTarget(gallery.link)),
-                              iconAlignment: IconAlignment.end,
-                              icon: const Icon(Icons.arrow_forward, size: 16),
-                              label: const Text('View all'),
-                            ),
-                            inset: const EdgeInsets.fromLTRB(
-                              Space.medium,
-                              Space.medium,
-                              0,
-                              Space.medium,
-                            ),
-                            sliver: SliverToBoxAdapter(
-                              child: SubmissionStrip(
-                                key: ValueKey(submission.id),
-                                current: submission.id,
-                                limit: newer.length + older.length + 1,
-                                submissions: [
-                                  ...newer,
-                                  preview ??
-                                      SubmissionPreview(
-                                        id: submission.id,
-                                        link:
-                                            '$faOrigin/view/${submission.id}/',
-                                        rating: submission.rating,
-                                        thumbnail:
-                                            submission.preview ??
-                                            submission.file,
-                                        uploader: submission.uploader,
-                                        thumbnailWidth: facade.aspectRatio,
-                                        thumbnailHeight: 1,
-                                      ),
-                                  ...older,
-                                ],
+                                when newer.isNotEmpty || older.isNotEmpty =>
+                              PersistentSliverSection(
+                                name: 'miniGallery',
+                                title: gallery.name,
+                                count: gallery.count,
+                                action: TextButton.icon(
+                                  onPressed: () => openTarget(
+                                    context,
+                                    readTarget(gallery.link),
+                                  ),
+                                  iconAlignment: IconAlignment.end,
+                                  icon: const Icon(
+                                    Icons.arrow_forward,
+                                    size: 16,
+                                  ),
+                                  label: const Text('View all'),
+                                ),
+                                inset: const EdgeInsets.fromLTRB(
+                                  Space.medium,
+                                  Space.medium,
+                                  0,
+                                  Space.medium,
+                                ),
+                                sliver: BreakageSliver(
+                                  broken: broken,
+                                  name: 'this gallery',
+                                  sliver: SliverToBoxAdapter(
+                                    child: SubmissionStrip(
+                                      key: ValueKey(submission.id),
+                                      current: submission.id,
+                                      limit: newer.length + older.length + 1,
+                                      submissions: [
+                                        ...newer,
+                                        preview ??
+                                            SubmissionPreview(
+                                              id: submission.id,
+                                              link:
+                                                  '$faOrigin/view/${submission.id}/',
+                                              rating: submission.rating,
+                                              thumbnail:
+                                                  submission.preview ??
+                                                  submission.file,
+                                              uploader: submission.uploader,
+                                              thumbnailWidth:
+                                                  facade.aspectRatio,
+                                              thumbnailHeight: 1,
+                                            ),
+                                        ...older,
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
+                            _ => BrokenSection(
+                              broken: broken,
+                              name: 'miniGallery',
+                              title: 'Gallery',
                             ),
-                          ),
-                        if (loaded?.tags case final List<String> tags
-                            when tags.isNotEmpty)
-                          PersistentSliverSection(
-                            name: 'tags',
-                            title: 'Tags',
-                            count: tags.length,
-                            sliver: SliverToBoxAdapter(
-                              child: SubmissionTags(tags: tags),
+                          },
+                        ),
+                        ErrorBoundary(
+                          errors: errors,
+                          name: 'submission.tags',
+                          paths: const ['submission.tags'],
+                          builder: (context, broken) => switch (loaded?.tags) {
+                            final List<String> tags when tags.isNotEmpty =>
+                              PersistentSliverSection(
+                                name: 'tags',
+                                title: 'Tags',
+                                count: tags.length,
+                                sliver: BreakageSliver(
+                                  broken: broken,
+                                  name: 'tags',
+                                  sliver: SliverToBoxAdapter(
+                                    child: SubmissionTags(tags: tags),
+                                  ),
+                                ),
+                              ),
+                            _ => BrokenSection(
+                              broken: broken,
+                              name: 'tags',
+                              title: 'Tags',
                             ),
-                          ),
-                        if (errors case final DocumentErrors broken
-                            when broken.unreadable('folders'))
-                          UnreadableSection(broken, 'folders', 'Folders'),
-                        if (detail.asData?.value.folders
-                            case final List<Folder> folders
-                            when folders.isNotEmpty)
-                          PersistentSliverSection(
-                            name: 'folders',
-                            title: 'Folders',
-                            count: folders.length,
-                            sliver: SliverList.builder(
-                              itemCount: folders.length,
-                              itemBuilder: (context, index) =>
-                                  FolderTile(folder: folders[index]),
-                            ),
-                          ),
-                        if (errors case final DocumentErrors broken
-                            when broken.unreadable('comments'))
-                          UnreadableSection(broken, 'comments', 'Comments'),
-                        if (comments.isNotEmpty)
-                          PersistentSliverSection(
-                            name: 'comments',
-                            title: 'Comments',
-                            count: comments.length,
-                            sliver: SliverList.separated(
-                              itemCount: comments.length,
-                              itemBuilder: (context, index) =>
-                                  CommentTile(row: comments[index]),
-                              separatorBuilder: (context, index) =>
-                                  CommentBreak(below: comments[index + 1]),
-                            ),
-                          ),
+                          },
+                        ),
+                        ErrorBoundary(
+                          errors: errors,
+                          name: 'submission.folders',
+                          paths: const ['folders'],
+                          builder: (context, broken) =>
+                              switch (detail.asData?.value.folders) {
+                                final List<Folder> folders
+                                    when folders.isNotEmpty =>
+                                  PersistentSliverSection(
+                                    name: 'folders',
+                                    title: 'Folders',
+                                    count: folders.length,
+                                    sliver: BreakageSliver(
+                                      broken: broken,
+                                      name: 'folders',
+                                      sliver: SliverList.builder(
+                                        itemCount: folders.length,
+                                        itemBuilder: (context, index) =>
+                                            FolderTile(folder: folders[index]),
+                                      ),
+                                    ),
+                                  ),
+                                _ => BrokenSection(
+                                  broken: broken,
+                                  name: 'folders',
+                                  title: 'Folders',
+                                ),
+                              },
+                        ),
+                        ErrorBoundary(
+                          errors: errors,
+                          name: 'submission.comments',
+                          paths: const ['comments'],
+                          builder: (context, broken) => comments.isEmpty
+                              ? BrokenSection(
+                                  broken: broken,
+                                  name: 'comments',
+                                  title: 'Comments',
+                                )
+                              : PersistentSliverSection(
+                                  name: 'comments',
+                                  title: 'Comments',
+                                  count: comments.length,
+                                  sliver: BreakageSliver(
+                                    broken: broken,
+                                    name: 'comments',
+                                    sliver: SliverList.separated(
+                                      itemCount: comments.length,
+                                      itemBuilder: (context, index) =>
+                                          CommentTile(row: comments[index]),
+                                      separatorBuilder: (context, index) =>
+                                          CommentBreak(
+                                            below: comments[index + 1],
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                        ),
                         PersistentSliverSection(
                           name: 'metadata',
                           title: 'Details',
                           sliver: SliverToBoxAdapter(
                             child: Skeletonizer(
                               enabled: loaded == null,
-                              child: SubmissionMetadata(submission: loaded),
+                              child: SubmissionMetadata(
+                                submission: loaded,
+                                errors: errors,
+                              ),
                             ),
                           ),
                         ),
@@ -481,26 +557,92 @@ class SubmissionStats extends StatelessWidget {
   const SubmissionStats({
     super.key,
     required this.submission,
+    this.errors,
     this.wide = false,
   });
 
   final Submission? submission;
+  final DocumentErrors? errors;
   final bool wide;
 
   @override
-  Widget build(BuildContext context) => Wrap(
-    spacing: Space.large,
-    runSpacing: Space.small,
-    alignment: wide ? WrapAlignment.end : WrapAlignment.start,
-    children: [
-      for (final (IconData, int?, String) stat in <(IconData, int?, String)>[
-        (Icons.visibility_outlined, submission?.views, 'views'),
-        (Icons.favorite_outline, submission?.favorites, 'favourites'),
-        (Icons.mode_comment_outlined, submission?.comments, 'comments'),
-      ])
-        if (submission == null || stat.$2 != null)
-          Statistic(icon: stat.$1, value: stat.$2, label: stat.$3),
+  Widget build(BuildContext context) => StatisticsRow(
+    errors: errors,
+    name: 'submission.stats',
+    loading: submission == null,
+    wide: wide,
+    stats: [
+      (
+        icon: Icons.visibility_outlined,
+        value: submission?.views,
+        label: 'views',
+        path: 'submission.views',
+      ),
+      (
+        icon: Icons.favorite_outline,
+        value: submission?.favorites,
+        label: 'favourites',
+        path: 'submission.favorites',
+      ),
+      (
+        icon: Icons.mode_comment_outlined,
+        value: submission?.comments,
+        label: 'comments',
+        path: 'submission.comments',
+      ),
     ],
+  );
+}
+
+typedef StatisticEntry = ({
+  IconData icon,
+  int? value,
+  String label,
+  String path,
+});
+
+class StatisticsRow extends StatelessWidget {
+  const StatisticsRow({
+    super.key,
+    required this.errors,
+    required this.name,
+    required this.loading,
+    required this.stats,
+    this.wide = false,
+  });
+
+  final DocumentErrors? errors;
+  final String name;
+  final bool loading;
+  final List<StatisticEntry> stats;
+  final bool wide;
+
+  @override
+  Widget build(BuildContext context) => ErrorBoundary(
+    errors: errors,
+    name: name,
+    paths: [for (final StatisticEntry stat in stats) stat.path],
+    builder: (context, broken) => Wrap(
+      spacing: Space.large,
+      runSpacing: Space.small,
+      alignment: wide ? WrapAlignment.end : WrapAlignment.start,
+      children: [
+        for (final StatisticEntry stat in stats)
+          if (broken?.at(stat.path) case final Breakage known
+              when stat.value == null)
+            BreakageMark(
+              broken: known,
+              child: Statistic(
+                icon: stat.icon,
+                value: null,
+                label: stat.label,
+                broken: true,
+              ),
+            )
+          else if (loading || stat.value != null)
+            Statistic(icon: stat.icon, value: stat.value, label: stat.label),
+      ],
+    ),
   );
 }
 
@@ -510,11 +652,13 @@ class Statistic extends StatelessWidget {
     required this.icon,
     required this.value,
     required this.label,
+    this.broken = false,
   });
 
   final IconData icon;
   final int? value;
   final String label;
+  final bool broken;
 
   @override
   Widget build(BuildContext context) {
@@ -536,9 +680,14 @@ class Statistic extends StatelessWidget {
             TextSpan(
               children: [
                 TextSpan(
-                  text: value == null ? BoneMock.chars(5) : countOf(value!),
-                  style: const TextStyle(
-                    fontFeatures: [FontFeature.tabularFigures()],
+                  text: switch (value) {
+                    final int count => countOf(count),
+                    null when broken => '?',
+                    null => BoneMock.chars(5),
+                  },
+                  style: TextStyle(
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                    color: broken ? theme.colorScheme.error : null,
                   ),
                 ),
                 const TextSpan(text: ' '),
@@ -610,12 +759,14 @@ typedef MetadataEntry = ({
   String label,
   String? value,
   Color? tint,
+  String path,
 });
 
 class SubmissionMetadata extends StatelessWidget {
-  const SubmissionMetadata({super.key, required this.submission});
+  const SubmissionMetadata({super.key, required this.submission, this.errors});
 
   final Submission? submission;
+  final DocumentErrors? errors;
 
   @override
   Widget build(BuildContext context) {
@@ -632,51 +783,77 @@ class SubmissionMetadata extends StatelessWidget {
                 theme.ratings.of(rating),
                 theme.colorScheme.surfaceContainerLowest,
               ),
+        path: 'submission.rating',
       ),
       (
         icon: Icons.brush_outlined,
         label: 'Category',
         value: submission?.category,
         tint: null,
+        path: 'submission.category',
       ),
       (
         icon: Icons.palette_outlined,
         label: 'Theme',
         value: submission?.theme,
         tint: null,
+        path: 'submission.theme',
       ),
       (
         icon: Icons.pets,
         label: 'Species',
         value: submission?.species,
         tint: null,
+        path: 'submission.species',
       ),
       (
         icon: Icons.aspect_ratio,
         label: 'Resolution',
         value: submission?.resolution,
         tint: null,
+        path: 'submission.resolution',
       ),
       (
         icon: Icons.sd_storage_outlined,
         label: 'File size',
         value: submission?.fileSize,
         tint: null,
+        path: 'submission.fileSize',
       ),
-    ].where((e) => submission == null || e.value != null).toList();
-    if (rows.isEmpty) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: Space.snug,
-      children: [
-        for (final MetadataEntry row in rows)
-          MetadataRow(
-            icon: row.icon,
-            label: row.label,
-            value: row.value ?? BoneMock.words(2),
-            tint: row.tint,
-          ),
-      ],
+    ];
+    return ErrorBoundary(
+      errors: errors,
+      name: 'submission.details',
+      paths: [for (final MetadataEntry row in rows) row.path],
+      builder: (context, broken) {
+        final List<Widget> shown = [
+          for (final MetadataEntry row in rows)
+            if (broken?.at(row.path) case final Breakage known
+                when row.value == null)
+              BreakageMark(
+                broken: known,
+                child: MetadataRow(
+                  icon: row.icon,
+                  label: row.label,
+                  value: "Couldn't read",
+                  tint: theme.colorScheme.error,
+                ),
+              )
+            else if (submission == null || row.value != null)
+              MetadataRow(
+                icon: row.icon,
+                label: row.label,
+                value: row.value ?? BoneMock.words(2),
+                tint: row.tint,
+              ),
+        ];
+        if (shown.isEmpty) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: Space.snug,
+          children: shown,
+        );
+      },
     );
   }
 }

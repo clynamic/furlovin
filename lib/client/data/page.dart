@@ -19,14 +19,15 @@ extension FaClientPages on FaClient {
       ),
     );
     final DocumentErrors errors = DocumentErrors.forPage(
+      type: type,
       url: Uri.parse(faOrigin).resolve(path).toString(),
       body: body,
       ruleSet: rules,
     )..collect(outcome, type, rules);
     final Logger scope = logger.child({'page': type, 'path': path});
     for (final FieldError issue in errors.all) {
-      scope.warn('Parsed {slot} with an error', {
-        'slot': issue.slot,
+      scope.warn('Parsed {path} with an error', {
+        'path': issue.path,
         'error': '$issue',
       });
     }
