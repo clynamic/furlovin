@@ -7,13 +7,31 @@ import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
-SubmissionPreview _preview(int id) => SubmissionPreview(
+SubmissionPreview _preview(int id, {int? favouriteId}) => SubmissionPreview(
   id: id,
+  favouriteId: favouriteId,
   link: 'https://www.furaffinity.net/view/$id/',
   rating: SubmissionRating.general,
   thumbnail: 'https://t.furaffinity.net/$id@600-0.jpg',
   uploader: 'someone',
 );
+
+class _FavouritesClient extends SubmissionClient {
+  _FavouritesClient(this.pages, {required super.rules})
+    : super(client: FaClient());
+
+  final Map<int, List<SubmissionPreview>> pages;
+  final List<int> asked = [];
+
+  @override
+  Future<List<SubmissionPreview>> favorites(
+    String user, {
+    int after = 0,
+  }) async {
+    asked.add(after);
+    return pages[after] ?? const [];
+  }
+}
 
 void main() {
   late RuleSet rules;
@@ -91,5 +109,31 @@ void main() {
     await controller.restart();
     expect(requested, [1, 1]);
     expect(controller.value.items, hasLength(1));
+  });
+
+  test('favourites continue after the last favourite id', () async {
+    final _FavouritesClient client = _FavouritesClient({
+      0: [_preview(1, favouriteId: 900), _preview(2, favouriteId: 800)],
+      800: [_preview(3, favouriteId: 700)],
+    }, rules: rules);
+    final ProviderContainer container = ProviderContainer(
+      overrides: [submissionClientProvider.overrideWith((ref) async => client)],
+    );
+    addTearDown(container.dispose);
+    final SubmissionPaging controller = container.read(
+      favoritesProvider('someone'),
+    );
+
+    await settle(controller);
+    controller.fetchNextPage();
+    await settle(controller);
+    controller.fetchNextPage();
+    await settle(controller);
+    controller.fetchNextPage();
+    await settle(controller);
+
+    expect(client.asked, [0, 800, 700]);
+    expect(controller.value.items?.map((e) => e.id), [1, 2, 3]);
+    expect(controller.value.hasNextPage, isFalse);
   });
 }

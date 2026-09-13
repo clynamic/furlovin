@@ -79,12 +79,13 @@ final Provider<Retention> listingRetentionProvider = Provider<Retention>(
 SubmissionPaging retainedPaging(
   Ref ref,
   Object key,
-  Future<List<SubmissionPreview>> Function(SubmissionClient, int) fetch,
-) {
+  Future<List<SubmissionPreview>> Function(SubmissionClient, int) fetch, {
+  int Function(PagingState<int, SubmissionPreview> state)? nextKey,
+}) {
   final Retention retention = ref.read(listingRetentionProvider);
   ref.onDispose(() => retention.release(key));
   retention.hold(key, ref.keepAlive());
-  return submissionPaging(ref, fetch);
+  return submissionPaging(ref, fetch, nextKey: nextKey);
 }
 
 final Provider<SubmissionPaging> browseProvider = Provider<SubmissionPaging>(
@@ -106,6 +107,17 @@ final ProviderFamily<SubmissionPaging, String> galleryProvider = Provider
         'gallery',
         user,
       ), (client, page) => client.gallery(user, page: page)),
+    );
+
+final ProviderFamily<SubmissionPaging, String> favoritesProvider = Provider
+    .autoDispose
+    .family<SubmissionPaging, String>(
+      (ref, user) => retainedPaging(
+        ref,
+        ('favorites', user),
+        (client, after) => client.favorites(user, after: after),
+        nextKey: (state) => state.items?.lastOrNull?.favouriteId ?? 0,
+      ),
     );
 
 const int submissionRetention = 12;
