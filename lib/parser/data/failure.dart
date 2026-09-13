@@ -30,6 +30,25 @@ final class NoMatch extends ParseException {
   int get hashCode => Object.hashAll(causes);
 }
 
+final class EmptyStep extends ParseException {
+  const EmptyStep(this.alternative, this.step);
+
+  final int alternative;
+  final String step;
+
+  @override
+  String get message => 'alternative $alternative: $step matched nothing';
+
+  @override
+  bool operator ==(Object other) =>
+      other is EmptyStep &&
+      other.alternative == alternative &&
+      other.step == step;
+
+  @override
+  int get hashCode => Object.hash(alternative, step);
+}
+
 final class StepException extends ParseException {
   const StepException(this.op, this.reason);
 

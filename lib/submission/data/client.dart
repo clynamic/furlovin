@@ -25,7 +25,7 @@ class SubmissionClient {
 
   Future<GalleryPage> gallery(GallerySource source, {int page = 1}) async {
     final String path = source.path(page);
-    final PageOutcome outcome = await _fetch(
+    final (:PageOutcome outcome, :ReadReport report) = await _fetch(
       GallerySlots.submissions.page,
       path,
     );
@@ -55,12 +55,11 @@ class SubmissionClient {
       );
 
   Future<SubmissionDetail> submission(int id) async {
-    final PageOutcome outcome = await _fetch(
+    final (:PageOutcome outcome, :ReadReport report) = await _fetch(
       SubmissionSlots.submission.page,
       '/view/$id/',
     );
     final Logger scope = logger.child({'id': id});
-    final ReadReport report = ReadReport();
     final Submission? parsed = outcome.read(
       SubmissionSlots.submission,
       logger: scope,
@@ -108,9 +107,12 @@ class SubmissionClient {
     await client.get(link);
   }
 
-  Future<PageOutcome> _fetch(String page, String path) async {
+  Future<({PageOutcome outcome, ReadReport report})> _fetch(
+    String page,
+    String path,
+  ) async {
     final String body = await client.get(path);
-    return parseAway(
+    final PageOutcome outcome = await parseAway(
       ParseRequest(
         document: body,
         rules: rules.json,
@@ -118,11 +120,23 @@ class SubmissionClient {
         base: faOrigin,
       ),
     );
+    return (
+      outcome: outcome,
+      report: ReadReport.forPage(
+        url: Uri.parse(faOrigin).resolve(path).toString(),
+        body: body,
+        ruleSet: rules,
+      ),
+    );
   }
 
   Future<List<T>> _listing<T>(ListSlot<T> slot, String path) async {
-    final PageOutcome outcome = await _fetch(slot.page, path);
+    final (:PageOutcome outcome, :ReadReport report) = await _fetch(
+      slot.page,
+      path,
+    );
     return outcome.readAll(
+      report: report,
       slot,
       logger: logger.child({'page': slot.page, 'path': path}),
     );

@@ -8,26 +8,34 @@ class ParseEngine {
 
   StepContext get _context => StepContext(base: base);
 
-  Object? evaluate(FieldRule rule, Object? root) {
-    final List<ParseException> causes = [];
-    for (final List<Step> alternative in rule.alternatives) {
+  Object? evaluate(
+    FieldRule rule,
+    Object? root, [
+    List<ParseException>? causes,
+  ]) {
+    for (final (int at, List<Step> alternative) in rule.alternatives.indexed) {
       try {
-        final Object? value = _run(alternative, root);
-        if (value == null) continue;
+        Step? stopped;
+        final Object? value = _run(alternative, root, (step) => stopped = step);
+        if (value == null) {
+          if (stopped case final Step step) {
+            causes?.add(EmptyStep(at + 1, describeStep(step)));
+          }
+          continue;
+        }
         if (rule.repeated) {
           final List<Object>? items = rule.type.coerceList(value);
           if (items != null && items.isNotEmpty) return items;
+          causes?.add(EmptyStep(at + 1, 'list of ${rule.type.name}'));
           continue;
         }
         return rule.type.coerce(value);
       } on ParseException catch (e) {
-        causes.add(e);
+        causes?.add(e);
       } on Object catch (e) {
-        causes.add(UnexpectedParseError.of(e));
+        causes?.add(UnexpectedParseError.of(e));
       }
     }
-    if (causes case [final ParseException only]) throw only;
-    if (causes.isNotEmpty) throw NoMatch(causes: causes);
     return null;
   }
 
@@ -39,12 +47,14 @@ class ParseEngine {
     ];
   }
 
-  Object? _run(List<Step> steps, Object? root) {
+  Object? _run(List<Step> steps, Object? root, void Function(Step) stopped) {
     Object? value = root;
     for (final Step step in steps) {
       value = _apply(step, value);
-      if (value == null) return null;
-      if (value is List && value.isEmpty) return null;
+      if (value == null || (value is List && value.isEmpty)) {
+        stopped(step);
+        return null;
+      }
     }
     return value;
   }
@@ -53,19 +63,23 @@ class ParseEngine {
     final Map<String, Object?> values = {};
     final Map<String, ParseException> failed = {};
     for (final MapEntry<String, FieldRule> field in rule.fields.entries) {
-      try {
-        final Object? value = evaluate(field.value, root);
-        if (value == null && field.value.required) {
-          failed[field.key] = const NoMatch();
-          continue;
-        }
-        if (value == null && field.value.expected) {
-          failed[field.key] = const NoMatch();
-        }
+      final List<ParseException> causes = [];
+      final Object? value = evaluate(field.value, root, causes);
+      if (value != null) {
         values[field.key] = value;
-      } on ParseException catch (e) {
-        failed[field.key] = e;
+        continue;
       }
+      final bool threw = causes.any((e) => e is! EmptyStep);
+      final FieldRule shape = field.value;
+      if (!shape.required && !shape.expected && !threw) {
+        values[field.key] = null;
+        continue;
+      }
+      failed[field.key] = switch (causes) {
+        [final ParseException only] when only is! EmptyStep => only,
+        _ => NoMatch(causes: causes),
+      };
+      if (shape.expected) values[field.key] = null;
     }
     return ParseOutcome(values: values, failed: failed);
   }

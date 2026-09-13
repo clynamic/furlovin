@@ -1,6 +1,20 @@
 import 'package:furlovin/parser/data/failure.dart';
 import 'package:html/dom.dart';
 
+String describeStep(Step step) {
+  final Map<String, Object?> json = step.toJson();
+  return [
+    json['op'],
+    for (final MapEntry<String, Object?> entry in json.entries)
+      if (entry.key == 'op')
+        ...[]
+      else if (entry.value is String)
+        '"${entry.value}"'
+      else
+        '${entry.value}',
+  ].join(' ');
+}
+
 sealed class Step {
   const Step();
 

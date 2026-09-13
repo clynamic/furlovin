@@ -101,7 +101,10 @@ void main() {
         _entity('int', 'v', required: true),
         '<span></span>',
       );
-      expect(missing.failed['value'], const NoMatch());
+      expect(
+        missing.failed['value'],
+        const NoMatch(causes: [EmptyStep(1, 'attr "v"')]),
+      );
 
       final ParseOutcome bad = _parse(
         _entity('int', 'v', required: true),
@@ -134,7 +137,7 @@ void main() {
         _entity('int', 'v', expected: true),
         '<span></span>',
       );
-      expect(outcome.failed['value'], const NoMatch());
+      expect(outcome.failed['value'], isA<NoMatch>());
       expect(outcome.values.containsKey('value'), isTrue);
       expect(outcome['value'], isNull);
     });
