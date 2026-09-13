@@ -22,7 +22,12 @@ class UserClient {
       ),
     );
     final Logger scope = logger.child({'user': name});
-    final User? parsed = outcome.read(UserSlots.profile, logger: scope);
+    final ReadReport report = ReadReport();
+    final User? parsed = outcome.read(
+      UserSlots.profile,
+      logger: scope,
+      report: report,
+    );
     if (parsed == null) {
       throw ParseFailure(
         UserSlots.profile.name,
@@ -31,11 +36,24 @@ class UserClient {
     }
     return UserDetail(
       user: parsed,
-      contacts: outcome.readAll(UserSlots.contacts, logger: scope),
-      facts: outcome.readAll(UserSlots.facts, logger: scope),
-      shouts: outcome.readAll(UserSlots.shouts, logger: scope),
-      gallery: outcome.readAll(UserSlots.gallery, logger: scope),
-      favorites: outcome.readAll(UserSlots.favorites, logger: scope),
+      contacts: outcome.readAll(
+        UserSlots.contacts,
+        logger: scope,
+        report: report,
+      ),
+      facts: outcome.readAll(UserSlots.facts, logger: scope, report: report),
+      shouts: outcome.readAll(UserSlots.shouts, logger: scope, report: report),
+      gallery: outcome.readAll(
+        UserSlots.gallery,
+        logger: scope,
+        report: report,
+      ),
+      favorites: outcome.readAll(
+        UserSlots.favorites,
+        logger: scope,
+        report: report,
+      ),
+      report: report,
     );
   }
 }
