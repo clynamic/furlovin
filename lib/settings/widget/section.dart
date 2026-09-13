@@ -49,23 +49,27 @@ class PersistentSliverSection extends ConsumerWidget {
   }
 }
 
-class UnreadableSection extends StatelessWidget {
-  const UnreadableSection(this.errors, this.slot, this.title, {super.key});
+class BrokenSection extends StatelessWidget {
+  const BrokenSection({
+    super.key,
+    required this.broken,
+    required this.name,
+    required this.title,
+  });
 
-  final DocumentErrors errors;
-  final String slot;
+  final Breakage? broken;
+  final String name;
   final String title;
 
   @override
-  Widget build(BuildContext context) => PersistentSliverSection(
-    name: slot,
-    title: title,
-    sliver: SliverToBoxAdapter(
-      child: FieldErrorFallback(
-        errors: errors,
-        slot: slot,
-        name: title.toLowerCase(),
+  Widget build(BuildContext context) => switch (broken) {
+    null => const SliverToBoxAdapter(),
+    final Breakage known => PersistentSliverSection(
+      name: name,
+      title: title,
+      sliver: SliverToBoxAdapter(
+        child: BreakageCard(broken: known, name: title.toLowerCase()),
       ),
     ),
-  );
+  };
 }

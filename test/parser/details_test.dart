@@ -11,8 +11,8 @@ void main() {
           )
           ..add(
             const FieldError(
-              slot: 'comments',
-              field: 'id',
+              path: 'comments',
+              over: 'id',
               kind: FieldErrorKind.unreadable,
               count: 141,
               of: 141,
@@ -23,8 +23,7 @@ void main() {
           )
           ..add(
             const FieldError(
-              slot: 'submission',
-              field: 'views',
+              path: 'submission.views',
               kind: FieldErrorKind.missing,
               error: NoMatch(
                 causes: [EmptyStep(1, 'select "div[title="Views"] > div"')],

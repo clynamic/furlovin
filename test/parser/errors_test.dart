@@ -20,12 +20,11 @@ void main() {
     );
     expect(errors.all, const [
       FieldError(
-        slot: 'miniGallery',
+        path: 'miniGallery',
         kind: FieldErrorKind.unreadable,
         error: StepException('at', 'gorse71 at "x"'),
       ),
     ]);
-    expect(errors.unreadable('miniGallery'), isTrue);
   });
 
   test('a list that loses some items reports how many and why', () {
@@ -36,8 +35,8 @@ void main() {
     );
     expect(errors.all, const [
       FieldError(
-        slot: 'folders',
-        field: 'id',
+        path: 'folders',
+        over: 'id',
         kind: FieldErrorKind.dropped,
         error: NoMatch(),
         count: 2,
@@ -52,7 +51,8 @@ void main() {
         failed: {'comments': DroppedItems(4, 4, field: 'id', cause: NoMatch())},
       ),
     );
-    expect(errors.unreadable('comments'), isTrue);
+    expect(errors.all.single.path, 'comments');
+    expect(errors.all.single.kind, FieldErrorKind.unreadable);
   });
 
   test('missing fields inside list items are merged per field', () {
@@ -69,8 +69,7 @@ void main() {
     );
     expect(errors.all, const [
       FieldError(
-        slot: 'comments',
-        field: 'posted',
+        path: 'comments.posted',
         kind: FieldErrorKind.missing,
         error: NoMatch(),
         count: 2,
@@ -86,8 +85,7 @@ void main() {
         },
       ),
     );
-    expect(errors.all.single.slot, 'submission');
-    expect(errors.all.single.field, 'views');
+    expect(errors.all.single.path, 'submission.views');
     expect(errors.all.single.kind, FieldErrorKind.missing);
   });
 
