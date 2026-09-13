@@ -1,5 +1,5 @@
 schema: 1
-revision: 7
+revision: 8
 refs:
   viewLink:
     - op: select
@@ -983,16 +983,18 @@ pages:
         selector: body
       miniGallery:
         entity: miniGallery
-        selector: section.minigallery-container
+        selector: div#minigallery > section.minigallery-container:first-child
       newer:
         entity: submissionPreview
         selector: >-
-          section.minigallery-container > div:first-child:not(.minigallery-title)
-          figure[id^="sid_"]
+          div#minigallery > section.minigallery-container:first-child >
+          div:first-child:not(.minigallery-title) figure[id^="sid_"]
         list: true
       older:
         entity: submissionPreview
-        selector: section.minigallery-container div.minigallery-title ~ div figure[id^="sid_"]
+        selector: >-
+          div#minigallery > section.minigallery-container:first-child >
+          div.minigallery-title ~ div figure[id^="sid_"]
         list: true
       folders:
         entity: folder

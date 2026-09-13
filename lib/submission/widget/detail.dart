@@ -155,6 +155,56 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                             ],
                           ),
                         ),
+                        if (detail.asData?.value
+                            case SubmissionDetail(
+                              miniGallery: final MiniGallery gallery,
+                              :final List<SubmissionPreview> newer,
+                              :final List<SubmissionPreview> older,
+                              :final Submission submission,
+                            )
+                            when newer.isNotEmpty || older.isNotEmpty)
+                          PersistentSliverSection(
+                            name: 'miniGallery',
+                            title: gallery.name,
+                            count: gallery.count,
+                            action: TextButton.icon(
+                              onPressed: () =>
+                                  openTarget(context, readTarget(gallery.link)),
+                              iconAlignment: IconAlignment.end,
+                              icon: const Icon(Icons.arrow_forward, size: 16),
+                              label: const Text('View all'),
+                            ),
+                            inset: const EdgeInsets.fromLTRB(
+                              Space.medium,
+                              Space.medium,
+                              0,
+                              Space.medium,
+                            ),
+                            sliver: SliverToBoxAdapter(
+                              child: SubmissionStrip(
+                                key: ValueKey(submission.id),
+                                current: submission.id,
+                                limit: newer.length + older.length + 1,
+                                submissions: [
+                                  ...newer,
+                                  preview ??
+                                      SubmissionPreview(
+                                        id: submission.id,
+                                        link:
+                                            '$faOrigin/view/${submission.id}/',
+                                        rating: submission.rating,
+                                        thumbnail:
+                                            submission.preview ??
+                                            submission.file,
+                                        uploader: submission.uploader,
+                                        thumbnailWidth: facade.aspectRatio,
+                                        thumbnailHeight: 1,
+                                      ),
+                                  ...older,
+                                ],
+                              ),
+                            ),
+                          ),
                         if (loaded?.tags case final List<String> tags
                             when tags.isNotEmpty)
                           PersistentSliverSection(

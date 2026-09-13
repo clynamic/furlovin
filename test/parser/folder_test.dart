@@ -172,6 +172,22 @@ void main() {
       expect(all(SubmissionSlots.older, 'view'), isNotEmpty);
     });
 
+    test('reads only the first mini gallery', () {
+      final Document page = fixture('view_comments');
+      final Element first = page.querySelector('div#minigallery > section')!;
+      first.parent!.append(first.clone(true));
+      List<int> ids(String slot) => rules
+          .parseSlotAll(
+            rules.pages['submission']!.slots[slot]!,
+            page,
+            base: Uri.parse(faOrigin),
+          )
+          .map((e) => e.get<int>('id')!)
+          .toList();
+      expect(ids('newer'), [28250384, 28235854, 28196107]);
+      expect(ids('older'), [28151556, 28139782, 28128819]);
+    });
+
     test('names the listing the neighbours come from', () {
       final ParseOutcome outcome = rules.parseSlot(
         rules.pages['submission']!.slots['miniGallery']!,
