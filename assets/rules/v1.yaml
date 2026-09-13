@@ -1,5 +1,5 @@
 schema: 1
-revision: 13
+revision: 14
 refs:
   viewLink:
     - op: select
@@ -14,7 +14,9 @@ refs:
       pattern: /user/([^/]+)
   statsText:
     - op: select
-      css: 'div.userpage-section-right div.table:not(#userpage-contact-item)'
+      css: >-
+        div.userpage-section-left div.table:not(#userpage-contact-item),
+        div.userpage-section-right div.table:not(#userpage-contact-item)
     - op: text
 enums:
   SubmissionRating:
@@ -740,7 +742,7 @@ types:
         read:
           - - $ref: statsText
             - op: regex
-              pattern: Comments Earned:\s*([0-9,]+)
+              pattern: (?:Comments|Cmts)(?:\s+Cmts)?\s+Earned:\s*([0-9,]+)
             - op: replace
               pattern: ','
               with: ''
@@ -751,7 +753,7 @@ types:
         read:
           - - $ref: statsText
             - op: regex
-              pattern: Comments Made:\s*([0-9,]+)
+              pattern: (?:Comments|Cmts)(?:\s+Cmts)?\s+Made:\s*([0-9,]+)
             - op: replace
               pattern: ','
               with: ''

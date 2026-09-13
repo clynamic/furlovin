@@ -48,6 +48,14 @@ void main() {
     expect(user.watching, 133);
   });
 
+  test('reads the counts from the narrow layout', () {
+    final ParseOutcome profile = child(outcome('user_dahlia69'), 'user');
+    expect(profile.failed, isEmpty);
+    expect(profile['views'], 75185);
+    expect(profile['submissions'], 2396);
+    expect(profile['journals'], 4);
+  });
+
   test('leaves counts unread rather than reading them from the facts', () {
     final Document page = html.parse(fixture('user_full'));
     page
