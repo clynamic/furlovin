@@ -24,7 +24,7 @@ mixin _$Comment {
  String? get body;/// When the comment was posted.
  DateTime? get posted;/// The percentage width the site renders the comment at.
 /// Replies are narrower than their parent, so this encodes depth.
- int? get width; Map<String, String> get failed;
+ int? get width; Map<String, ParseException> get failed;
 /// Create a copy of Comment
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -60,7 +60,7 @@ abstract mixin class $CommentCopyWith<$Res>  {
   factory $CommentCopyWith(Comment value, $Res Function(Comment) _then) = _$CommentCopyWithImpl;
 @useResult
 $Res call({
- int id, String? author, String? authorAvatar, String? authorName, String? body, DateTime? posted, int? width, Map<String, String> failed
+ int id, String? author, String? authorAvatar, String? authorName, String? body, DateTime? posted, int? width, Map<String, ParseException> failed
 });
 
 
@@ -87,7 +87,7 @@ as String?,body: freezed == body ? _self.body : body // ignore: cast_nullable_to
 as String?,posted: freezed == posted ? _self.posted : posted // ignore: cast_nullable_to_non_nullable
 as DateTime?,width: freezed == width ? _self.width : width // ignore: cast_nullable_to_non_nullable
 as int?,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 
@@ -172,7 +172,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  int? width,  Map<String, String> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  int? width,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Comment() when $default != null:
 return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.body,_that.posted,_that.width,_that.failed);case _:
@@ -193,7 +193,7 @@ return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  int? width,  Map<String, String> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  int? width,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _Comment():
 return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.body,_that.posted,_that.width,_that.failed);case _:
@@ -213,7 +213,7 @@ return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  int? width,  Map<String, String> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  int? width,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _Comment() when $default != null:
 return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.body,_that.posted,_that.width,_that.failed);case _:
@@ -228,7 +228,7 @@ return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.
 
 
 class _Comment extends Comment {
-  const _Comment({required this.id, this.author, this.authorAvatar, this.authorName, this.body, this.posted, this.width,  Map<String, String> failed = const {}}): _failed = failed,super._();
+  const _Comment({required this.id, this.author, this.authorAvatar, this.authorName, this.body, this.posted, this.width,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 /// The comment's numeric identifier.
@@ -247,8 +247,8 @@ class _Comment extends Comment {
 /// The percentage width the site renders the comment at.
 /// Replies are narrower than their parent, so this encodes depth.
 @override final  int? width;
- final  Map<String, String> _failed;
-@override@JsonKey() Map<String, String> get failed {
+ final  Map<String, ParseException> _failed;
+@override@JsonKey() Map<String, ParseException> get failed {
   if (_failed is EqualUnmodifiableMapView) return _failed;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_failed);
@@ -287,7 +287,7 @@ abstract mixin class _$CommentCopyWith<$Res> implements $CommentCopyWith<$Res> {
   factory _$CommentCopyWith(_Comment value, $Res Function(_Comment) _then) = __$CommentCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String? author, String? authorAvatar, String? authorName, String? body, DateTime? posted, int? width, Map<String, String> failed
+ int id, String? author, String? authorAvatar, String? authorName, String? body, DateTime? posted, int? width, Map<String, ParseException> failed
 });
 
 
@@ -314,7 +314,7 @@ as String?,body: freezed == body ? _self.body : body // ignore: cast_nullable_to
 as String?,posted: freezed == posted ? _self.posted : posted // ignore: cast_nullable_to_non_nullable
 as DateTime?,width: freezed == width ? _self.width : width // ignore: cast_nullable_to_non_nullable
 as int?,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 

@@ -31,7 +31,7 @@ mixin _$SubmissionPreview {
 /// punctuation. The submission page carries the canonical title.
  String? get title;/// Content type, such as image, text, music or flash.
  SubmissionType? get type;/// The name of whoever posted the submission, as displayed.
- String? get uploaderName; Map<String, String> get failed;
+ String? get uploaderName; Map<String, ParseException> get failed;
 /// Create a copy of SubmissionPreview
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -67,7 +67,7 @@ abstract mixin class $SubmissionPreviewCopyWith<$Res>  {
   factory $SubmissionPreviewCopyWith(SubmissionPreview value, $Res Function(SubmissionPreview) _then) = _$SubmissionPreviewCopyWithImpl;
 @useResult
 $Res call({
- int id, String link, SubmissionRating rating, String thumbnail, String uploader, int? favouriteId, double? thumbnailHeight, double? thumbnailWidth, String? title, SubmissionType? type, String? uploaderName, Map<String, String> failed
+ int id, String link, SubmissionRating rating, String thumbnail, String uploader, int? favouriteId, double? thumbnailHeight, double? thumbnailWidth, String? title, SubmissionType? type, String? uploaderName, Map<String, ParseException> failed
 });
 
 
@@ -98,7 +98,7 @@ as double?,title: freezed == title ? _self.title : title // ignore: cast_nullabl
 as String?,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as SubmissionType?,uploaderName: freezed == uploaderName ? _self.uploaderName : uploaderName // ignore: cast_nullable_to_non_nullable
 as String?,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 
@@ -183,7 +183,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  int? favouriteId,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, String> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  int? favouriteId,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SubmissionPreview() when $default != null:
 return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,_that.favouriteId,_that.thumbnailHeight,_that.thumbnailWidth,_that.title,_that.type,_that.uploaderName,_that.failed);case _:
@@ -204,7 +204,7 @@ return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  int? favouriteId,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, String> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  int? favouriteId,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _SubmissionPreview():
 return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,_that.favouriteId,_that.thumbnailHeight,_that.thumbnailWidth,_that.title,_that.type,_that.uploaderName,_that.failed);case _:
@@ -224,7 +224,7 @@ return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  int? favouriteId,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, String> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String uploader,  int? favouriteId,  double? thumbnailHeight,  double? thumbnailWidth,  String? title,  SubmissionType? type,  String? uploaderName,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _SubmissionPreview() when $default != null:
 return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,_that.favouriteId,_that.thumbnailHeight,_that.thumbnailWidth,_that.title,_that.type,_that.uploaderName,_that.failed);case _:
@@ -239,7 +239,7 @@ return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.uploader,
 
 
 class _SubmissionPreview extends SubmissionPreview {
-  const _SubmissionPreview({required this.id, required this.link, required this.rating, required this.thumbnail, required this.uploader, this.favouriteId, this.thumbnailHeight, this.thumbnailWidth, this.title, this.type, this.uploaderName,  Map<String, String> failed = const {}}): _failed = failed,super._();
+  const _SubmissionPreview({required this.id, required this.link, required this.rating, required this.thumbnail, required this.uploader, this.favouriteId, this.thumbnailHeight, this.thumbnailWidth, this.title, this.type, this.uploaderName,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 /// The submission's numeric identifier.
@@ -269,8 +269,8 @@ class _SubmissionPreview extends SubmissionPreview {
 @override final  SubmissionType? type;
 /// The name of whoever posted the submission, as displayed.
 @override final  String? uploaderName;
- final  Map<String, String> _failed;
-@override@JsonKey() Map<String, String> get failed {
+ final  Map<String, ParseException> _failed;
+@override@JsonKey() Map<String, ParseException> get failed {
   if (_failed is EqualUnmodifiableMapView) return _failed;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_failed);
@@ -309,7 +309,7 @@ abstract mixin class _$SubmissionPreviewCopyWith<$Res> implements $SubmissionPre
   factory _$SubmissionPreviewCopyWith(_SubmissionPreview value, $Res Function(_SubmissionPreview) _then) = __$SubmissionPreviewCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String link, SubmissionRating rating, String thumbnail, String uploader, int? favouriteId, double? thumbnailHeight, double? thumbnailWidth, String? title, SubmissionType? type, String? uploaderName, Map<String, String> failed
+ int id, String link, SubmissionRating rating, String thumbnail, String uploader, int? favouriteId, double? thumbnailHeight, double? thumbnailWidth, String? title, SubmissionType? type, String? uploaderName, Map<String, ParseException> failed
 });
 
 
@@ -340,7 +340,7 @@ as double?,title: freezed == title ? _self.title : title // ignore: cast_nullabl
 as String?,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as SubmissionType?,uploaderName: freezed == uploaderName ? _self.uploaderName : uploaderName // ignore: cast_nullable_to_non_nullable
 as String?,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 

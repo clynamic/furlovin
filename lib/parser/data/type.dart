@@ -1,14 +1,5 @@
+import 'package:furlovin/parser/data/failure.dart';
 import 'package:meta/meta.dart';
-
-class CoercionException implements Exception {
-  const CoercionException(this.type, this.value);
-
-  final String type;
-  final Object value;
-
-  @override
-  String toString() => 'not a $type: "$value"';
-}
 
 @immutable
 class FieldType {
@@ -61,7 +52,7 @@ class FieldType {
     };
   }
 
-  Never _fail(Object value) => throw CoercionException(name, value);
+  Never _fail(Object value) => throw CoercionException(name, '$value');
 
   String _text(Object value) => value is String ? value : value.toString();
 

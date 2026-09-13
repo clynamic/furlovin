@@ -1,14 +1,5 @@
+import 'package:furlovin/parser/data/failure.dart';
 import 'package:html/dom.dart';
-
-class StepException implements Exception {
-  const StepException(this.op, this.reason);
-
-  final String op;
-  final String reason;
-
-  @override
-  String toString() => 'StepException($op): $reason';
-}
 
 sealed class Step {
   const Step();

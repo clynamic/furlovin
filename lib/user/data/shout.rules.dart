@@ -30,7 +30,7 @@ abstract class Shout with _$Shout {
 
     /// When the message was left.
     DateTime? posted,
-    @Default(const {}) Map<String, String> failed,
+    @Default(const {}) Map<String, ParseException> failed,
   }) = _Shout;
 
   static const String entity = 'shout';

@@ -20,7 +20,7 @@ abstract class FolderEntry with _$FolderEntry {
     int? id,
     String? slug,
     String? user,
-    @Default(const {}) Map<String, String> failed,
+    @Default(const {}) Map<String, ParseException> failed,
   }) = _FolderEntry;
 
   static const String entity = 'folderEntry';

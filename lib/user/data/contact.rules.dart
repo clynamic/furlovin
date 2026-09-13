@@ -28,7 +28,7 @@ abstract class Contact with _$Contact {
     /// Absolute url the entry points at, where the site made
     /// one. Handles the site cannot link carry no url.
     String? link,
-    @Default(const {}) Map<String, String> failed,
+    @Default(const {}) Map<String, ParseException> failed,
   }) = _Contact;
 
   static const String entity = 'contact';

@@ -60,7 +60,7 @@ abstract class User with _$User {
 
     /// How many members this one watches.
     int? watching,
-    @Default(const {}) Map<String, String> failed,
+    @Default(const {}) Map<String, ParseException> failed,
   }) = _User;
 
   static const String entity = 'user';

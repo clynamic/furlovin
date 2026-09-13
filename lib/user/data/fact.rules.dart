@@ -22,7 +22,7 @@ abstract class Fact with _$Fact {
     /// Which block of questions the row sits in. The site separates the
     /// availability answers from the rest and renders the rest smaller.
     String? group,
-    @Default(const {}) Map<String, String> failed,
+    @Default(const {}) Map<String, ParseException> failed,
   }) = _Fact;
 
   static const String entity = 'fact';

@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$MiniGallery {
 
  String get link;/// Which listing the neighbours come from, such as the main gallery.
- String get name; int? get count; Map<String, String> get failed;
+ String get name; int? get count; Map<String, ParseException> get failed;
 /// Create a copy of MiniGallery
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -52,7 +52,7 @@ abstract mixin class $MiniGalleryCopyWith<$Res>  {
   factory $MiniGalleryCopyWith(MiniGallery value, $Res Function(MiniGallery) _then) = _$MiniGalleryCopyWithImpl;
 @useResult
 $Res call({
- String link, String name, int? count, Map<String, String> failed
+ String link, String name, int? count, Map<String, ParseException> failed
 });
 
 
@@ -75,7 +75,7 @@ link: null == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,count: freezed == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
 as int?,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 
@@ -160,7 +160,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String link,  String name,  int? count,  Map<String, String> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String link,  String name,  int? count,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MiniGallery() when $default != null:
 return $default(_that.link,_that.name,_that.count,_that.failed);case _:
@@ -181,7 +181,7 @@ return $default(_that.link,_that.name,_that.count,_that.failed);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String link,  String name,  int? count,  Map<String, String> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String link,  String name,  int? count,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _MiniGallery():
 return $default(_that.link,_that.name,_that.count,_that.failed);case _:
@@ -201,7 +201,7 @@ return $default(_that.link,_that.name,_that.count,_that.failed);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String link,  String name,  int? count,  Map<String, String> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String link,  String name,  int? count,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _MiniGallery() when $default != null:
 return $default(_that.link,_that.name,_that.count,_that.failed);case _:
@@ -216,15 +216,15 @@ return $default(_that.link,_that.name,_that.count,_that.failed);case _:
 
 
 class _MiniGallery extends MiniGallery {
-  const _MiniGallery({required this.link, required this.name, this.count,  Map<String, String> failed = const {}}): _failed = failed,super._();
+  const _MiniGallery({required this.link, required this.name, this.count,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 @override final  String link;
 /// Which listing the neighbours come from, such as the main gallery.
 @override final  String name;
 @override final  int? count;
- final  Map<String, String> _failed;
-@override@JsonKey() Map<String, String> get failed {
+ final  Map<String, ParseException> _failed;
+@override@JsonKey() Map<String, ParseException> get failed {
   if (_failed is EqualUnmodifiableMapView) return _failed;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_failed);
@@ -263,7 +263,7 @@ abstract mixin class _$MiniGalleryCopyWith<$Res> implements $MiniGalleryCopyWith
   factory _$MiniGalleryCopyWith(_MiniGallery value, $Res Function(_MiniGallery) _then) = __$MiniGalleryCopyWithImpl;
 @override @useResult
 $Res call({
- String link, String name, int? count, Map<String, String> failed
+ String link, String name, int? count, Map<String, ParseException> failed
 });
 
 
@@ -286,7 +286,7 @@ link: null == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,count: freezed == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
 as int?,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 

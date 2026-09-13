@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$FolderEntry {
 
- String get name; int? get count; String? get group; int? get id; String? get slug; String? get user; Map<String, String> get failed;
+ String get name; int? get count; String? get group; int? get id; String? get slug; String? get user; Map<String, ParseException> get failed;
 /// Create a copy of FolderEntry
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -51,7 +51,7 @@ abstract mixin class $FolderEntryCopyWith<$Res>  {
   factory $FolderEntryCopyWith(FolderEntry value, $Res Function(FolderEntry) _then) = _$FolderEntryCopyWithImpl;
 @useResult
 $Res call({
- String name, int? count, String? group, int? id, String? slug, String? user, Map<String, String> failed
+ String name, int? count, String? group, int? id, String? slug, String? user, Map<String, ParseException> failed
 });
 
 
@@ -77,7 +77,7 @@ as String?,id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nul
 as int?,slug: freezed == slug ? _self.slug : slug // ignore: cast_nullable_to_non_nullable
 as String?,user: freezed == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
 as String?,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 
@@ -162,7 +162,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  int? count,  String? group,  int? id,  String? slug,  String? user,  Map<String, String> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  int? count,  String? group,  int? id,  String? slug,  String? user,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FolderEntry() when $default != null:
 return $default(_that.name,_that.count,_that.group,_that.id,_that.slug,_that.user,_that.failed);case _:
@@ -183,7 +183,7 @@ return $default(_that.name,_that.count,_that.group,_that.id,_that.slug,_that.use
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  int? count,  String? group,  int? id,  String? slug,  String? user,  Map<String, String> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  int? count,  String? group,  int? id,  String? slug,  String? user,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _FolderEntry():
 return $default(_that.name,_that.count,_that.group,_that.id,_that.slug,_that.user,_that.failed);case _:
@@ -203,7 +203,7 @@ return $default(_that.name,_that.count,_that.group,_that.id,_that.slug,_that.use
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  int? count,  String? group,  int? id,  String? slug,  String? user,  Map<String, String> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  int? count,  String? group,  int? id,  String? slug,  String? user,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _FolderEntry() when $default != null:
 return $default(_that.name,_that.count,_that.group,_that.id,_that.slug,_that.user,_that.failed);case _:
@@ -218,7 +218,7 @@ return $default(_that.name,_that.count,_that.group,_that.id,_that.slug,_that.use
 
 
 class _FolderEntry extends FolderEntry {
-  const _FolderEntry({required this.name, this.count, this.group, this.id, this.slug, this.user,  Map<String, String> failed = const {}}): _failed = failed,super._();
+  const _FolderEntry({required this.name, this.count, this.group, this.id, this.slug, this.user,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 @override final  String name;
@@ -227,8 +227,8 @@ class _FolderEntry extends FolderEntry {
 @override final  int? id;
 @override final  String? slug;
 @override final  String? user;
- final  Map<String, String> _failed;
-@override@JsonKey() Map<String, String> get failed {
+ final  Map<String, ParseException> _failed;
+@override@JsonKey() Map<String, ParseException> get failed {
   if (_failed is EqualUnmodifiableMapView) return _failed;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_failed);
@@ -267,7 +267,7 @@ abstract mixin class _$FolderEntryCopyWith<$Res> implements $FolderEntryCopyWith
   factory _$FolderEntryCopyWith(_FolderEntry value, $Res Function(_FolderEntry) _then) = __$FolderEntryCopyWithImpl;
 @override @useResult
 $Res call({
- String name, int? count, String? group, int? id, String? slug, String? user, Map<String, String> failed
+ String name, int? count, String? group, int? id, String? slug, String? user, Map<String, ParseException> failed
 });
 
 
@@ -293,7 +293,7 @@ as String?,id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nul
 as int?,slug: freezed == slug ? _self.slug : slug // ignore: cast_nullable_to_non_nullable
 as String?,user: freezed == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
 as String?,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 

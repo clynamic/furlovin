@@ -3,7 +3,7 @@ import 'package:furlovin/parser/parser.dart';
 
 extension PageOutcomeHarvest on PageOutcome {
   T? read<T>(SingleSlot<T> slot, {required Logger logger}) {
-    if (missing[slot.name] case final String reason) {
+    if (missing[slot.name] case final ParseException reason) {
       logger.error('Could not reach {slot}', {
         'slot': slot.name,
         'entity': slot.entity,
@@ -33,7 +33,7 @@ extension PageOutcomeHarvest on PageOutcome {
   }
 
   List<T> readAll<T>(ListSlot<T> slot, {required Logger logger}) {
-    if (missing[slot.name] case final String reason) {
+    if (missing[slot.name] case final ParseException reason) {
       logger.warn('Could not reach {slot}', {
         'slot': slot.name,
         'entity': slot.entity,

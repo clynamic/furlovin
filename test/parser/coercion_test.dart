@@ -30,6 +30,29 @@ EntityRule _entity(String type, String attribute, {bool required = false}) =>
       },
     })['thing']!;
 
+EntityRule _fallback() => RuleSet.fromJson({
+  'schema': generatedSchema,
+  'revision': 1,
+  'entities': {
+    'thing': {
+      'feature': 'test',
+      'fields': {
+        'value': {
+          'type': 'int',
+          'steps': [
+            [
+              {'op': 'index', 'at': 0},
+            ],
+            [
+              {'op': 'attr', 'name': 'v'},
+            ],
+          ],
+        },
+      },
+    },
+  },
+})['thing']!;
+
 ParseOutcome _parse(EntityRule rule, String markup) =>
     ParseEngine(base: Uri.parse('https://www.furaffinity.net'))
         .parseOne(rule, html.parse(markup).querySelector('span'));
@@ -57,7 +80,7 @@ void main() {
         '<span v="abc"></span>',
       );
       expect(outcome.values.containsKey('value'), isFalse);
-      expect(outcome.failed['value'], 'not a int: "abc"');
+      expect(outcome.failed['value'], const CoercionException('int', 'abc'));
     });
 
     test('records failures on optional fields too', () {
@@ -73,13 +96,32 @@ void main() {
         _entity('int', 'v', required: true),
         '<span></span>',
       );
-      expect(missing.failed['value'], 'nothing matched');
+      expect(missing.failed['value'], const NoMatch());
 
       final ParseOutcome bad = _parse(
         _entity('int', 'v', required: true),
         '<span v="abc"></span>',
       );
-      expect(bad.failed['value'], isNot('nothing matched'));
+      expect(bad.failed['value'], isA<CoercionException>());
+    });
+
+    test('a failing alternative falls through to the next one', () {
+      final ParseOutcome outcome = _parse(_fallback(), '<span v="7"></span>');
+      expect(outcome['value'], 7);
+      expect(outcome.failed, isEmpty);
+    });
+
+    test('keeps every cause when no alternative works', () {
+      final ParseOutcome outcome = _parse(_fallback(), '<span v="x"></span>');
+      expect(
+        outcome.failed['value'],
+        const NoMatch(
+          causes: [
+            StepException('index', 'expected a list, got Element'),
+            CoercionException('int', 'x'),
+          ],
+        ),
+      );
     });
 
     test('rejects a value outside a declared enum', () {
@@ -91,7 +133,10 @@ void main() {
         _entity('Rating', 'v'),
         '<span v="spicy"></span>',
       );
-      expect(outcome.failed['value'], 'not a Rating: "spicy"');
+      expect(
+        outcome.failed['value'],
+        const CoercionException('Rating', 'spicy'),
+      );
     });
   });
 }

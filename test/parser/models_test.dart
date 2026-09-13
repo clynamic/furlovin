@@ -71,11 +71,11 @@ void main() {
         'thumbnail': 'https://t.furaffinity.net/1@200-1.jpg',
         'title': 'a title',
       },
-      failed: {'thumbnailWidth': 'no value'},
+      failed: {'thumbnailWidth': NoMatch()},
     );
     final SubmissionPreview? listing = SubmissionPreview.fromOutcome(outcome);
     expect(listing, isNotNull);
     expect(listing!.thumbnailWidth, isNull);
-    expect(listing.failed, containsPair('thumbnailWidth', 'no value'));
+    expect(listing.failed, containsPair('thumbnailWidth', const NoMatch()));
   });
 }

@@ -19,7 +19,7 @@ mixin _$Fact {
  String get label;/// The answer the member gave.
  String get value;/// Which block of questions the row sits in. The site separates the
 /// availability answers from the rest and renders the rest smaller.
- String? get group; Map<String, String> get failed;
+ String? get group; Map<String, ParseException> get failed;
 /// Create a copy of Fact
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -55,7 +55,7 @@ abstract mixin class $FactCopyWith<$Res>  {
   factory $FactCopyWith(Fact value, $Res Function(Fact) _then) = _$FactCopyWithImpl;
 @useResult
 $Res call({
- String label, String value, String? group, Map<String, String> failed
+ String label, String value, String? group, Map<String, ParseException> failed
 });
 
 
@@ -78,7 +78,7 @@ label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nulla
 as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
 as String,group: freezed == group ? _self.group : group // ignore: cast_nullable_to_non_nullable
 as String?,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 
@@ -163,7 +163,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String label,  String value,  String? group,  Map<String, String> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String label,  String value,  String? group,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Fact() when $default != null:
 return $default(_that.label,_that.value,_that.group,_that.failed);case _:
@@ -184,7 +184,7 @@ return $default(_that.label,_that.value,_that.group,_that.failed);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String label,  String value,  String? group,  Map<String, String> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String label,  String value,  String? group,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _Fact():
 return $default(_that.label,_that.value,_that.group,_that.failed);case _:
@@ -204,7 +204,7 @@ return $default(_that.label,_that.value,_that.group,_that.failed);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String label,  String value,  String? group,  Map<String, String> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String label,  String value,  String? group,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _Fact() when $default != null:
 return $default(_that.label,_that.value,_that.group,_that.failed);case _:
@@ -219,7 +219,7 @@ return $default(_that.label,_that.value,_that.group,_that.failed);case _:
 
 
 class _Fact extends Fact {
-  const _Fact({required this.label, required this.value, this.group,  Map<String, String> failed = const {}}): _failed = failed,super._();
+  const _Fact({required this.label, required this.value, this.group,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 /// The question, as the site words it.
@@ -229,8 +229,8 @@ class _Fact extends Fact {
 /// Which block of questions the row sits in. The site separates the
 /// availability answers from the rest and renders the rest smaller.
 @override final  String? group;
- final  Map<String, String> _failed;
-@override@JsonKey() Map<String, String> get failed {
+ final  Map<String, ParseException> _failed;
+@override@JsonKey() Map<String, ParseException> get failed {
   if (_failed is EqualUnmodifiableMapView) return _failed;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_failed);
@@ -269,7 +269,7 @@ abstract mixin class _$FactCopyWith<$Res> implements $FactCopyWith<$Res> {
   factory _$FactCopyWith(_Fact value, $Res Function(_Fact) _then) = __$FactCopyWithImpl;
 @override @useResult
 $Res call({
- String label, String value, String? group, Map<String, String> failed
+ String label, String value, String? group, Map<String, ParseException> failed
 });
 
 
@@ -292,7 +292,7 @@ label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nulla
 as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
 as String,group: freezed == group ? _self.group : group // ignore: cast_nullable_to_non_nullable
 as String?,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 

@@ -21,7 +21,7 @@ mixin _$Contact {
  String? get icon;/// The service name as the site writes it.
  String? get label;/// Absolute url the entry points at, where the site made
 /// one. Handles the site cannot link carry no url.
- String? get link; Map<String, String> get failed;
+ String? get link; Map<String, ParseException> get failed;
 /// Create a copy of Contact
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -57,7 +57,7 @@ abstract mixin class $ContactCopyWith<$Res>  {
   factory $ContactCopyWith(Contact value, $Res Function(Contact) _then) = _$ContactCopyWithImpl;
 @useResult
 $Res call({
- String kind, String value, String? icon, String? label, String? link, Map<String, String> failed
+ String kind, String value, String? icon, String? label, String? link, Map<String, ParseException> failed
 });
 
 
@@ -82,7 +82,7 @@ as String,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_
 as String?,label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String?,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
 as String?,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 
@@ -167,7 +167,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String kind,  String value,  String? icon,  String? label,  String? link,  Map<String, String> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String kind,  String value,  String? icon,  String? label,  String? link,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Contact() when $default != null:
 return $default(_that.kind,_that.value,_that.icon,_that.label,_that.link,_that.failed);case _:
@@ -188,7 +188,7 @@ return $default(_that.kind,_that.value,_that.icon,_that.label,_that.link,_that.f
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String kind,  String value,  String? icon,  String? label,  String? link,  Map<String, String> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String kind,  String value,  String? icon,  String? label,  String? link,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _Contact():
 return $default(_that.kind,_that.value,_that.icon,_that.label,_that.link,_that.failed);case _:
@@ -208,7 +208,7 @@ return $default(_that.kind,_that.value,_that.icon,_that.label,_that.link,_that.f
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String kind,  String value,  String? icon,  String? label,  String? link,  Map<String, String> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String kind,  String value,  String? icon,  String? label,  String? link,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _Contact() when $default != null:
 return $default(_that.kind,_that.value,_that.icon,_that.label,_that.link,_that.failed);case _:
@@ -223,7 +223,7 @@ return $default(_that.kind,_that.value,_that.icon,_that.label,_that.link,_that.f
 
 
 class _Contact extends Contact {
-  const _Contact({required this.kind, required this.value, this.icon, this.label, this.link,  Map<String, String> failed = const {}}): _failed = failed,super._();
+  const _Contact({required this.kind, required this.value, this.icon, this.label, this.link,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 /// The service the entry points at.
@@ -237,8 +237,8 @@ class _Contact extends Contact {
 /// Absolute url the entry points at, where the site made
 /// one. Handles the site cannot link carry no url.
 @override final  String? link;
- final  Map<String, String> _failed;
-@override@JsonKey() Map<String, String> get failed {
+ final  Map<String, ParseException> _failed;
+@override@JsonKey() Map<String, ParseException> get failed {
   if (_failed is EqualUnmodifiableMapView) return _failed;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_failed);
@@ -277,7 +277,7 @@ abstract mixin class _$ContactCopyWith<$Res> implements $ContactCopyWith<$Res> {
   factory _$ContactCopyWith(_Contact value, $Res Function(_Contact) _then) = __$ContactCopyWithImpl;
 @override @useResult
 $Res call({
- String kind, String value, String? icon, String? label, String? link, Map<String, String> failed
+ String kind, String value, String? icon, String? label, String? link, Map<String, ParseException> failed
 });
 
 
@@ -302,7 +302,7 @@ as String,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_
 as String?,label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String?,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
 as String?,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 

@@ -34,7 +34,7 @@ abstract class Viewer with _$Viewer {
 
     /// How many new watchers are waiting.
     int? watchAlerts,
-    @Default(const {}) Map<String, String> failed,
+    @Default(const {}) Map<String, ParseException> failed,
   }) = _Viewer;
 
   static const String entity = 'viewer';
