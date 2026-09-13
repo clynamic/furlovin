@@ -74,6 +74,9 @@ const Map<String, List<String>> ruleManifest = {
   'contact': ['icon', 'kind', 'label', 'link', 'value'],
   'shout': ['author', 'authorAvatar', 'authorName', 'body', 'id', 'posted'],
   'fact': ['group', 'label', 'value'],
+  'folder': ['count', 'group', 'id', 'name', 'slug', 'user'],
+  'folderEntry': ['count', 'group', 'id', 'name', 'slug', 'user'],
+  'miniGallery': ['count', 'link', 'name'],
   'viewer': [
     'avatar',
     'commentAlerts',

@@ -7,10 +7,16 @@ class SubmissionDetail {
   const SubmissionDetail({
     required this.submission,
     this.comments = const [],
-    this.related = const [],
+    this.miniGallery,
+    this.newer = const [],
+    this.older = const [],
+    this.folders = const [],
   });
 
   final Submission submission;
   final List<Comment> comments;
-  final List<SubmissionPreview> related;
+  final MiniGallery? miniGallery;
+  final List<SubmissionPreview> newer;
+  final List<SubmissionPreview> older;
+  final List<Folder> folders;
 }

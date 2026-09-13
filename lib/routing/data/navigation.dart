@@ -9,6 +9,8 @@ const List<String> branchRoots = [browsePath, searchPath, inboxPath, mePath];
 const String submissionPath = '/view';
 const String userPath = '/user';
 const String galleryPath = '/gallery';
+const String scrapsPath = '/scraps';
+const String folderSegment = 'folder';
 const String favoritesPath = '/favorites';
 const String searchPath = '/search';
 const String loginPath = '/login';
@@ -35,8 +37,25 @@ extension AppRouting on BuildContext {
   void openUser(String name) =>
       GoRouter.of(this).push('$branch$userPath/$name');
 
-  void openGallery(String name) =>
-      GoRouter.of(this).push('$branch$galleryPath/$name');
+  void openGallery(String name, {bool replace = false}) =>
+      _open('$branch$galleryPath/$name', replace: replace);
+
+  void openScraps(String name, {bool replace = false}) =>
+      _open('$branch$scrapsPath/$name', replace: replace);
+
+  void openFolder(String name, int id, String slug, {bool replace = false}) =>
+      _open(
+        '$branch$galleryPath/$name/$folderSegment/$id/$slug',
+        replace: replace,
+      );
+
+  void _open(String location, {required bool replace}) {
+    if (replace) {
+      GoRouter.of(this).replace(location);
+      return;
+    }
+    GoRouter.of(this).push(location);
+  }
 
   void openFavorites(String name) =>
       GoRouter.of(this).push('$branch$favoritesPath/$name');

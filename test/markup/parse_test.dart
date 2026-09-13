@@ -128,10 +128,14 @@ void main() {
       ) as FavoritesTarget).name,
       'elder54',
     );
+    final FolderTarget folder = readTarget(
+      '/gallery/birch92/folder/1616500/ychs-open/2/',
+    ) as FolderTarget;
     expect(
-      readTarget('/gallery/birch92/folder/1616500/ychs-open/'),
-      isA<ElsewhereTarget>(),
+      (folder.name, folder.id, folder.slug),
+      ('birch92', 1616500, 'ychs-open'),
     );
+    expect((readTarget('/scraps/fennel76/') as ScrapsTarget).name, 'fennel76');
     expect(readTarget('https://example.com/x'), isA<ElsewhereTarget>());
     expect(readTarget('/browse/2/'), isA<ElsewhereTarget>());
   });

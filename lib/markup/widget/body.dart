@@ -44,6 +44,10 @@ Future<void> openTarget(BuildContext context, MarkupTarget target) async {
       context.openUser(name);
     case GalleryTarget(:final String name):
       context.openGallery(name);
+    case ScrapsTarget(:final String name):
+      context.openScraps(name);
+    case FolderTarget(:final String name, :final int id, :final String slug):
+      context.openFolder(name, id, slug);
     case FavoritesTarget(:final String name):
       context.openFavorites(name);
     case ElsewhereTarget(:final String url):

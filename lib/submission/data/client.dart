@@ -23,8 +23,24 @@ class SubmissionClient {
         : '/msg/submissions/new~$after@$inboxPageSize/',
   );
 
-  Future<List<SubmissionPreview>> gallery(String user, {int page = 1}) =>
-      _listing(GallerySlots.submissions, '/gallery/$user/$page/');
+  Future<GalleryPage> gallery(GallerySource source, {int page = 1}) async {
+    final String path = source.path(page);
+    final PageOutcome outcome = await _fetch(
+      GallerySlots.submissions.page,
+      path,
+    );
+    final Logger scope = logger.child({'page': 'gallery', 'path': path});
+    return GalleryPage(
+      submissions: outcome.readAll(GallerySlots.submissions, logger: scope),
+      folders: [
+        for (final FolderEntry entry in outcome.readAll(
+          GallerySlots.folders,
+          logger: scope,
+        ))
+          ?entry.within(source),
+      ],
+    );
+  }
 
   Future<List<SubmissionPreview>> favorites(String user, {int after = 0}) =>
       _listing(
@@ -57,7 +73,10 @@ class SubmissionClient {
     return SubmissionDetail(
       submission: parsed,
       comments: outcome.readAll(SubmissionSlots.comments, logger: scope),
-      related: outcome.readAll(SubmissionSlots.related, logger: scope),
+      miniGallery: outcome.read(SubmissionSlots.miniGallery, logger: scope),
+      newer: outcome.readAll(SubmissionSlots.newer, logger: scope),
+      older: outcome.readAll(SubmissionSlots.older, logger: scope),
+      folders: outcome.readAll(SubmissionSlots.folders, logger: scope),
     );
   }
 

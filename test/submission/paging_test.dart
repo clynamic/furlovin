@@ -16,6 +16,30 @@ SubmissionPreview _preview(int id, {int? favouriteId}) => SubmissionPreview(
   uploader: 'someone',
 );
 
+class _GalleryClient extends SubmissionClient {
+  _GalleryClient({required super.rules}) : super(client: FaClient());
+
+  final List<String> asked = [];
+
+  @override
+  Future<GalleryPage> gallery(GallerySource source, {int page = 1}) async {
+    asked.add(source.path(page));
+    return GalleryPage(
+      submissions: page == 1 ? [_preview(1)] : const [],
+      folders: page == 1
+          ? const [
+              Folder(
+                user: 'someone',
+                id: 7,
+                slug: 'sketches',
+                name: 'sketches',
+              ),
+            ]
+          : const [],
+    );
+  }
+}
+
 class _FavouritesClient extends SubmissionClient {
   _FavouritesClient(this.pages, {required super.rules})
     : super(client: FaClient());
@@ -135,5 +159,25 @@ void main() {
     expect(client.asked, [0, 800, 700]);
     expect(controller.value.items?.map((e) => e.id), [1, 2, 3]);
     expect(controller.value.hasNextPage, isFalse);
+  });
+
+  test('a gallery shares its sidebar folders from the first page', () async {
+    final _GalleryClient client = _GalleryClient(rules: rules);
+    final ProviderContainer container = ProviderContainer(
+      overrides: [submissionClientProvider.overrideWith((ref) async => client)],
+    );
+    addTearDown(container.dispose);
+    final GalleryListing listing = container.read(
+      galleryProvider(const GallerySource.folder('someone', 7, 'sketches')),
+    );
+    expect(listing.folders.value, isNull);
+
+    await settle(listing.paging);
+    expect(client.asked, ['/gallery/someone/folder/7/sketches/1/']);
+    expect(listing.folders.value?.single.name, 'sketches');
+
+    listing.paging.fetchNextPage();
+    await settle(listing.paging);
+    expect(listing.folders.value, hasLength(1));
   });
 }

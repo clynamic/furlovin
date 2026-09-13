@@ -58,21 +58,26 @@ void main() {
 
   test('a gallery beyond the retention window is let go', () async {
     final ProviderContainer container = host();
-    final List<SubmissionPaging> held = [
+    final List<GalleryListing> held = [
       for (int i = 0; i <= listingRetention; i++)
-        container.read(galleryProvider('user$i')),
+        container.read(galleryProvider(GallerySource.main('user$i'))),
     ];
 
     await Future<void>.delayed(Duration.zero);
 
     expect(
-      identical(container.read(galleryProvider('user0')), held.first),
+      identical(
+        container.read(galleryProvider(const GallerySource.main('user0'))),
+        held.first,
+      ),
       isFalse,
       reason: 'the oldest gallery should have been evicted',
     );
     expect(
       identical(
-        container.read(galleryProvider('user$listingRetention')),
+        container.read(
+          galleryProvider(const GallerySource.main('user$listingRetention')),
+        ),
         held.last,
       ),
       isTrue,
@@ -84,7 +89,7 @@ void main() {
     final ProviderContainer container = host();
     final SubmissionPaging first = container.read(browseProvider);
     for (int i = 0; i <= listingRetention * 2; i++) {
-      container.read(galleryProvider('other$i'));
+      container.read(galleryProvider(GallerySource.main('other$i')));
     }
     await Future<void>.delayed(Duration.zero);
     expect(identical(container.read(browseProvider), first), isTrue);
@@ -92,9 +97,43 @@ void main() {
 
   test('galleries and searches do not share retention keys', () async {
     final ProviderContainer container = host();
-    final SubmissionPaging gallery = container.read(galleryProvider('fennel114'));
+    final GalleryListing gallery = container.read(
+      galleryProvider(const GallerySource.main('fennel114')),
+    );
     container.read(searchProvider(SearchQuery.parse('fennel114')));
     await Future<void>.delayed(Duration.zero);
-    expect(identical(container.read(galleryProvider('fennel114')), gallery), isTrue);
+    expect(
+      identical(
+        container.read(galleryProvider(const GallerySource.main('fennel114'))),
+        gallery,
+      ),
+      isTrue,
+    );
+  });
+
+  test('a gallery, its scraps and its folders are separate listings', () async {
+    final ProviderContainer container = host();
+    final GalleryListing main = container.read(
+      galleryProvider(const GallerySource.main('fennel114')),
+    );
+    final GalleryListing scraps = container.read(
+      galleryProvider(const GallerySource.scraps('fennel114')),
+    );
+    final GalleryListing folder = container.read(
+      galleryProvider(const GallerySource.folder('fennel114', 7, 'sketches')),
+    );
+    await Future<void>.delayed(Duration.zero);
+    expect(identical(main, scraps), isFalse);
+    expect(identical(main, folder), isFalse);
+    expect(
+      identical(
+        container.read(
+          galleryProvider(const GallerySource.folder('fennel114', 7, 'renamed')),
+        ),
+        folder,
+      ),
+      isTrue,
+      reason: 'FA ignores the slug, so a renamed folder is the same listing',
+    );
   });
 }

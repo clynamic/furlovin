@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:furlovin/client/client.dart';
@@ -100,14 +101,30 @@ final Provider<SubmissionPaging> inboxProvider = Provider<SubmissionPaging>(
   ),
 );
 
-final ProviderFamily<SubmissionPaging, String> galleryProvider = Provider
+final ProviderFamily<ValueNotifier<List<Folder>?>, String>
+galleryFoldersProvider = Provider.autoDispose
+    .family<ValueNotifier<List<Folder>?>, String>((ref, user) {
+      final ValueNotifier<List<Folder>?> folders = ValueNotifier(null);
+      ref.onDispose(folders.dispose);
+      return folders;
+    });
+
+final ProviderFamily<GalleryListing, GallerySource> galleryProvider = Provider
     .autoDispose
-    .family<SubmissionPaging, String>(
-      (ref, user) => retainedPaging(ref, (
-        'gallery',
-        user,
-      ), (client, page) => client.gallery(user, page: page)),
-    );
+    .family<GalleryListing, GallerySource>((ref, source) {
+      final ValueNotifier<List<Folder>?> folders = ref.watch(
+        galleryFoldersProvider(source.user),
+      );
+      final SubmissionPaging paging = retainedPaging(ref, ('gallery', source), (
+        client,
+        page,
+      ) async {
+        final GalleryPage fetched = await client.gallery(source, page: page);
+        if (page == 1 && ref.mounted) folders.value = fetched.folders;
+        return fetched.submissions;
+      });
+      return GalleryListing(paging: paging, folders: folders);
+    });
 
 final ProviderFamily<SubmissionPaging, String> favoritesProvider = Provider
     .autoDispose

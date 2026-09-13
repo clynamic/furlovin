@@ -36,10 +36,34 @@ List<RouteBase> _reachable() => [
     ),
   ),
   GoRoute(
+    path: 'gallery/:name/folder/:id/:slug',
+    pageBuilder: (context, state) => DismissPage<void>(
+      key: state.pageKey,
+      child: UserGalleryPage(
+        source: GallerySource.folder(
+          state.pathParameters['name']!,
+          int.parse(state.pathParameters['id']!),
+          state.pathParameters['slug']!,
+        ),
+      ),
+    ),
+  ),
+  GoRoute(
     path: 'gallery/:name',
     pageBuilder: (context, state) => DismissPage<void>(
       key: state.pageKey,
-      child: UserGalleryPage(name: state.pathParameters['name']!),
+      child: UserGalleryPage(
+        source: GallerySource.main(state.pathParameters['name']!),
+      ),
+    ),
+  ),
+  GoRoute(
+    path: 'scraps/:name',
+    pageBuilder: (context, state) => DismissPage<void>(
+      key: state.pageKey,
+      child: UserGalleryPage(
+        source: GallerySource.scraps(state.pathParameters['name']!),
+      ),
     ),
   ),
   GoRoute(
@@ -105,7 +129,9 @@ GoRouter buildRouter(IdentityStore store) => GoRouter(
       ],
     ),
     _entry('$submissionPath/:id'),
+    _entry('$galleryPath/:name/$folderSegment/:id/:slug'),
     _entry('$galleryPath/:name'),
+    _entry('$scrapsPath/:name'),
     _entry('$favoritesPath/:name'),
     _entry('$userPath/:name'),
     GoRoute(

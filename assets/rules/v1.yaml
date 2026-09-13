@@ -1,5 +1,5 @@
 schema: 1
-revision: 6
+revision: 7
 refs:
   viewLink:
     - op: select
@@ -723,6 +723,138 @@ entities:
         description: |-
           Which block of questions the row sits in. The site separates the
           availability answers from the rest and renders the rest smaller.
+  folder:
+    feature: submission
+    fields:
+      user:
+        required: true
+        steps:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: ^/gallery/([^/]+)/folder/
+        description: The url name of the member who owns the folder.
+      id:
+        type: int
+        required: true
+        steps:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: /folder/(\d+)/
+      slug:
+        required: true
+        steps:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: /folder/\d+/([^/]+)
+        description: |-
+          The folder name as FA writes it into the url. FA routes by the id
+          alone, and writes a placeholder for names it cannot transliterate.
+      name:
+        required: true
+        steps:
+          - - op: text
+            - op: trim
+      count:
+        type: int
+        steps:
+          - - op: attr
+              name: title
+            - op: regex
+              pattern: (\d+) submission
+        description: |-
+          Counts every rating, so it exceeds what a listing shows a reader
+          whose settings hide some of them.
+      group:
+        steps:
+          - - op: closest
+              css: ul
+            - op: previous
+              css: div.container-item-top
+            - op: select
+              css: h4
+            - op: text
+            - op: trim
+        description: |-
+          The heading the member filed the folder under. Only the gallery
+          sidebar carries it, and folders outside any heading have none.
+  folderEntry:
+    feature: submission
+    description: |-
+      A row in the gallery sidebar. FA renders the open folder as plain text
+      without a link, so that row carries no user, id or slug.
+    fields:
+      user:
+        steps:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: ^/gallery/([^/]+)/folder/
+      id:
+        type: int
+        steps:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: /folder/(\d+)/
+      slug:
+        steps:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: /folder/\d+/([^/]+)
+      name:
+        required: true
+        steps:
+          - - op: text
+            - op: trim
+      count:
+        type: int
+        steps:
+          - - op: attr
+              name: title
+            - op: regex
+              pattern: (\d+) submission
+      group:
+        steps:
+          - - op: closest
+              css: ul
+            - op: previous
+              css: div.container-item-top
+            - op: select
+              css: h4
+            - op: text
+            - op: trim
+  miniGallery:
+    feature: submission
+    description: The strip of neighbouring submissions on a submission page.
+    fields:
+      name:
+        required: true
+        steps:
+          - - op: select
+              css: div.minigallery-title a
+            - op: text
+            - op: trim
+        description: Which listing the neighbours come from, such as the main gallery.
+      link:
+        required: true
+        steps:
+          - - op: select
+              css: div.minigallery-title a
+            - op: attr
+              name: href
+            - op: url
+      count:
+        type: int
+        steps:
+          - - op: select
+              css: div.minigallery-title i
+            - op: text
+            - op: regex
+              pattern: (\d+)
   viewer:
     feature: identity
     description: Whoever the site thinks is signed in.
@@ -809,6 +941,12 @@ pages:
         entity: submissionPreview
         selector: section#gallery-gallery > figure[id^="sid-"]
         list: true
+      folders:
+        entity: folderEntry
+        selector: >-
+          div.user-folders a[href*="/folder/"],
+          div.user-folders li.active strong[title]
+        list: true
   favorites:
     feature: submission
     slots:
@@ -843,9 +981,22 @@ pages:
       submission:
         entity: submission
         selector: body
-      related:
+      miniGallery:
+        entity: miniGallery
+        selector: section.minigallery-container
+      newer:
         entity: submissionPreview
-        selector: section.minigallery-container figure[id^="sid_"]
+        selector: >-
+          section.minigallery-container > div:first-child:not(.minigallery-title)
+          figure[id^="sid_"]
+        list: true
+      older:
+        entity: submissionPreview
+        selector: section.minigallery-container div.minigallery-title ~ div figure[id^="sid_"]
+        list: true
+      folders:
+        entity: folder
+        selector: div.submission-folder a[href*="/folder/"]
         list: true
       comments:
         entity: comment

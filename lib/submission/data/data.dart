@@ -1,6 +1,10 @@
 export 'client.dart';
 export 'detail.dart';
+export 'folder.rules.dart';
+export 'folder_entry.rules.dart';
+export 'gallery.dart';
 export 'ghost.dart';
+export 'mini_gallery.rules.dart';
 export 'pages.rules.dart';
 export 'providers.dart';
 export 'submission.rules.dart';
