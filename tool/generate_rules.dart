@@ -22,6 +22,8 @@ const Map<String, String> builtInTypes = {
 const Set<String> knownOps = {
   'select',
   'selectAll',
+  'closest',
+  'previous',
   'attr',
   'text',
   'class',
