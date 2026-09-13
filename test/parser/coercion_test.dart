@@ -105,7 +105,7 @@ void main() {
       );
       expect(
         missing.failed['value'],
-        const NoMatch(causes: [EmptyStep(1, 'attr "v"')]),
+        const NoMatch(causes: [EmptyStep(1, 'attr "v"', input: '<span>')]),
       );
 
       final ParseOutcome bad = _parse(

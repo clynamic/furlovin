@@ -26,7 +26,13 @@ void main() {
               path: 'submission.views',
               kind: FieldErrorKind.missing,
               error: NoMatch(
-                causes: [EmptyStep(1, 'select "div[title="Views"] > div"')],
+                causes: [
+                  EmptyStep(
+                    1,
+                    r'regex "Views:\s*([0-9,]+)"',
+                    input: '"Accepting Trades No"',
+                  ),
+                ],
               ),
             ),
           );
@@ -44,5 +50,10 @@ void main() {
       '  alternative 1: select "a.comment_anchor[id^="cid:"]" matched nothing',
     );
     expect(lines[4], 'submission.views missing');
+    expect(
+      lines[5],
+      r'  alternative 1: regex "Views:\s*([0-9,]+)" matched nothing '
+      'in "Accepting Trades No"',
+    );
   });
 }
