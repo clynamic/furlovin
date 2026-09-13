@@ -101,6 +101,10 @@ ThemeData buildTheme(Brightness brightness) {
       ),
     ),
     elevatedButtonTheme: const ElevatedButtonThemeData(style: buttonStyle),
+    segmentedButtonTheme: const SegmentedButtonThemeData(style: buttonStyle),
+    dialogTheme: const DialogThemeData(
+      shape: RoundedRectangleBorder(borderRadius: Corner.toolbar),
+    ),
     cardTheme: CardThemeData(
       elevation: 0,
       color: scheme.surfaceContainerLowest,
