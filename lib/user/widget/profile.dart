@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/markup/markup.dart';
+import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
@@ -32,6 +33,7 @@ class UserPage extends ConsumerWidget {
 
     final UserDetail? loaded = detail.asData?.value;
     final User? user = loaded?.user;
+    final ReadReport? report = loaded?.report;
 
     return Scaffold(
       body: CustomScrollView(
@@ -42,6 +44,7 @@ class UserPage extends ConsumerWidget {
             automaticallyImplyLeading: onSettings == null,
             leading: onSettings == null ? const ScrimBackButton() : null,
             actions: [
+              ReadIssuesButton(report: loaded?.report, onImage: true),
               if (onSettings case final VoidCallback open)
                 IconButton(
                   tooltip: 'Settings',
@@ -80,6 +83,9 @@ class UserPage extends ConsumerWidget {
               ],
             ),
           ),
+          if (report case final ReadReport broken
+              when broken.unreadable('facts'))
+            UnreadableSection(broken, 'facts', 'About'),
           if (loaded?.facts case final List<Fact> facts when facts.isNotEmpty)
             PersistentSliverSection(
               name: 'facts',
@@ -96,6 +102,9 @@ class UserPage extends ConsumerWidget {
                       ),
               ),
             ),
+          if (report case final ReadReport broken
+              when broken.unreadable('contacts'))
+            UnreadableSection(broken, 'contacts', 'Elsewhere'),
           if (loaded?.contacts case final List<Contact> contacts
               when contacts.isNotEmpty)
             PersistentSliverSection(
@@ -109,6 +118,9 @@ class UserPage extends ConsumerWidget {
                     const SizedBox(height: 10),
               ),
             ),
+          if (report case final ReadReport broken
+              when broken.unreadable('gallery'))
+            UnreadableSection(broken, 'gallery', 'Gallery'),
           if (loaded?.gallery case final List<SubmissionPreview> gallery
               when gallery.isNotEmpty)
             PersistentSliverSection(
@@ -131,6 +143,9 @@ class UserPage extends ConsumerWidget {
                 child: SubmissionStrip(submissions: gallery),
               ),
             ),
+          if (report case final ReadReport broken
+              when broken.unreadable('favorites'))
+            UnreadableSection(broken, 'favorites', 'Favourites'),
           if (loaded?.favorites case final List<SubmissionPreview> favorites
               when favorites.isNotEmpty)
             PersistentSliverSection(
@@ -153,6 +168,9 @@ class UserPage extends ConsumerWidget {
                 child: SubmissionStrip(submissions: favorites),
               ),
             ),
+          if (report case final ReadReport broken
+              when broken.unreadable('shouts'))
+            UnreadableSection(broken, 'shouts', 'Shouts'),
           if (loaded?.shouts case final List<Shout> shouts
               when shouts.isNotEmpty)
             PersistentSliverSection(
