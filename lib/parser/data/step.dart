@@ -1,4 +1,5 @@
 import 'package:furlovin/parser/data/failure.dart';
+import 'package:furlovin/parser/data/tree.dart';
 import 'package:html/dom.dart';
 
 String describeStep(Step step) {
@@ -32,7 +33,7 @@ sealed class Step {
       ),
       'attr' => AttrStep(json['name']! as String),
       'text' => TextStep(own: json['own'] as bool? ?? false),
-      'html' => const HtmlStep(),
+      'html' => HtmlStep(without: json['without'] as String?),
       'class' => ClassStep(json['prefix']! as String),
       'regex' => RegexStep(
         json['pattern']! as String,
@@ -230,21 +231,29 @@ class TextStep extends Step {
 }
 
 class HtmlStep extends Step {
-  const HtmlStep();
+  const HtmlStep({this.without});
+
+  final String? without;
 
   @override
   String get op => 'html';
 
   @override
   Object? apply(Object? input, StepContext context) {
-    final Element? element = _element(input, op);
+    Element? element = _element(input, op);
     if (element == null) return null;
+    if (without case final String css) {
+      element = element.clone(true);
+      for (final Element found in scopedAll(element, css)) {
+        found.remove();
+      }
+    }
     final String value = element.innerHtml.trim();
     return value.isEmpty ? null : value;
   }
 
   @override
-  Map<String, Object?> toJson() => {'op': op};
+  Map<String, Object?> toJson() => {'op': op, 'without': ?without};
 }
 
 class ClassStep extends Step {
