@@ -18,6 +18,8 @@ abstract class MiniGallery with _$MiniGallery {
 
     /// Which listing the neighbours come from, such as the main gallery.
     required String name,
+
+    /// Scraps carry no count.
     int? count,
     @Default(const []) List<SubmissionPreview> newer,
     @Default(const []) List<SubmissionPreview> older,

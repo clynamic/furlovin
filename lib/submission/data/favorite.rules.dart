@@ -13,8 +13,7 @@ abstract class Favorite with _$Favorite {
   const Favorite._();
 
   const factory Favorite({
-    /// Identifies a favourite rather than the submission, and exists only
-    /// where a submission appears as somebody's favourite.
+    /// Identifies the favourite, and is what the next page continues after.
     required int id,
     required SubmissionPreview submission,
     @Default(const {}) Map<String, ParseException> failed,

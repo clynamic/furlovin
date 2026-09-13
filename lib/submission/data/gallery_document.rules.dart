@@ -9,6 +9,7 @@ import 'package:furlovin/submission/data/submission_preview.rules.dart';
 
 part 'gallery_document.rules.freezed.dart';
 
+/// A main gallery, scraps or folder listing. All three share one layout.
 @freezed
 abstract class GalleryDocument with _$GalleryDocument {
   const GalleryDocument._();

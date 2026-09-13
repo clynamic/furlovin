@@ -15,8 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Favorite {
 
-/// Identifies a favourite rather than the submission, and exists only
-/// where a submission appears as somebody's favourite.
+/// Identifies the favourite, and is what the next page continues after.
  int get id; SubmissionPreview get submission; Map<String, ParseException> get failed;
 /// Create a copy of Favorite
 /// with the given fields replaced by the non-null parameter values.
@@ -228,8 +227,7 @@ class _Favorite extends Favorite {
   const _Favorite({required this.id, required this.submission,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
-/// Identifies a favourite rather than the submission, and exists only
-/// where a submission appears as somebody's favourite.
+/// Identifies the favourite, and is what the next page continues after.
 @override final  int id;
 @override final  SubmissionPreview submission;
  final  Map<String, ParseException> _failed;
