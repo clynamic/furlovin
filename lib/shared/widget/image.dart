@@ -33,6 +33,7 @@ class ProgressiveImage extends StatelessWidget {
     for (final ImageRung rung in rungs) {
       final Widget under = below;
       final bool best = rung == rungs.last;
+      final bool first = rung == rungs.first;
       below = CachedNetworkImage(
         imageUrl: rung.url,
         cacheKey: '${rung.url}#$discriminator',
@@ -40,7 +41,8 @@ class ProgressiveImage extends StatelessWidget {
         httpHeaders: headers(rung.url),
         memCacheWidth: rung.decodeWidth,
         fit: fit,
-        fadeInDuration: fade,
+        fadeInDuration: first ? fade : Duration.zero,
+        fadeOutDuration: first ? fade : Duration.zero,
         placeholderFadeInDuration: Duration.zero,
         placeholder: (context, url) => under,
         errorWidget: (context, url, error) => under,

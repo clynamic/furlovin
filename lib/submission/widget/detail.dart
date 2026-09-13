@@ -406,7 +406,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
       rungs.add((
         url: thumbnailFor(value.thumbnail, tileExtent, ratio),
         cache: thumbnails,
-        decodeWidth: null,
+        decodeWidth: (tileExtent * ratio).round(),
       ));
     }
 
@@ -493,6 +493,7 @@ class SubmissionHeader extends StatelessWidget {
       ),
       Hero(
         tag: tag,
+        flightShuttleBuilder: _ownShuttle,
         child: ProgressiveImage(
           rungs: rungs,
           headers: session.headersFor,
@@ -506,6 +507,17 @@ class SubmissionHeader extends StatelessWidget {
       ),
     ],
   );
+
+  static Widget _ownShuttle(
+    BuildContext flightContext,
+    Animation<double> animation,
+    HeroFlightDirection direction,
+    BuildContext fromHeroContext,
+    BuildContext toHeroContext,
+  ) => switch (direction) {
+    HeroFlightDirection.push => (toHeroContext.widget as Hero).child,
+    HeroFlightDirection.pop => (fromHeroContext.widget as Hero).child,
+  };
 }
 
 class SubmissionByline extends StatelessWidget {
