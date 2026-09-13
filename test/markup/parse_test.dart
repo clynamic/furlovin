@@ -113,7 +113,21 @@ void main() {
       ) as UserTarget).name,
       'olive33',
     );
-    expect(readTarget('/gallery/olive33/'), isA<ElsewhereTarget>());
+    expect((readTarget('/gallery/olive33/') as GalleryTarget).name, 'olive33');
+    expect(
+      (readTarget('/gallery/olive33/3/') as GalleryTarget).name,
+      'olive33',
+    );
+    expect(
+      (readTarget('/favorites/elder54/') as FavoritesTarget).name,
+      'elder54',
+    );
+    expect(
+      (readTarget(
+        '/favorites/elder54/1732255726/next',
+      ) as FavoritesTarget).name,
+      'elder54',
+    );
     expect(
       readTarget('/gallery/birch92/folder/1616500/ychs-open/'),
       isA<ElsewhereTarget>(),

@@ -27,6 +27,18 @@ class UserTarget extends MarkupTarget {
   final String name;
 }
 
+class GalleryTarget extends MarkupTarget {
+  const GalleryTarget(this.name);
+
+  final String name;
+}
+
+class FavoritesTarget extends MarkupTarget {
+  const FavoritesTarget(this.name);
+
+  final String name;
+}
+
 class ElsewhereTarget extends MarkupTarget {
   const ElsewhereTarget(this.url);
 
@@ -35,6 +47,8 @@ class ElsewhereTarget extends MarkupTarget {
 
 final RegExp _view = RegExp(r'^/view/(\d+)');
 final RegExp _user = RegExp(r'^/user/([^/]+)/?$');
+final RegExp _gallery = RegExp(r'^/gallery/([^/]+)(?:/\d+)?/?$');
+final RegExp _favorites = RegExp(r'^/favorites/([^/]+)(?:/\d+/next)?/?$');
 
 MarkupTarget readTarget(String href, {int depth = 0}) {
   final Uri? parsed = Uri.tryParse(href);
@@ -61,6 +75,12 @@ MarkupTarget readTarget(String href, {int depth = 0}) {
   }
   if (_user.firstMatch(path) case final RegExpMatch match) {
     return UserTarget(Uri.decodeComponent(match.group(1)!));
+  }
+  if (_gallery.firstMatch(path) case final RegExpMatch match) {
+    return GalleryTarget(Uri.decodeComponent(match.group(1)!));
+  }
+  if (_favorites.firstMatch(path) case final RegExpMatch match) {
+    return FavoritesTarget(Uri.decodeComponent(match.group(1)!));
   }
   return ElsewhereTarget(resolved.toString());
 }

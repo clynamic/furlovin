@@ -42,6 +42,10 @@ Future<void> openTarget(BuildContext context, MarkupTarget target) async {
       context.openSearchText(text);
     case UserTarget(:final String name):
       context.openUser(name);
+    case GalleryTarget(:final String name):
+      context.openGallery(name);
+    case FavoritesTarget(:final String name):
+      context.openFavorites(name);
     case ElsewhereTarget(:final String url):
       await hand(url);
   }
