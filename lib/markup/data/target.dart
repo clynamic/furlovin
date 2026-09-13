@@ -33,6 +33,20 @@ class GalleryTarget extends MarkupTarget {
   final String name;
 }
 
+class ScrapsTarget extends MarkupTarget {
+  const ScrapsTarget(this.name);
+
+  final String name;
+}
+
+class FolderTarget extends MarkupTarget {
+  const FolderTarget(this.name, this.id, this.slug);
+
+  final String name;
+  final int id;
+  final String slug;
+}
+
 class FavoritesTarget extends MarkupTarget {
   const FavoritesTarget(this.name);
 
@@ -48,6 +62,10 @@ class ElsewhereTarget extends MarkupTarget {
 final RegExp _view = RegExp(r'^/view/(\d+)');
 final RegExp _user = RegExp(r'^/user/([^/]+)/?$');
 final RegExp _gallery = RegExp(r'^/gallery/([^/]+)(?:/\d+)?/?$');
+final RegExp _scraps = RegExp(r'^/scraps/([^/]+)(?:/\d+)?/?$');
+final RegExp _folder = RegExp(
+  r'^/gallery/([^/]+)/folder/(\d+)/([^/]+)(?:/\d+)?/?$',
+);
 final RegExp _favorites = RegExp(r'^/favorites/([^/]+)(?:/\d+/next)?/?$');
 
 MarkupTarget readTarget(String href, {int depth = 0}) {
@@ -78,6 +96,16 @@ MarkupTarget readTarget(String href, {int depth = 0}) {
   }
   if (_gallery.firstMatch(path) case final RegExpMatch match) {
     return GalleryTarget(Uri.decodeComponent(match.group(1)!));
+  }
+  if (_scraps.firstMatch(path) case final RegExpMatch match) {
+    return ScrapsTarget(Uri.decodeComponent(match.group(1)!));
+  }
+  if (_folder.firstMatch(path) case final RegExpMatch match) {
+    return FolderTarget(
+      Uri.decodeComponent(match.group(1)!),
+      int.parse(match.group(2)!),
+      match.group(3)!,
+    );
   }
   if (_favorites.firstMatch(path) case final RegExpMatch match) {
     return FavoritesTarget(Uri.decodeComponent(match.group(1)!));

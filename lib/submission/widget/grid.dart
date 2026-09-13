@@ -29,15 +29,39 @@ class BrowsePage extends ConsumerWidget {
 }
 
 class UserGalleryPage extends ConsumerWidget {
-  const UserGalleryPage({super.key, required this.name});
+  const UserGalleryPage({super.key, required this.source});
 
-  final String name;
+  final GallerySource source;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => SubmissionPagedGrid(
-    controller: ref.watch(galleryProvider(name)),
-    header: SliverAppBar(title: Text(name), floating: true, snap: true),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final GalleryListing listing = ref.watch(galleryProvider(source));
+    return SubmissionPagedGrid(
+      key: ValueKey(source),
+      controller: listing.paging,
+      header: SliverAppBar(
+        title: ValueListenableBuilder<List<Folder>?>(
+          valueListenable: listing.folders,
+          builder: (context, folders, child) => Text(switch (source.shelf) {
+            GalleryShelf.main => source.user,
+            GalleryShelf.scraps => "${source.user}'s scraps",
+            GalleryShelf.folder =>
+              folders?.where(source.holds).firstOrNull?.name ??
+                  source.slug!.replaceAll('-', ' '),
+          }),
+        ),
+        floating: true,
+        snap: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: GalleryShelves(source: source, folders: listing.folders),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class UserFavoritesPage extends ConsumerWidget {

@@ -4,6 +4,9 @@
 
 import 'package:furlovin/comment/data/comment.rules.dart';
 import 'package:furlovin/parser/parser.dart';
+import 'package:furlovin/submission/data/folder.rules.dart';
+import 'package:furlovin/submission/data/folder_entry.rules.dart';
+import 'package:furlovin/submission/data/mini_gallery.rules.dart';
 import 'package:furlovin/submission/data/submission.rules.dart';
 import 'package:furlovin/submission/data/submission_preview.rules.dart';
 
@@ -22,6 +25,13 @@ abstract final class GallerySlots {
     'submissions',
     'submissionPreview',
     SubmissionPreview.fromOutcome,
+  );
+
+  static const ListSlot<FolderEntry> folders = ListSlot(
+    'gallery',
+    'folders',
+    'folderEntry',
+    FolderEntry.fromOutcome,
   );
 }
 
@@ -69,11 +79,32 @@ abstract final class SubmissionSlots {
     Submission.fromOutcome,
   );
 
-  static const ListSlot<SubmissionPreview> related = ListSlot(
+  static const SingleSlot<MiniGallery> miniGallery = SingleSlot(
     'submission',
-    'related',
+    'miniGallery',
+    'miniGallery',
+    MiniGallery.fromOutcome,
+  );
+
+  static const ListSlot<SubmissionPreview> newer = ListSlot(
+    'submission',
+    'newer',
     'submissionPreview',
     SubmissionPreview.fromOutcome,
+  );
+
+  static const ListSlot<SubmissionPreview> older = ListSlot(
+    'submission',
+    'older',
+    'submissionPreview',
+    SubmissionPreview.fromOutcome,
+  );
+
+  static const ListSlot<Folder> folders = ListSlot(
+    'submission',
+    'folders',
+    'folder',
+    Folder.fromOutcome,
   );
 
   static const ListSlot<Comment> comments = ListSlot(
