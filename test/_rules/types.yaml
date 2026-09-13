@@ -1,0 +1,1020 @@
+schema: 1
+revision: 11
+refs:
+  viewLink:
+    - op: select
+      css: figcaption a[href^="/view/"]
+  userLink:
+    - op: select
+      css: figcaption a[href^="/user/"]
+  urlName:
+    - op: attr
+      name: href
+    - op: regex
+      pattern: /user/([^/]+)
+  statsText:
+    - op: select
+      css: div.userpage-section-right div.table
+    - op: text
+enums:
+  SubmissionRating:
+    feature: submission
+    description: The content rating the site assigns to a submission.
+    values: [general, mature, adult]
+  SubmissionType:
+    feature: submission
+    description: The kind of content a submission holds.
+    values: [image, text, audio, flash]
+
+types:
+  submissionPreview:
+    feature: submission
+    description: A submission as it appears in a listing.
+    fields:
+      id:
+        presence: required
+        type: int
+        description: The submission's numeric identifier.
+        read:
+          - - op: attr
+              name: id
+            - op: regex
+              pattern: sid[-_](\d+)
+      rating:
+        presence: required
+        type: SubmissionRating
+        description: The submission's content rating.
+        read:
+          - - op: class
+              prefix: r-
+      type:
+        type: SubmissionType
+        description: Content type, such as image, text, music or flash.
+        read:
+          - - op: class
+              prefix: t-
+      title:
+        presence: expected
+        description: |-
+          Listing titles are sanitised by the site and may lose leading
+          punctuation. The submission page carries the canonical title.
+        read:
+          - - $ref: viewLink
+            - op: attr
+              name: title
+            - op: trim
+          - - $ref: viewLink
+            - op: text
+            - op: trim
+          - - op: select
+              css: img
+            - op: attr
+              name: title
+            - op: trim
+      uploader:
+        presence: required
+        description: |-
+          The url form of the name of whoever posted the submission,
+          lowercased and with underscores removed.
+        read:
+          - - $ref: userLink
+            - $ref: urlName
+          - - op: attr
+              name: data-user
+            - op: regex
+              pattern: u-(.+)
+          - - op: class
+              prefix: u-
+          - - op: select
+              css: img
+            - op: attr
+              name: data-tags
+            - op: regex
+              pattern: (?:^|\s)u_(\S+)
+      uploaderName:
+        description: The name of whoever posted the submission, as displayed.
+        read:
+          - - $ref: userLink
+            - op: text
+            - op: trim
+      link:
+        presence: required
+        description: Absolute url of the submission page.
+        read:
+          - - op: select
+              css: a[href^="/view/"]
+            - op: attr
+              name: href
+            - op: url
+      thumbnail:
+        presence: required
+        description: |-
+          Absolute url of the thumbnail. The size segment constrains the
+          longest edge to that many pixels.
+        read:
+          - - op: select
+              css: img
+            - op: attr
+              name: src
+            - op: url
+      thumbnailWidth:
+        type: float
+        description: |-
+          Thumbnail width in pixels, as declared by the site rather than
+          measured from the image.
+        read:
+          - - op: select
+              css: img
+            - op: attr
+              name: data-width
+      thumbnailHeight:
+        type: float
+        description: Thumbnail height in pixels, which the site fixes at 200.
+        read:
+          - - op: select
+              css: img
+            - op: attr
+              name: data-height
+
+  favorite:
+    feature: submission
+    description: A submission as it sits in somebody's favourites.
+    fields:
+      id:
+        presence: required
+        type: int
+        description: Identifies the favourite, and is what the next page continues after.
+        read:
+          - - op: attr
+              name: data-fav-id
+      submission:
+        presence: required
+        type: submissionPreview
+        at: [self]
+
+  comment:
+    feature: comment
+    description: A comment on a submission or a journal.
+    fields:
+      id:
+        presence: required
+        type: int
+        description: The comment's numeric identifier.
+        read:
+          - - op: select
+              css: a.comment_anchor[id^="cid:"]
+            - op: attr
+              name: id
+            - op: regex
+              pattern: cid:(\d+)
+      posted:
+        presence: expected
+        type: timestamp
+        description: When the comment was posted.
+        read:
+          - - op: attr
+              name: data-timestamp
+      author:
+        description: |-
+          The url form of the commenter name, lowercased and with
+          underscores removed. Hidden comments carry none.
+        read:
+          - - op: select
+              css: a.c-usernameBlock__userName
+            - $ref: urlName
+      authorName:
+        description: The commenter name as displayed.
+        read:
+          - - op: select
+              css: a.c-usernameBlock__displayName span
+            - op: text
+            - op: trim
+      authorAvatar:
+        description: Absolute url of the commenter's avatar.
+        read:
+          - - op: select
+              css: img.comment_useravatar
+            - op: attr
+              name: src
+            - op: url
+      body:
+        description: The rendered comment, as markup rather than text.
+        read:
+          - - op: select
+              css: comment-user-text div.user-submitted-links
+            - op: html
+      width:
+        presence: expected
+        type: int
+        description: |-
+          The percentage width the site renders the comment at.
+          Replies are narrower than their parent, so this encodes depth.
+        read:
+          - - op: attr
+              name: style
+            - op: regex
+              pattern: width:\s*(\d+)
+
+  folder:
+    feature: submission
+    description: A folder a submission is filed in, as its own page lists it.
+    fields:
+      user:
+        presence: required
+        read:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: ^/gallery/([^/]+)/folder/
+      id:
+        presence: required
+        type: int
+        read:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: /folder/(\d+)/
+      slug:
+        presence: required
+        read:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: /folder/\d+/([^/]+)
+      name:
+        presence: required
+        read:
+          - - op: text
+            - op: replace
+              pattern: \s+
+              with: ' '
+            - op: trim
+      count:
+        presence: expected
+        type: int
+        read:
+          - - op: attr
+              name: title
+            - op: regex
+              pattern: (\d+) submission
+
+  folderRow:
+    feature: submission
+    description: |-
+      A row in the gallery sidebar. FA renders the open folder as plain text
+      without a link, so that row carries no user, id or slug.
+    fields:
+      user:
+        read:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: ^/gallery/([^/]+)/folder/
+      id:
+        type: int
+        read:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: /folder/(\d+)/
+      slug:
+        read:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: /folder/\d+/([^/]+)
+      name:
+        presence: required
+        read:
+          - - op: text
+            - op: replace
+              pattern: \s+
+              with: ' '
+            - op: trim
+      count:
+        presence: expected
+        type: int
+        read:
+          - - op: attr
+              name: title
+            - op: regex
+              pattern: (\d+) submission
+      group:
+        description: |-
+          The heading the member filed the folder under. Folders outside
+          any heading have none.
+        read:
+          - - op: closest
+              css: ul
+            - op: previous
+              css: div.container-item-top
+            - op: select
+              css: h4
+            - op: text
+            - op: trim
+
+  miniGallery:
+    feature: submission
+    description: The strip of neighbouring submissions on a submission page.
+    fields:
+      name:
+        presence: required
+        description: Which listing the neighbours come from, such as the main gallery.
+        read:
+          - - op: select
+              css: div.minigallery-title a
+            - op: text
+            - op: trim
+      link:
+        presence: required
+        read:
+          - - op: select
+              css: div.minigallery-title a
+            - op: attr
+              name: href
+            - op: url
+      count:
+        type: int
+        description: Scraps carry no count.
+        read:
+          - - op: select
+              css: div.minigallery-title i
+            - op: text
+            - op: regex
+              pattern: (\d+)
+      newer:
+        type: submissionPreview
+        list: true
+        at: ['> div:first-child:not(.minigallery-title) figure[id^="sid_"]']
+      older:
+        type: submissionPreview
+        list: true
+        at: ['> div.minigallery-title ~ div figure[id^="sid_"]']
+
+  submission:
+    feature: submission
+    description: A submission as its own page carries it.
+    fields:
+      id:
+        presence: required
+        type: int
+        read:
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-content-id
+      title:
+        presence: required
+        read:
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-artwork-title
+          - - op: select
+              css: div.submission-title h2
+            - op: text
+            - op: trim
+      uploader:
+        presence: required
+        read:
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-artist-name
+      uploaderName:
+        presence: expected
+        read:
+          - - op: select
+              css: span.c-usernameBlockSimple__displayName
+            - op: text
+            - op: trim
+      uploaderAvatar:
+        presence: expected
+        read:
+          - - op: select
+              css: img.submission-user-icon
+            - op: attr
+              name: src
+            - op: url
+      rating:
+        presence: required
+        type: SubmissionRating
+        read:
+          - - op: select
+              css: div.rating [class*="c-contentRating--"]
+            - op: class
+              prefix: c-contentRating--
+          - - op: select
+              css: '[class*="c-contentRating--"]'
+            - op: class
+              prefix: c-contentRating--
+      type:
+        presence: expected
+        type: SubmissionType
+        read:
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-content-type
+      category:
+        presence: expected
+        in: [div.submission-content-stats]
+        read:
+          - - op: labeled
+              labels: span.highlight > span
+              values: span:not(.highlight) > span
+              label: Category
+            - op: text
+            - op: trim
+      theme:
+        presence: expected
+        in: [div.submission-content-stats]
+        read:
+          - - op: labeled
+              labels: span.highlight > span
+              values: span:not(.highlight) > span
+              label: Theme
+            - op: text
+            - op: trim
+      species:
+        presence: expected
+        in: [div.submission-content-stats]
+        read:
+          - - op: labeled
+              labels: span.highlight > span
+              values: span:not(.highlight) > span
+              label: Species
+            - op: text
+            - op: trim
+      resolution:
+        description: Images only.
+        in: [div.submission-content-stats]
+        read:
+          - - op: labeled
+              labels: span.highlight > span
+              values: span:not(.highlight) > span
+              label: Resolution
+            - op: text
+            - op: trim
+      fileSize:
+        in: [div.submission-content-stats]
+        read:
+          - - op: labeled
+              labels: span.highlight > span
+              values: span:not(.highlight) > span
+              label: File Size
+            - op: text
+            - op: trim
+      extension:
+        presence: expected
+        read:
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-content-extension
+      posted:
+        presence: expected
+        type: timestamp
+        read:
+          - - op: select
+              css: span.popup_date
+            - op: attr
+              name: data-time
+      file:
+        presence: required
+        read:
+          - - op: select
+              css: img#submissionImg
+            - op: attr
+              name: data-fullview-src
+            - op: url
+          - - op: select
+              css: script[data-content-id]
+            - op: attr
+              name: data-content-url
+            - op: url
+      preview:
+        description: Images only.
+        read:
+          - - op: select
+              css: img#submissionImg
+            - op: attr
+              name: data-preview-src
+            - op: url
+      description:
+        read:
+          - - op: select
+              css: div.submission-description-text
+            - op: html
+      tags:
+        list: true
+        at: ['span.tags a[href^="/search/"]']
+        read:
+          - - op: text
+            - op: trim
+      views:
+        presence: expected
+        type: int
+        read:
+          - - op: select
+              css: div[title="Views"] > div
+            - op: text
+            - op: trim
+      comments:
+        presence: expected
+        type: int
+        read:
+          - - op: select
+              css: div[title="Comments"] > div
+            - op: text
+            - op: trim
+      favorites:
+        presence: expected
+        type: int
+        read:
+          - - op: select
+              css: div[title="Favorites"] > div
+            - op: text
+            - op: trim
+      favourited:
+        type: bool
+        description: Absent when signed out.
+        in: [div#submission-options]
+        read:
+          - - op: select
+              css: a[href^="/unfav/"]
+            - op: literal
+              value: 'true'
+          - - op: select
+              css: a[href^="/fav/"]
+            - op: literal
+              value: 'false'
+      favouriteLink:
+        description: Absent when signed out.
+        in: [div#submission-options]
+        read:
+          - - op: select
+              css: a[href^="/fav/"], a[href^="/unfav/"]
+            - op: attr
+              name: href
+            - op: url
+      noteLink:
+        description: Absent when signed out.
+        in: [div#submission-options]
+        read:
+          - - op: select
+              css: a[href^="/newpm/"]
+            - op: attr
+              name: href
+            - op: url
+
+  submissionPage:
+    feature: submission
+    page: true
+    fields:
+      submission:
+        presence: required
+        type: submission
+        at: [body]
+      miniGallery:
+        type: miniGallery
+        at: ['div#minigallery > section.minigallery-container:first-child']
+      folders:
+        type: folder
+        list: true
+        at: ['div.submission-folder a[href*="/folder/"]']
+      comments:
+        presence: expected
+        type: comment
+        list: true
+        in: ['div#comments-submission']
+        at: ['div.comment_container:not(.collapsed_height)']
+
+  user:
+    feature: user
+    description: A member as their profile page carries them.
+    fields:
+      name:
+        presence: required
+        description: The url form of the name, lowercased and with underscores removed.
+        read:
+          - - op: select
+              css: userpage-nav-avatar a
+            - $ref: urlName
+      displayName:
+        presence: expected
+        read:
+          - - op: select
+              css: a.c-usernameBlock__displayName span
+            - op: text
+            - op: trim
+      symbol:
+        read:
+          - - op: select
+              css: span.c-usernameBlock__symbol
+            - op: attr
+              name: title
+      title:
+        read:
+          - - op: select
+              css: span.user-title
+            - op: text
+            - op: regex
+              pattern: ^\s*(.+?)\s*\|
+            - op: trim
+      avatar:
+        presence: expected
+        read:
+          - - op: select
+              css: userpage-nav-avatar img
+            - op: attr
+              name: src
+            - op: url
+      banner:
+        read:
+          - - op: select
+              css: site-banner picture img
+            - op: attr
+              name: src
+            - op: url
+      registered:
+        presence: expected
+        type: timestamp
+        read:
+          - - op: select
+              css: span.user-title span.popup_date
+            - op: attr
+              name: data-time
+      profile:
+        in: [section.userpage-layout-profile]
+        read:
+          - - op: select
+              css: div.section-body.userpage-profile
+            - op: html
+      views:
+        presence: expected
+        type: int
+        read:
+          - - $ref: statsText
+            - op: regex
+              pattern: Views:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+      submissions:
+        presence: expected
+        type: int
+        read:
+          - - $ref: statsText
+            - op: regex
+              pattern: Submissions:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+      favorites:
+        presence: expected
+        type: int
+        read:
+          - - $ref: statsText
+            - op: regex
+              pattern: Favs:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+      commentsEarned:
+        presence: expected
+        type: int
+        read:
+          - - $ref: statsText
+            - op: regex
+              pattern: Comments Earned:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+      commentsMade:
+        presence: expected
+        type: int
+        read:
+          - - $ref: statsText
+            - op: regex
+              pattern: Comments Made:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+      journals:
+        presence: expected
+        type: int
+        read:
+          - - $ref: statsText
+            - op: regex
+              pattern: Journals:\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+      watchedBy:
+        presence: expected
+        type: int
+        read:
+          - - op: select
+              css: section.watched-by-block
+            - op: text
+            - op: regex
+              pattern: Watched by\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+      watching:
+        presence: expected
+        type: int
+        read:
+          - - op: select
+              css: section.is-watching-block
+            - op: text
+            - op: regex
+              pattern: Watching\s*([0-9,]+)
+            - op: replace
+              pattern: ','
+              with: ''
+
+  contact:
+    feature: user
+    description: A way to reach a member, as listed on their profile.
+    fields:
+      kind:
+        presence: required
+        read:
+          - - op: select
+              css: img.contact-icon
+            - op: class
+              prefix: contact-icon-
+      icon:
+        presence: expected
+        read:
+          - - op: select
+              css: img.contact-icon
+            - op: attr
+              name: src
+            - op: url
+      label:
+        presence: expected
+        read:
+          - - op: select
+              css: div.user-contact-user-info strong
+            - op: text
+            - op: trim
+      value:
+        presence: required
+        read:
+          - - op: select
+              css: div.user-contact-user-info a
+            - op: text
+            - op: trim
+      link:
+        description: Handles the site cannot link carry no url.
+        read:
+          - - op: select
+              css: div.user-contact-user-info a[href^="http"], div.user-contact-user-info a[href^="mailto"]
+            - op: attr
+              name: href
+
+  shout:
+    feature: user
+    description: A message left on a member profile.
+    fields:
+      id:
+        presence: required
+        type: int
+        read:
+          - - op: select
+              css: a.comment_anchor
+            - op: attr
+              name: id
+            - op: regex
+              pattern: shout-(\d+)
+      author:
+        read:
+          - - op: select
+              css: a.c-usernameBlock__userName
+            - $ref: urlName
+      authorName:
+        read:
+          - - op: select
+              css: a.c-usernameBlock__displayName span
+            - op: text
+            - op: trim
+      authorAvatar:
+        read:
+          - - op: select
+              css: img.comment_useravatar
+            - op: attr
+              name: src
+            - op: url
+      posted:
+        presence: expected
+        type: timestamp
+        read:
+          - - op: select
+              css: span.popup_date
+            - op: attr
+              name: data-time
+      body:
+        read:
+          - - op: select
+              css: comment-user-text
+            - op: html
+
+  fact:
+    feature: user
+    description: A question the site asks on a profile, and its answer.
+    fields:
+      label:
+        presence: required
+        read:
+          - - op: select
+              css: div.userpage-profile-question
+            - op: text
+            - op: trim
+      value:
+        presence: required
+        read:
+          - - op: text
+              own: true
+            - op: trim
+      group:
+        read:
+          - - op: select
+              css: div.userpage-profile-question
+            - op: class
+              prefix: font-
+
+  userPage:
+    feature: user
+    page: true
+    fields:
+      user:
+        presence: required
+        type: user
+        at: [body]
+      contacts:
+        type: contact
+        list: true
+        at: [div.user-contact-item]
+      facts:
+        presence: expected
+        type: fact
+        list: true
+        in: ['div#userpage-contact-item']
+        at: [div.table-row]
+      shouts:
+        presence: expected
+        type: shout
+        list: true
+        in: ['section#shout-column']
+        at: [div.comment_container]
+      gallery:
+        type: submissionPreview
+        list: true
+        at: ['#gallery-latest-submissions figure[id^="sid-"]']
+      favorites:
+        type: submissionPreview
+        list: true
+        at: ['#gallery-latest-favorites figure[id^="sid-"]']
+
+  browsePage:
+    feature: submission
+    page: true
+    fields:
+      submissions:
+        presence: required
+        type: submissionPreview
+        list: true
+        in: ['section#gallery-browse']
+        at: ['figure[id^="sid-"]']
+
+  galleryPage:
+    feature: submission
+    page: true
+    description: A main gallery, scraps or folder listing. All three share one layout.
+    fields:
+      submissions:
+        presence: required
+        type: submissionPreview
+        list: true
+        in: ['section#gallery-gallery']
+        at: ['figure[id^="sid-"]']
+      folders:
+        type: folderRow
+        list: true
+        at:
+          - div.user-folders a[href*="/folder/"], div.user-folders li.active strong[title]
+
+  favoritesPage:
+    feature: submission
+    page: true
+    fields:
+      favorites:
+        presence: required
+        type: favorite
+        list: true
+        in: ['section#gallery-favorites']
+        at: ['figure[id^="sid-"]']
+
+  searchPage:
+    feature: submission
+    page: true
+    fields:
+      submissions:
+        presence: required
+        type: submissionPreview
+        list: true
+        in: ['div#search-results']
+        at: ['section#gallery-search-results > figure[id^="sid-"]']
+
+  frontPage:
+    feature: submission
+    page: true
+    fields:
+      submissions:
+        type: submissionPreview
+        list: true
+        at: ['section[id^="gallery-frontpage"] > figure[id^="sid-"]']
+
+  inboxPage:
+    feature: submission
+    page: true
+    fields:
+      submissions:
+        type: submissionPreview
+        list: true
+        at: ['section.gallery > figure[id^="sid-"]']
+
+  viewer:
+    feature: identity
+    description: Whoever the site thinks is signed in.
+    fields:
+      name:
+        presence: required
+        read:
+          - - op: select
+              css: img.loggedin_user_avatar
+            - op: attr
+              name: alt
+            - op: trim
+      displayName:
+        read:
+          - - op: select
+              css: a#my-username
+            - op: text
+              own: true
+            - op: trim
+      avatar:
+        read:
+          - - op: select
+              css: img.loggedin_user_avatar
+            - op: attr
+              name: src
+            - op: url
+      submissionAlerts:
+        type: int
+        read:
+          - - op: select
+              css: a.notification-container[href="/msg/submissions/"]
+            - op: attr
+              name: title
+            - op: regex
+              pattern: ^(\d+)
+      watchAlerts:
+        type: int
+        read:
+          - - op: select
+              css: a.notification-container[href="/msg/others/#watches"]
+            - op: attr
+              name: title
+            - op: regex
+              pattern: ^(\d+)
+      commentAlerts:
+        type: int
+        read:
+          - - op: select
+              css: a.notification-container[href="/msg/others/#comments"]
+            - op: attr
+              name: title
+            - op: regex
+              pattern: ^(\d+)
+      favouriteAlerts:
+        type: int
+        read:
+          - - op: select
+              css: a.notification-container[href="/msg/others/#favorites"]
+            - op: attr
+              name: title
+            - op: regex
+              pattern: ^(\d+)
+
+  controlsPage:
+    feature: identity
+    page: true
+    fields:
+      viewer:
+        type: viewer
+        at: [body]

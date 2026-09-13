@@ -30,6 +30,31 @@ final class NoMatch extends ParseException {
   int get hashCode => Object.hashAll(causes);
 }
 
+final class DroppedItems extends ParseException {
+  const DroppedItems(this.count, this.of, {required this.cause, this.field});
+
+  final int count;
+  final int of;
+  final String? field;
+  final ParseException cause;
+
+  @override
+  String get message =>
+      'dropped $count of $of${field == null ? '' : ' over $field'}: '
+      '${cause.message}';
+
+  @override
+  bool operator ==(Object other) =>
+      other is DroppedItems &&
+      other.count == count &&
+      other.of == of &&
+      other.field == field &&
+      other.cause == cause;
+
+  @override
+  int get hashCode => Object.hash(count, of, field, cause);
+}
+
 final class EmptyStep extends ParseException {
   const EmptyStep(this.alternative, this.step);
 
