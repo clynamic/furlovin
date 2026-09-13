@@ -1,7 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:furlovin/client/client.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:furlovin/user/user.dart';
+import 'package:html/dom.dart';
+import 'package:html/parser.dart' as html;
 
 import '../_support/documents.dart';
 
@@ -43,6 +46,26 @@ void main() {
     expect(user.journals, 24);
     expect(user.watchedBy, 10304);
     expect(user.watching, 133);
+  });
+
+  test('leaves counts unread rather than reading them from the facts', () {
+    final Document page = html.parse(fixture('user_full'));
+    page
+        .querySelector('div.userpage-section-right div.table div.cell')!
+        .parent!
+        .parent!
+        .parent!
+        .remove();
+    final ParseOutcome profile = child(
+      rules.parsePage(UserDocument.ruleType, page, base: Uri.parse(faOrigin)),
+      'user',
+    );
+
+    expect(profile['views'], isNull);
+    expect(
+      '${profile.failed['views']}',
+      startsWith('gorse71 matched: dahlia3 1: select'),
+    );
   });
 
   test('reads contacts, including one that is not a link', () {
