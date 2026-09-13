@@ -16,7 +16,8 @@ T _$identity<T>(T value) => value;
 mixin _$MiniGallery {
 
  String get link;/// Which listing the neighbours come from, such as the main gallery.
- String get name; int? get count; List<SubmissionPreview> get newer; List<SubmissionPreview> get older; Map<String, ParseException> get failed;
+ String get name;/// Scraps carry no count.
+ int? get count; List<SubmissionPreview> get newer; List<SubmissionPreview> get older; Map<String, ParseException> get failed;
 /// Create a copy of MiniGallery
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -224,6 +225,7 @@ class _MiniGallery extends MiniGallery {
 @override final  String link;
 /// Which listing the neighbours come from, such as the main gallery.
 @override final  String name;
+/// Scraps carry no count.
 @override final  int? count;
  final  List<SubmissionPreview> _newer;
 @override@JsonKey() List<SubmissionPreview> get newer {

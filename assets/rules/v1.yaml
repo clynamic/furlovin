@@ -140,9 +140,7 @@ types:
     feature: submission
     fields:
       id:
-        description: |-
-          Identifies a favourite rather than the submission, and exists only
-          where a submission appears as somebody's favourite.
+        description: Identifies the favourite, and is what the next page continues after.
         presence: required
         type: int
         read:
@@ -351,6 +349,7 @@ types:
               name: href
             - op: url
       count:
+        description: Scraps carry no count.
         type: int
         read:
           - - op: select
@@ -968,6 +967,7 @@ types:
 
   galleryDocument:
     feature: submission
+    description: A main gallery, scraps or folder listing. All three share one layout.
     page: true
     fields:
       submissions:
