@@ -118,6 +118,19 @@ void main() {
     expect(facts.every((e) => !e.value.contains(e.label)), isTrue);
   });
 
+  test('keeps answers that are only links', () {
+    final List<Fact> facts = parse('user_linked_facts').facts;
+    expect(facts, hasLength(7));
+
+    final Map<String, String> answers = {
+      for (final Fact fact in facts) fact.label: fact.value,
+    };
+    expect(answers['Mallow17 Species'], 'Tansy51');
+    expect(answers['Favorite Birch6'], contains('/user/willow101'));
+    expect(facts.every((e) => !e.value.contains(e.label)), isTrue);
+    expect(facts.every((e) => !e.value.startsWith('<br')), isTrue);
+  });
+
   test('separates the availability answers from the rest', () {
     final List<Fact> facts = parse('user_full').facts;
     final List<Fact> first = facts.takeWhile((e) => e.group == null).toList();

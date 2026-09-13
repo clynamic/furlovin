@@ -1,5 +1,5 @@
 schema: 1
-revision: 11
+revision: 12
 refs:
   viewLink:
     - op: select
@@ -908,9 +908,8 @@ types:
         description: The answer the member gave.
         presence: required
         read:
-          - - op: text
-              own: true
-            - op: trim
+          - - op: html
+              without: '> div.userpage-profile-question, > div.userpage-profile-question + br'
       group:
         description: |-
           Which block of questions the row sits in. The site separates the

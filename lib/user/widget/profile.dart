@@ -568,7 +568,12 @@ class FactRow extends StatelessWidget {
             ),
           ),
         ),
-        Expanded(child: Text(fact.value, style: theme.textTheme.bodyMedium)),
+        Expanded(
+          child: MarkupBody(
+            markup: fact.value,
+            style: theme.textTheme.bodyMedium,
+          ),
+        ),
       ],
     );
   }
