@@ -51,57 +51,59 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
         .watch(sessionProvider)
         .maybeWhen(data: (e) => e, orElse: () => const Session());
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: DismissTransform(
-              controller: dismiss,
-              child: Zoomable(
-                controller: zoom,
-                aspectRatio: _ratio,
-                onTap: () => Navigator.of(context).maybePop(),
-                onSpare: (spare) => dismiss.push(spare.dy),
-                onSpareEnd: (velocity) {
-                  if (dismiss.release(velocity.pixelsPerSecond.dy)) {
-                    Navigator.of(context).maybePop();
-                  }
-                },
-                child: Hero(
-                  tag: widget.tag,
-                  child: ProgressiveImage(
-                    rungs: widget.rungs,
-                    headers: session.headersFor,
-                    discriminator: session.discriminator,
-                    onRatio: _onRatio,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          DismissFade(
-            controller: dismiss,
-            child: SafeArea(
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: IconButton(
-                    tooltip: MaterialLocalizations.of(context)
-                        .closeButtonTooltip,
-                    onPressed: () => Navigator.of(context).maybePop(),
-                    icon: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      shadows: [Shadow(color: scrimShadow, blurRadius: 10)],
+    return ClaimedBottom(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: DismissTransform(
+                controller: dismiss,
+                child: Zoomable(
+                  controller: zoom,
+                  aspectRatio: _ratio,
+                  onTap: () => Navigator.of(context).maybePop(),
+                  onSpare: (spare) => dismiss.push(spare.dy),
+                  onSpareEnd: (velocity) {
+                    if (dismiss.release(velocity.pixelsPerSecond.dy)) {
+                      Navigator.of(context).maybePop();
+                    }
+                  },
+                  child: Hero(
+                    tag: widget.tag,
+                    child: ProgressiveImage(
+                      rungs: widget.rungs,
+                      headers: session.headersFor,
+                      discriminator: session.discriminator,
+                      onRatio: _onRatio,
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+            DismissFade(
+              controller: dismiss,
+              child: SafeArea(
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: IconButton(
+                      tooltip: MaterialLocalizations.of(context)
+                          .closeButtonTooltip,
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        shadows: [Shadow(color: scrimShadow, blurRadius: 10)],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
