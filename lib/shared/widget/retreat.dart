@@ -1,3 +1,4 @@
+import 'package:furlovin/shared/widget/claim.dart';
 import 'package:material_ui/material_ui.dart';
 
 const double retreatThreshold = 56;
@@ -46,15 +47,18 @@ class ScrollRetreat extends StatelessWidget {
     super.key,
     required this.controller,
     required this.child,
+    this.claim,
   });
 
   final RetreatController controller;
+  final BottomClaim? claim;
   final Widget child;
 
   @override
   Widget build(BuildContext context) =>
       NotificationListener<ScrollNotification>(
-        onNotification: controller.absorb,
+        onNotification: (notification) =>
+            !(claim?.claimed ?? false) && controller.absorb(notification),
         child: child,
       );
 }
