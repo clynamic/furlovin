@@ -24,6 +24,7 @@ const Set<String> knownOps = {
   'selectAll',
   'closest',
   'previous',
+  'labeled',
   'attr',
   'text',
   'class',

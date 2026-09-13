@@ -47,4 +47,29 @@ void main() {
     expect(const ClosestStep('ul').apply(null, context), isNull);
     expect(const PreviousStep('ul').apply(null, context), isNull);
   });
+
+  test('labeled reads the value in the row its label names', () {
+    final Element stats = html
+        .parse('''
+      <div class="stats">
+        <span class="highlight"><span>Category</span><span>Species</span></span>
+        <span><span>Artwork</span><span>Dog</span></span>
+      </div>
+    ''')
+        .querySelector('div.stats')!;
+    const LabeledStep species = LabeledStep(
+      labels: 'span.highlight > span',
+      values: 'span:not(.highlight) > span',
+      label: 'Species',
+    );
+    expect((species.apply(stats, context)! as Element).text, 'Dog');
+    expect(
+      const LabeledStep(
+        labels: 'span.highlight > span',
+        values: 'span:not(.highlight) > span',
+        label: 'Resolution',
+      ).apply(stats, context),
+      isNull,
+    );
+  });
 }
