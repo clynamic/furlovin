@@ -33,7 +33,11 @@ class _MarkupBodyState extends State<MarkupBody> {
 
 final Logger markupLogger = Logger('Markup');
 
-Future<void> openTarget(BuildContext context, MarkupTarget target) async {
+Future<void> openTarget(
+  BuildContext context,
+  MarkupTarget target, {
+  Future<void> Function(String url) elsewhere = hand,
+}) async {
   switch (target) {
     case SubmissionTarget(:final int id):
       markupLogger.debug('Opening submission {id}', {'id': id});
@@ -51,7 +55,7 @@ Future<void> openTarget(BuildContext context, MarkupTarget target) async {
     case FavoritesTarget(:final String name):
       context.openFavorites(name);
     case ElsewhereTarget(:final String url):
-      await hand(url);
+      await elsewhere(url);
   }
 }
 
