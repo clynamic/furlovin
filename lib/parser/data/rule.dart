@@ -4,6 +4,7 @@ class FieldRule {
   const FieldRule(
     this.alternatives, {
     this.required = false,
+    this.expected = false,
     this.repeated = false,
     this.type = FieldType.string,
   });
@@ -23,6 +24,7 @@ class FieldRule {
     return FieldRule(
       [for (final Object? alternative in steps) _pipeline(alternative, refs)],
       required: json['required'] as bool? ?? false,
+      expected: json['expected'] as bool? ?? false,
       repeated: json['repeated'] as bool? ?? false,
       type: _typeOf(json['type'] as String? ?? 'string', enums),
     );
@@ -56,6 +58,7 @@ class FieldRule {
 
   final List<List<Step>> alternatives;
   final bool required;
+  final bool expected;
   final bool repeated;
   final FieldType type;
 }

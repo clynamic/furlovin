@@ -2,33 +2,38 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:html/parser.dart' as html;
 
-EntityRule _entity(String type, String attribute, {bool required = false}) =>
-    RuleSet.fromJson({
-      'schema': generatedSchema,
-      'revision': 1,
-      'enums': {
-        'Rating': {
-          'feature': 'test',
-          'values': ['general', 'adult'],
+EntityRule _entity(
+  String type,
+  String attribute, {
+  bool required = false,
+  bool expected = false,
+}) => RuleSet.fromJson({
+  'schema': generatedSchema,
+  'revision': 1,
+  'enums': {
+    'Rating': {
+      'feature': 'test',
+      'values': ['general', 'adult'],
+    },
+  },
+  'entities': {
+    'thing': {
+      'feature': 'test',
+      'fields': {
+        'value': {
+          'type': type,
+          'required': required,
+          'expected': expected,
+          'steps': [
+            [
+              {'op': 'attr', 'name': attribute},
+            ],
+          ],
         },
       },
-      'entities': {
-        'thing': {
-          'feature': 'test',
-          'fields': {
-            'value': {
-              'type': type,
-              'required': required,
-              'steps': [
-                [
-                  {'op': 'attr', 'name': attribute},
-                ],
-              ],
-            },
-          },
-        },
-      },
-    })['thing']!;
+    },
+  },
+})['thing']!;
 
 EntityRule _fallback() => RuleSet.fromJson({
   'schema': generatedSchema,
@@ -122,6 +127,20 @@ void main() {
           ],
         ),
       );
+    });
+
+    test('an expected field is recorded missing yet keeps the entity', () {
+      final ParseOutcome outcome = _parse(
+        _entity('int', 'v', expected: true),
+        '<span></span>',
+      );
+      expect(outcome.failed['value'], const NoMatch());
+      expect(outcome.values.containsKey('value'), isTrue);
+      expect(outcome['value'], isNull);
+    });
+
+    test('an optional field is silent when absent', () {
+      expect(_parse(_entity('int', 'v'), '<span></span>').failed, isEmpty);
     });
 
     test('rejects a value outside a declared enum', () {

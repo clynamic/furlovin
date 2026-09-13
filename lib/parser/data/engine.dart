@@ -59,6 +59,9 @@ class ParseEngine {
           failed[field.key] = const NoMatch();
           continue;
         }
+        if (value == null && field.value.expected) {
+          failed[field.key] = const NoMatch();
+        }
         values[field.key] = value;
       } on ParseException catch (e) {
         failed[field.key] = e;

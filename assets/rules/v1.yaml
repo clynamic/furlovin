@@ -1,5 +1,5 @@
 schema: 1
-revision: 9
+revision: 10
 refs:
   viewLink:
     - op: select
@@ -50,6 +50,7 @@ entities:
               prefix: t-
         description: Content type, such as image, text, music or flash.
       title:
+        expected: true
         steps:
           - - $ref: viewLink
             - op: attr
@@ -178,6 +179,7 @@ entities:
             - op: attr
               name: data-artist-name
       uploaderName:
+        expected: true
         description: The name of whoever posted the submission, as displayed.
         steps:
           - - op: select
@@ -185,6 +187,7 @@ entities:
             - op: text
             - op: trim
       uploaderAvatar:
+        expected: true
         description: Absolute url of the avatar of whoever posted the submission.
         steps:
           - - op: select
@@ -202,6 +205,7 @@ entities:
             - op: class
               prefix: c-contentRating--
       type:
+        expected: true
         type: SubmissionType
         description: The kind of content a submission holds.
         steps:
@@ -210,6 +214,7 @@ entities:
             - op: attr
               name: data-content-type
       category:
+        expected: true
         description: The kind of work, as the uploader filed it.
         steps:
           - - op: selectAll
@@ -219,6 +224,7 @@ entities:
             - op: text
             - op: trim
       theme:
+        expected: true
         description: The subject matter the uploader filed the work under.
         steps:
           - - op: selectAll
@@ -228,6 +234,7 @@ entities:
             - op: text
             - op: trim
       species:
+        expected: true
         description: The species the uploader filed the work under.
         steps:
           - - op: selectAll
@@ -255,6 +262,7 @@ entities:
             - op: text
             - op: trim
       extension:
+        expected: true
         description: The file's extension, without a leading dot.
         steps:
           - - op: select
@@ -262,6 +270,7 @@ entities:
             - op: attr
               name: data-content-extension
       posted:
+        expected: true
         type: timestamp
         description: When the submission was posted.
         steps:
@@ -298,6 +307,7 @@ entities:
               css: div.submission-description-text
             - op: html
       views:
+        expected: true
         type: int
         description: How many times the submission has been viewed.
         steps:
@@ -306,6 +316,7 @@ entities:
             - op: text
             - op: trim
       comments:
+        expected: true
         type: int
         description: How many comments the submission carries.
         steps:
@@ -314,6 +325,7 @@ entities:
             - op: text
             - op: trim
       favorites:
+        expected: true
         type: int
         description: How many people have favourited the submission.
         steps:
@@ -384,6 +396,7 @@ entities:
             - op: regex
               pattern: cid:(\d+)
       posted:
+        expected: true
         type: timestamp
         description: When the comment was posted.
         steps:
@@ -422,6 +435,7 @@ entities:
               css: comment-user-text div.user-submitted-links
             - op: html
       width:
+        expected: true
         type: int
         description: |-
           The percentage width the site renders the comment at.
@@ -446,6 +460,7 @@ entities:
               pattern: /user/([^/]+)
         description: The url form of the name, lowercased and with underscores removed.
       displayName:
+        expected: true
         steps:
           - - op: select
               css: a.c-usernameBlock__displayName span
@@ -469,6 +484,7 @@ entities:
             - op: trim
         description: The one line the member writes under their name.
       avatar:
+        expected: true
         steps:
           - - op: select
               css: userpage-nav-avatar img
@@ -485,6 +501,7 @@ entities:
             - op: url
         description: Absolute url of the banner across the top of the profile.
       registered:
+        expected: true
         type: timestamp
         steps:
           - - op: select
@@ -499,6 +516,7 @@ entities:
             - op: html
         description: The profile text, as markup rather than text.
       views:
+        expected: true
         type: int
         steps:
           - - op: select
@@ -511,6 +529,7 @@ entities:
               with: ''
         description: How many times the profile has been viewed.
       submissions:
+        expected: true
         type: int
         steps:
           - - op: select
@@ -523,6 +542,7 @@ entities:
               with: ''
         description: How many submissions the member has posted.
       favorites:
+        expected: true
         type: int
         steps:
           - - op: select
@@ -535,6 +555,7 @@ entities:
               with: ''
         description: How many submissions the member has favourited.
       commentsEarned:
+        expected: true
         type: int
         steps:
           - - op: select
@@ -547,6 +568,7 @@ entities:
               with: ''
         description: How many comments the member has received.
       commentsMade:
+        expected: true
         type: int
         steps:
           - - op: select
@@ -559,6 +581,7 @@ entities:
               with: ''
         description: How many comments the member has written.
       journals:
+        expected: true
         type: int
         steps:
           - - op: select
@@ -571,6 +594,7 @@ entities:
               with: ''
         description: How many journals the member has posted.
       watchedBy:
+        expected: true
         type: int
         steps:
           - - op: select
@@ -583,6 +607,7 @@ entities:
               with: ''
         description: How many members watch this one.
       watching:
+        expected: true
         type: int
         steps:
           - - op: select
@@ -607,6 +632,7 @@ entities:
               prefix: contact-icon-
         description: The service the entry points at.
       icon:
+        expected: true
         steps:
           - - op: select
               css: img.contact-icon
@@ -615,6 +641,7 @@ entities:
             - op: url
         description: Absolute url of the badge the site draws for the service.
       label:
+        expected: true
         steps:
           - - op: select
               css: div.user-contact-user-info strong
@@ -682,6 +709,7 @@ entities:
             - op: url
         description: Absolute url of the writer's avatar.
       posted:
+        expected: true
         type: timestamp
         steps:
           - - op: select
@@ -761,6 +789,7 @@ entities:
               with: ' '
             - op: trim
       count:
+        expected: true
         type: int
         steps:
           - - op: attr
@@ -817,6 +846,7 @@ entities:
               with: ' '
             - op: trim
       count:
+        expected: true
         type: int
         steps:
           - - op: attr
