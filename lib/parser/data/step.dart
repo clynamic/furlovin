@@ -25,6 +25,11 @@ sealed class Step {
       'selectAll' => SelectAllStep(json['css']! as String),
       'closest' => ClosestStep(json['css']! as String),
       'previous' => PreviousStep(json['css']! as String),
+      'labeled' => LabeledStep(
+        labels: json['labels']! as String,
+        values: json['values']! as String,
+        label: json['label']! as String,
+      ),
       'attr' => AttrStep(json['name']! as String),
       'text' => TextStep(own: json['own'] as bool? ?? false),
       'html' => const HtmlStep(),
@@ -150,6 +155,41 @@ class PreviousStep extends Step {
 
   @override
   Map<String, Object?> toJson() => {'op': op, 'css': css};
+}
+
+class LabeledStep extends Step {
+  const LabeledStep({
+    required this.labels,
+    required this.values,
+    required this.label,
+  });
+
+  final String labels;
+  final String values;
+  final String label;
+
+  @override
+  String get op => 'labeled';
+
+  @override
+  Object? apply(Object? input, StepContext context) {
+    final Element? element = _element(input, op);
+    if (element == null) return null;
+    final int at = element
+        .querySelectorAll(labels)
+        .indexWhere((e) => e.text.trim() == label);
+    if (at < 0) return null;
+    final List<Element> found = element.querySelectorAll(values);
+    return at < found.length ? found[at] : null;
+  }
+
+  @override
+  Map<String, Object?> toJson() => {
+    'op': op,
+    'labels': labels,
+    'values': values,
+    'label': label,
+  };
 }
 
 class AttrStep extends Step {
