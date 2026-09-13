@@ -6,6 +6,7 @@ import 'package:furlovin/client/client.dart';
 import 'package:furlovin/comment/comment.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/markup/markup.dart';
+import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/search/search.dart';
 import 'package:furlovin/settings/settings.dart';
@@ -65,6 +66,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
     }
 
     final Submission? loaded = detail.asData?.value.submission;
+    final ReadReport? report = detail.asData?.value.report;
     final List<CommentRow> comments = threadComments(
       detail.asData?.value.comments ?? const [],
     );
@@ -99,6 +101,12 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                       controller: dismiss,
                       child: const ScrimBackButton(),
                     ),
+                    actions: [
+                      DismissFade(
+                        controller: dismiss,
+                        child: ReadIssuesButton(report: report, onImage: true),
+                      ),
+                    ],
                     backgroundColor: Colors.transparent,
                     surfaceTintColor: Colors.transparent,
                     flexibleSpace: FlexibleSpaceBar(
@@ -155,6 +163,9 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                             ],
                           ),
                         ),
+                        if (report case final ReadReport broken
+                            when broken.unreadable('miniGallery'))
+                          UnreadableSection(broken, 'miniGallery', 'Gallery'),
                         if (detail.asData?.value
                             case SubmissionDetail(
                               miniGallery: final MiniGallery gallery,
@@ -215,6 +226,9 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                               child: SubmissionTags(tags: tags),
                             ),
                           ),
+                        if (report case final ReadReport broken
+                            when broken.unreadable('folders'))
+                          UnreadableSection(broken, 'folders', 'Folders'),
                         if (detail.asData?.value.folders
                             case final List<Folder> folders
                             when folders.isNotEmpty)
@@ -228,6 +242,9 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                   FolderTile(folder: folders[index]),
                             ),
                           ),
+                        if (report case final ReadReport broken
+                            when broken.unreadable('comments'))
+                          UnreadableSection(broken, 'comments', 'Comments'),
                         if (comments.isNotEmpty)
                           PersistentSliverSection(
                             name: 'comments',

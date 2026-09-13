@@ -30,6 +30,7 @@ dependencies:
   meta: ^1.19.0
   mime: ^2.1.0
   native_dio_adapter: ^1.8.0
+  package_info_plus: ^10.2.1
   share_plus: ^13.3.0
   shared_preferences: ^2.5.5
   skeletonizer: ^3.0.0

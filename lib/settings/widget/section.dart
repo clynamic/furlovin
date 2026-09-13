@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
@@ -46,4 +47,25 @@ class PersistentSliverSection extends ConsumerWidget {
       sliver: sliver,
     );
   }
+}
+
+class UnreadableSection extends StatelessWidget {
+  const UnreadableSection(this.report, this.slot, this.title, {super.key});
+
+  final ReadReport report;
+  final String slot;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => PersistentSliverSection(
+    name: slot,
+    title: title,
+    sliver: SliverToBoxAdapter(
+      child: ReadIssueFallback(
+        report: report,
+        slot: slot,
+        name: title.toLowerCase(),
+      ),
+    ),
+  );
 }
