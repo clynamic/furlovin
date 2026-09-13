@@ -134,6 +134,28 @@ void main() {
     });
   });
 
+  test('collapses whitespace inside a folder name like a browser', () {
+    final Document page = html.parse('''
+      <div class="submission-folder">
+        <a href="/gallery/olive96/folder/7/wide/" title="3 submissions">
+          <span>
+            very
+
+                  wide   name  </span>
+        </a>
+      </div>
+    ''');
+    final Folder folder = rules
+        .parseSlotAll(
+          rules.pages['submission']!.slots['folders']!,
+          page,
+          base: Uri.parse(faOrigin),
+        )
+        .map(SubmissionSlots.folders.build)
+        .single!;
+    expect(folder.name, 'poplar110 wide name');
+  });
+
   group('submission page', () {
     test('lists the folders a submission sits in, without groups', () {
       expect(all(SubmissionSlots.folders, 'view_folders'), const [
