@@ -5,17 +5,21 @@ import 'package:material_ui/material_ui.dart';
 void main() {
   late RetreatController retreat;
   late ScrollController scroll;
+  late BottomClaim claim;
 
   Future<void> pump(WidgetTester tester, {int items = 80}) async {
     retreat = RetreatController();
     scroll = ScrollController();
+    claim = BottomClaim();
     addTearDown(retreat.dispose);
     addTearDown(scroll.dispose);
+    addTearDown(claim.dispose);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: ScrollRetreat(
             controller: retreat,
+            claim: claim,
             child: ListView.builder(
               controller: scroll,
               itemCount: items,
@@ -89,5 +93,15 @@ void main() {
   testWidgets('content that cannot scroll keeps it out', (tester) async {
     await pump(tester, items: 2);
     expect(retreat.shown, isTrue);
+  });
+
+  testWidgets('a claimed bottom leaves it as it was', (tester) async {
+    await pump(tester);
+    await move(tester, retreatThreshold + 200);
+    claim.take();
+    scroll.jumpTo(0);
+    await tester.pump();
+    claim.drop();
+    expect(retreat.shown, isFalse);
   });
 }

@@ -120,7 +120,11 @@ class _HomeShellState extends ConsumerState<HomeShell> {
                     bottom: media.padding.bottom + (claimed ? 0 : barSpace),
                   ),
                 ),
-                child: ScrollRetreat(controller: retreat, child: widget.shell),
+                child: ScrollRetreat(
+                  controller: retreat,
+                  claim: claim,
+                  child: widget.shell,
+                ),
               ),
             ),
             if (!claimed)
