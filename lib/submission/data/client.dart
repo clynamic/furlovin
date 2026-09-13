@@ -60,9 +60,11 @@ class SubmissionClient {
       '/view/$id/',
     );
     final Logger scope = logger.child({'id': id});
+    final ReadReport report = ReadReport();
     final Submission? parsed = outcome.read(
       SubmissionSlots.submission,
       logger: scope,
+      report: report,
     );
     if (parsed == null) {
       throw ParseFailure(
@@ -72,11 +74,32 @@ class SubmissionClient {
     }
     return SubmissionDetail(
       submission: parsed,
-      comments: outcome.readAll(SubmissionSlots.comments, logger: scope),
-      miniGallery: outcome.read(SubmissionSlots.miniGallery, logger: scope),
-      newer: outcome.readAll(SubmissionSlots.newer, logger: scope),
-      older: outcome.readAll(SubmissionSlots.older, logger: scope),
-      folders: outcome.readAll(SubmissionSlots.folders, logger: scope),
+      comments: outcome.readAll(
+        SubmissionSlots.comments,
+        logger: scope,
+        report: report,
+      ),
+      miniGallery: outcome.read(
+        SubmissionSlots.miniGallery,
+        logger: scope,
+        report: report,
+      ),
+      newer: outcome.readAll(
+        SubmissionSlots.newer,
+        logger: scope,
+        report: report,
+      ),
+      older: outcome.readAll(
+        SubmissionSlots.older,
+        logger: scope,
+        report: report,
+      ),
+      folders: outcome.readAll(
+        SubmissionSlots.folders,
+        logger: scope,
+        report: report,
+      ),
+      report: report,
     );
   }
 

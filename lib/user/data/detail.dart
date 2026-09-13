@@ -1,3 +1,4 @@
+import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:furlovin/user/user.dart';
 import 'package:meta/meta.dart';
@@ -11,6 +12,7 @@ class UserDetail {
     this.shouts = const [],
     this.gallery = const [],
     this.favorites = const [],
+    this.report,
   });
 
   final User user;
@@ -19,4 +21,5 @@ class UserDetail {
   final List<Shout> shouts;
   final List<SubmissionPreview> gallery;
   final List<SubmissionPreview> favorites;
+  final ReadReport? report;
 }

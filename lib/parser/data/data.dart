@@ -7,6 +7,7 @@ export 'loader.dart';
 export 'manifest.rules.dart';
 export 'outcome.dart';
 export 'providers.dart';
+export 'report.dart';
 export 'rule.dart';
 export 'slot.dart';
 export 'step.dart';

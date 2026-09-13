@@ -1,4 +1,5 @@
 import 'package:furlovin/comment/comment.dart';
+import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:meta/meta.dart';
 
@@ -11,6 +12,7 @@ class SubmissionDetail {
     this.newer = const [],
     this.older = const [],
     this.folders = const [],
+    this.report,
   });
 
   final Submission submission;
@@ -19,4 +21,5 @@ class SubmissionDetail {
   final List<SubmissionPreview> newer;
   final List<SubmissionPreview> older;
   final List<Folder> folders;
+  final ReadReport? report;
 }
