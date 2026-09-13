@@ -496,8 +496,13 @@ class TagChip extends StatelessWidget {
       borderRadius: Corner.panels,
       child: InkWell(
         borderRadius: Corner.panels,
-        onTap: () =>
-            context.openQuery(SearchQuery(text: '$keywordField $label')),
+        onTap: () => context.openQuery(
+          SearchQuery(
+            terms: [
+              SearchTerm([label], scope: TermScope.tags),
+            ],
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: Space.small,

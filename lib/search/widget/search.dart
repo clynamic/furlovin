@@ -62,7 +62,7 @@ class _SearchFormState extends State<SearchForm> {
   }
 
   void _submit() {
-    final SearchQuery next = _query.copyWith(text: _text.text);
+    final SearchQuery next = _query.copyWith(terms: parseTerms(_text.text));
     if (next.isEmpty) return;
     if (widget.refining) {
       context.runSearch(next);
@@ -97,26 +97,12 @@ class _SearchFormState extends State<SearchForm> {
           Wrap(
             spacing: Space.small,
             children: [
-              for (final SearchOrder order in SearchOrder.values)
+              for (final SearchSort sort in SearchSort.values)
                 ChoiceChip(
-                  label: Text(order.name),
-                  selected: _query.order == order,
+                  label: Text(sort.name),
+                  selected: _query.sort == sort,
                   onSelected: (value) =>
-                      setState(() => _query = _query.copyWith(order: order)),
-                ),
-            ],
-          ),
-          const SizedBox(height: Space.snug),
-          Wrap(
-            spacing: Space.small,
-            children: [
-              for (final SearchDirection direction in SearchDirection.values)
-                ChoiceChip(
-                  label: Text(direction.name),
-                  selected: _query.direction == direction,
-                  onSelected: (value) => setState(
-                    () => _query = _query.copyWith(direction: direction),
-                  ),
+                      setState(() => _query = _query.copyWith(sort: sort)),
                 ),
             ],
           ),

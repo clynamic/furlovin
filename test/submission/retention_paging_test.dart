@@ -93,7 +93,7 @@ void main() {
   test('galleries and searches do not share retention keys', () async {
     final ProviderContainer container = host();
     final SubmissionPaging gallery = container.read(galleryProvider('fennel114'));
-    container.read(searchProvider(const SearchQuery(text: 'fennel114')));
+    container.read(searchProvider(SearchQuery.parse('fennel114')));
     await Future<void>.delayed(Duration.zero);
     expect(identical(container.read(galleryProvider('fennel114')), gallery), isTrue);
   });
