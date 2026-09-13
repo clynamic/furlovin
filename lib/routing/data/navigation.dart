@@ -9,6 +9,7 @@ const List<String> branchRoots = [browsePath, searchPath, inboxPath, mePath];
 const String submissionPath = '/view';
 const String userPath = '/user';
 const String galleryPath = '/gallery';
+const String favoritesPath = '/favorites';
 const String searchPath = '/search';
 const String loginPath = '/login';
 const String settingsPath = '/settings';
@@ -36,6 +37,9 @@ extension AppRouting on BuildContext {
 
   void openGallery(String name) =>
       GoRouter.of(this).push('$branch$galleryPath/$name');
+
+  void openFavorites(String name) =>
+      GoRouter.of(this).push('$branch$favoritesPath/$name');
 
   void openLogin() => GoRouter.of(this).push(loginPath);
 

@@ -40,6 +40,22 @@ class UserGalleryPage extends ConsumerWidget {
   );
 }
 
+class UserFavoritesPage extends ConsumerWidget {
+  const UserFavoritesPage({super.key, required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => SubmissionPagedGrid(
+    controller: ref.watch(favoritesProvider(name)),
+    header: SliverAppBar(
+      title: Text("$name's favourites"),
+      floating: true,
+      snap: true,
+    ),
+  );
+}
+
 class SubmissionPagedGrid extends ConsumerWidget {
   const SubmissionPagedGrid({super.key, required this.controller, this.header});
 

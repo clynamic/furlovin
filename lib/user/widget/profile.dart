@@ -138,11 +138,7 @@ class UserPage extends ConsumerWidget {
               title: 'Favourites',
               count: user?.favorites,
               action: TextButton.icon(
-                onPressed: () => hand(
-                  Uri.parse(faOrigin)
-                      .resolve('/favorites/${user?.name ?? name}/')
-                      .toString(),
-                ),
+                onPressed: () => context.openFavorites(user?.name ?? name),
                 iconAlignment: IconAlignment.end,
                 icon: const Icon(Icons.arrow_forward, size: 16),
                 label: const Text('View favourites'),

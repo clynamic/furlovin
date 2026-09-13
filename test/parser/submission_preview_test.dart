@@ -71,6 +71,21 @@ void main() {
     }
   });
 
+  test('favourites carry the id their next page continues after', () {
+    final List<ParseOutcome> favourites = rules.parseSlotAll(
+      rules.pages['favorites']!.slots['submissions']!,
+      html.parse(File('test/_fixtures/favorites.html').readAsStringSync()),
+      base: Uri.parse(faOrigin),
+    );
+    expect(favourites, hasLength(48));
+    for (final ParseOutcome item in favourites) {
+      expect(item.get<int>('favouriteId'), isA<int>());
+      expect(item.failed, isEmpty);
+    }
+    expect(favourites.last.get<int>('favouriteId'), 1732255726);
+    expect(items.map((e) => e.get<int>('favouriteId')), everyElement(isNull));
+  });
+
   test('aspect ratio is usable before the image loads', () {
     for (final ParseOutcome item in items) {
       final double ratio =

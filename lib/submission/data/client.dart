@@ -26,6 +26,12 @@ class SubmissionClient {
   Future<List<SubmissionPreview>> gallery(String user, {int page = 1}) =>
       _listing(GallerySlots.submissions, '/gallery/$user/$page/');
 
+  Future<List<SubmissionPreview>> favorites(String user, {int after = 0}) =>
+      _listing(
+        FavoritesSlots.submissions,
+        after == 0 ? '/favorites/$user/' : '/favorites/$user/$after/next',
+      );
+
   Future<List<SubmissionPreview>> search(Map<String, String> parameters) =>
       _listing(
         SearchSlots.submissions,

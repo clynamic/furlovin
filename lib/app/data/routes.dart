@@ -43,6 +43,13 @@ List<RouteBase> _reachable() => [
     ),
   ),
   GoRoute(
+    path: 'favorites/:name',
+    pageBuilder: (context, state) => DismissPage<void>(
+      key: state.pageKey,
+      child: UserFavoritesPage(name: state.pathParameters['name']!),
+    ),
+  ),
+  GoRoute(
     path: 'user/:name',
     pageBuilder: (context, state) => DismissPage<void>(
       key: state.pageKey,
@@ -99,6 +106,7 @@ GoRouter buildRouter(IdentityStore store) => GoRouter(
     ),
     _entry('$submissionPath/:id'),
     _entry('$galleryPath/:name'),
+    _entry('$favoritesPath/:name'),
     _entry('$userPath/:name'),
     GoRoute(
       path: loginPath,
