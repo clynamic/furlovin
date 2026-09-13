@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -34,6 +36,39 @@ class BottomClaim extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     super.dispose();
+  }
+}
+
+class BottomReserve extends InheritedWidget {
+  const BottomReserve({super.key, required this.space, required super.child});
+
+  final double space;
+
+  static double of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<BottomReserve>()?.space ?? 0;
+
+  @override
+  bool updateShouldNotify(BottomReserve oldWidget) => oldWidget.space != space;
+}
+
+class ClaimedBottom extends StatelessWidget {
+  const ClaimedBottom({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final MediaQueryData media = MediaQuery.of(context);
+    final double space = BottomReserve.of(context);
+    if (space == 0) return child;
+    return MediaQuery(
+      data: media.copyWith(
+        padding: media.padding.copyWith(
+          bottom: math.max(0, media.padding.bottom - space),
+        ),
+      ),
+      child: child,
+    );
   }
 }
 

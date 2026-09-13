@@ -117,13 +117,16 @@ class _HomeShellState extends ConsumerState<HomeShell> {
               child: MediaQuery(
                 data: media.copyWith(
                   padding: media.padding.copyWith(
-                    bottom: media.padding.bottom + (claimed ? 0 : barSpace),
+                    bottom: media.padding.bottom + barSpace,
                   ),
                 ),
-                child: ScrollRetreat(
-                  controller: retreat,
-                  claim: claim,
-                  child: widget.shell,
+                child: BottomReserve(
+                  space: barSpace,
+                  child: ScrollRetreat(
+                    controller: retreat,
+                    claim: claim,
+                    child: widget.shell,
+                  ),
                 ),
               ),
             ),

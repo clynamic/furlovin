@@ -75,299 +75,307 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
       preview: preview,
     );
 
-    return ScrollToDismiss(
-      controller: dismiss,
-      onDismiss: () => Navigator.of(context).maybePop(),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            Positioned.fill(
-              child: DismissFade(
-                controller: dismiss,
-                child: ColoredBox(color: Theme.of(context).colorScheme.surface),
-              ),
-            ),
-            LayoutBuilder(
-              builder: (context, constraints) => CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    pinned: true,
-                    expandedHeight: _headerHeight(
-                      constraints,
-                      facade.aspectRatio,
-                    ),
-                    leading: DismissFade(
-                      controller: dismiss,
-                      child: const ScrimBackButton(),
-                    ),
-                    actions: [
-                      DismissFade(
-                        controller: dismiss,
-                        child: DocumentErrorsButton(
-                          errors: errors,
-                          onImage: true,
-                        ),
-                      ),
-                    ],
-                    backgroundColor: Colors.transparent,
-                    surfaceTintColor: Colors.transparent,
-                    flexibleSpace: FlexibleSpaceBar(
-                      background: GestureDetector(
-                        onTap: () => openViewer(
-                          context,
-                          rungs: _rungs(context, loaded, thumbnails, artwork),
-                          tag: submissionHeroTag(id),
-                        ),
-                        child: SubmissionHeader(
-                          rungs: _rungs(context, loaded, thumbnails, artwork),
-                          session: session,
-                          tag: submissionHeroTag(id),
-                          dismiss: dismiss,
-                        ),
-                      ),
-                    ),
+    return ClaimedBottom(
+      child: ScrollToDismiss(
+        controller: dismiss,
+        onDismiss: () => Navigator.of(context).maybePop(),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Stack(
+            children: [
+              Positioned.fill(
+                child: DismissFade(
+                  controller: dismiss,
+                  child: ColoredBox(
+                    color: Theme.of(context).colorScheme.surface,
                   ),
-                  DismissSliverFade(
-                    controller: dismiss,
-                    sliver: SliverMainAxisGroup(
-                      slivers: [
-                        SliverPadding(
-                          padding:
-                              Layout.textOf(context) +
-                              const EdgeInsets.only(top: Space.page),
-                          sliver: SliverList.list(
-                            children: [
-                              SpreadRow(
-                                leading: SubmissionByline(facade: facade),
-                                trailing: (wide) => Skeletonizer(
-                                  enabled: loaded == null,
-                                  child: SubmissionStats(
-                                    submission: loaded,
-                                    errors: errors,
-                                    wide: wide,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: Space.large),
-                              ErrorBoundary(
-                                errors: errors,
-                                name: 'submission.description',
-                                paths: const ['submission.description'],
-                                builder: (context, broken) => Skeletonizer(
-                                  enabled: loaded == null,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    spacing: 22,
-                                    children: [
-                                      if (broken case final Breakage known)
-                                        BreakageCard(
-                                          broken: known,
-                                          name: 'the description',
-                                        ),
-                                      if (loaded == null)
-                                        Text(BoneMock.paragraph)
-                                      else if (loaded.description
-                                          case final String description)
-                                        MarkupBody(markup: description),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+                ),
+              ),
+              LayoutBuilder(
+                builder: (context, constraints) => CustomScrollView(
+                  slivers: [
+                    SliverAppBar(
+                      pinned: true,
+                      expandedHeight: _headerHeight(
+                        constraints,
+                        facade.aspectRatio,
+                      ),
+                      leading: DismissFade(
+                        controller: dismiss,
+                        child: const ScrimBackButton(),
+                      ),
+                      actions: [
+                        DismissFade(
+                          controller: dismiss,
+                          child: DocumentErrorsButton(
+                            errors: errors,
+                            onImage: true,
                           ),
                         ),
-                        ErrorBoundary(
-                          errors: errors,
-                          name: 'submission.miniGallery',
-                          paths: const ['miniGallery'],
-                          builder: (context, broken) => switch (detail
-                              .asData
-                              ?.value) {
-                            SubmissionDocument(
-                              miniGallery: MiniGallery(
-                                    :final List<SubmissionPreview> newer,
-                                    :final List<SubmissionPreview> older,
-                                  ) &&
-                                  final MiniGallery gallery,
-                              :final Submission submission,
-                            )
-                                when newer.isNotEmpty || older.isNotEmpty =>
-                              PersistentSliverSection(
-                                name: 'miniGallery',
-                                title: gallery.name,
-                                count: gallery.count,
-                                action: TextButton.icon(
-                                  onPressed: () => openTarget(
-                                    context,
-                                    readTarget(gallery.link),
+                      ],
+                      backgroundColor: Colors.transparent,
+                      surfaceTintColor: Colors.transparent,
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: GestureDetector(
+                          onTap: () => openViewer(
+                            context,
+                            rungs: _rungs(context, loaded, thumbnails, artwork),
+                            tag: submissionHeroTag(id),
+                          ),
+                          child: SubmissionHeader(
+                            rungs: _rungs(context, loaded, thumbnails, artwork),
+                            session: session,
+                            tag: submissionHeroTag(id),
+                            dismiss: dismiss,
+                          ),
+                        ),
+                      ),
+                    ),
+                    DismissSliverFade(
+                      controller: dismiss,
+                      sliver: SliverMainAxisGroup(
+                        slivers: [
+                          SliverPadding(
+                            padding:
+                                Layout.textOf(context) +
+                                const EdgeInsets.only(top: Space.page),
+                            sliver: SliverList.list(
+                              children: [
+                                SpreadRow(
+                                  leading: SubmissionByline(facade: facade),
+                                  trailing: (wide) => Skeletonizer(
+                                    enabled: loaded == null,
+                                    child: SubmissionStats(
+                                      submission: loaded,
+                                      errors: errors,
+                                      wide: wide,
+                                    ),
                                   ),
-                                  iconAlignment: IconAlignment.end,
-                                  icon: const Icon(
-                                    Icons.arrow_forward,
-                                    size: 16,
-                                  ),
-                                  label: const Text('View all'),
                                 ),
-                                inset: const EdgeInsets.fromLTRB(
-                                  Space.medium,
-                                  Space.medium,
-                                  0,
-                                  Space.medium,
-                                ),
-                                sliver: BreakageSliver(
-                                  broken: broken,
-                                  name: 'this gallery',
-                                  sliver: SliverToBoxAdapter(
-                                    child: SubmissionStrip(
-                                      key: ValueKey(submission.id),
-                                      current: submission.id,
-                                      limit: newer.length + older.length + 1,
-                                      submissions: [
-                                        ...newer,
-                                        preview ??
-                                            SubmissionPreview(
-                                              id: submission.id,
-                                              link:
-                                                  '$faOrigin/view/${submission.id}/',
-                                              rating: submission.rating,
-                                              thumbnail:
-                                                  submission.preview ??
-                                                  submission.file,
-                                              uploader: submission.uploader,
-                                              thumbnailWidth:
-                                                  facade.aspectRatio,
-                                              thumbnailHeight: 1,
-                                            ),
-                                        ...older,
+                                const SizedBox(height: Space.large),
+                                ErrorBoundary(
+                                  errors: errors,
+                                  name: 'submission.description',
+                                  paths: const ['submission.description'],
+                                  builder: (context, broken) => Skeletonizer(
+                                    enabled: loaded == null,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      spacing: 22,
+                                      children: [
+                                        if (broken case final Breakage known)
+                                          BreakageCard(
+                                            broken: known,
+                                            name: 'the description',
+                                          ),
+                                        if (loaded == null)
+                                          Text(BoneMock.paragraph)
+                                        else if (loaded.description
+                                            case final String description)
+                                          MarkupBody(markup: description),
                                       ],
                                     ),
                                   ),
                                 ),
-                              ),
-                            _ => BrokenSection(
-                              broken: broken,
-                              name: 'miniGallery',
-                              title: 'Gallery',
+                              ],
                             ),
-                          },
-                        ),
-                        ErrorBoundary(
-                          errors: errors,
-                          name: 'submission.tags',
-                          paths: const ['submission.tags'],
-                          builder: (context, broken) => switch (loaded?.tags) {
-                            final List<String> tags when tags.isNotEmpty =>
-                              PersistentSliverSection(
-                                name: 'tags',
-                                title: 'Tags',
-                                count: tags.length,
-                                sliver: BreakageSliver(
-                                  broken: broken,
-                                  name: 'tags',
-                                  sliver: SliverToBoxAdapter(
-                                    child: SubmissionTags(tags: tags),
+                          ),
+                          ErrorBoundary(
+                            errors: errors,
+                            name: 'submission.miniGallery',
+                            paths: const ['miniGallery'],
+                            builder: (context, broken) => switch (detail
+                                .asData
+                                ?.value) {
+                              SubmissionDocument(
+                                miniGallery: MiniGallery(
+                                      :final List<SubmissionPreview> newer,
+                                      :final List<SubmissionPreview> older,
+                                    ) &&
+                                    final MiniGallery gallery,
+                                :final Submission submission,
+                              )
+                                  when newer.isNotEmpty || older.isNotEmpty =>
+                                PersistentSliverSection(
+                                  name: 'miniGallery',
+                                  title: gallery.name,
+                                  count: gallery.count,
+                                  action: TextButton.icon(
+                                    onPressed: () => openTarget(
+                                      context,
+                                      readTarget(gallery.link),
+                                    ),
+                                    iconAlignment: IconAlignment.end,
+                                    icon: const Icon(
+                                      Icons.arrow_forward,
+                                      size: 16,
+                                    ),
+                                    label: const Text('View all'),
                                   ),
-                                ),
-                              ),
-                            _ => BrokenSection(
-                              broken: broken,
-                              name: 'tags',
-                              title: 'Tags',
-                            ),
-                          },
-                        ),
-                        ErrorBoundary(
-                          errors: errors,
-                          name: 'submission.folders',
-                          paths: const ['folders'],
-                          builder: (context, broken) =>
-                              switch (detail.asData?.value.folders) {
-                                final List<Folder> folders
-                                    when folders.isNotEmpty =>
-                                  PersistentSliverSection(
-                                    name: 'folders',
-                                    title: 'Folders',
-                                    count: folders.length,
-                                    sliver: BreakageSliver(
-                                      broken: broken,
-                                      name: 'folders',
-                                      sliver: SliverList.builder(
-                                        itemCount: folders.length,
-                                        itemBuilder: (context, index) =>
-                                            FolderTile(folder: folders[index]),
+                                  inset: const EdgeInsets.fromLTRB(
+                                    Space.medium,
+                                    Space.medium,
+                                    0,
+                                    Space.medium,
+                                  ),
+                                  sliver: BreakageSliver(
+                                    broken: broken,
+                                    name: 'this gallery',
+                                    sliver: SliverToBoxAdapter(
+                                      child: SubmissionStrip(
+                                        key: ValueKey(submission.id),
+                                        current: submission.id,
+                                        limit: newer.length + older.length + 1,
+                                        submissions: [
+                                          ...newer,
+                                          preview ??
+                                              SubmissionPreview(
+                                                id: submission.id,
+                                                link:
+                                                    '$faOrigin/view/${submission.id}/',
+                                                rating: submission.rating,
+                                                thumbnail:
+                                                    submission.preview ??
+                                                    submission.file,
+                                                uploader: submission.uploader,
+                                                thumbnailWidth:
+                                                    facade.aspectRatio,
+                                                thumbnailHeight: 1,
+                                              ),
+                                          ...older,
+                                        ],
                                       ),
                                     ),
                                   ),
-                                _ => BrokenSection(
-                                  broken: broken,
-                                  name: 'folders',
-                                  title: 'Folders',
                                 ),
-                              },
-                        ),
-                        ErrorBoundary(
-                          errors: errors,
-                          name: 'submission.comments',
-                          paths: const ['comments'],
-                          builder: (context, broken) => comments.isEmpty
-                              ? BrokenSection(
-                                  broken: broken,
-                                  name: 'comments',
-                                  title: 'Comments',
-                                )
-                              : PersistentSliverSection(
-                                  name: 'comments',
-                                  title: 'Comments',
-                                  count: comments.length,
-                                  sliver: BreakageSliver(
+                              _ => BrokenSection(
+                                broken: broken,
+                                name: 'miniGallery',
+                                title: 'Gallery',
+                              ),
+                            },
+                          ),
+                          ErrorBoundary(
+                            errors: errors,
+                            name: 'submission.tags',
+                            paths: const ['submission.tags'],
+                            builder: (context, broken) =>
+                                switch (loaded?.tags) {
+                                  final List<String> tags
+                                      when tags.isNotEmpty =>
+                                    PersistentSliverSection(
+                                      name: 'tags',
+                                      title: 'Tags',
+                                      count: tags.length,
+                                      sliver: BreakageSliver(
+                                        broken: broken,
+                                        name: 'tags',
+                                        sliver: SliverToBoxAdapter(
+                                          child: SubmissionTags(tags: tags),
+                                        ),
+                                      ),
+                                    ),
+                                  _ => BrokenSection(
+                                    broken: broken,
+                                    name: 'tags',
+                                    title: 'Tags',
+                                  ),
+                                },
+                          ),
+                          ErrorBoundary(
+                            errors: errors,
+                            name: 'submission.folders',
+                            paths: const ['folders'],
+                            builder: (context, broken) =>
+                                switch (detail.asData?.value.folders) {
+                                  final List<Folder> folders
+                                      when folders.isNotEmpty =>
+                                    PersistentSliverSection(
+                                      name: 'folders',
+                                      title: 'Folders',
+                                      count: folders.length,
+                                      sliver: BreakageSliver(
+                                        broken: broken,
+                                        name: 'folders',
+                                        sliver: SliverList.builder(
+                                          itemCount: folders.length,
+                                          itemBuilder: (context, index) =>
+                                              FolderTile(
+                                                folder: folders[index],
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                  _ => BrokenSection(
+                                    broken: broken,
+                                    name: 'folders',
+                                    title: 'Folders',
+                                  ),
+                                },
+                          ),
+                          ErrorBoundary(
+                            errors: errors,
+                            name: 'submission.comments',
+                            paths: const ['comments'],
+                            builder: (context, broken) => comments.isEmpty
+                                ? BrokenSection(
                                     broken: broken,
                                     name: 'comments',
-                                    sliver: SliverList.separated(
-                                      itemCount: comments.length,
-                                      itemBuilder: (context, index) =>
-                                          CommentTile(row: comments[index]),
-                                      separatorBuilder: (context, index) =>
-                                          CommentBreak(
-                                            below: comments[index + 1],
-                                          ),
+                                    title: 'Comments',
+                                  )
+                                : PersistentSliverSection(
+                                    name: 'comments',
+                                    title: 'Comments',
+                                    count: comments.length,
+                                    sliver: BreakageSliver(
+                                      broken: broken,
+                                      name: 'comments',
+                                      sliver: SliverList.separated(
+                                        itemCount: comments.length,
+                                        itemBuilder: (context, index) =>
+                                            CommentTile(row: comments[index]),
+                                        separatorBuilder: (context, index) =>
+                                            CommentBreak(
+                                              below: comments[index + 1],
+                                            ),
+                                      ),
                                     ),
                                   ),
+                          ),
+                          PersistentSliverSection(
+                            name: 'metadata',
+                            title: 'Details',
+                            sliver: SliverToBoxAdapter(
+                              child: Skeletonizer(
+                                enabled: loaded == null,
+                                child: SubmissionMetadata(
+                                  submission: loaded,
+                                  errors: errors,
                                 ),
-                        ),
-                        PersistentSliverSection(
-                          name: 'metadata',
-                          title: 'Details',
-                          sliver: SliverToBoxAdapter(
-                            child: Skeletonizer(
-                              enabled: loaded == null,
-                              child: SubmissionMetadata(
-                                submission: loaded,
-                                errors: errors,
                               ),
                             ),
                           ),
-                        ),
-                        const SliverToBoxAdapter(
-                          child: SizedBox(height: toolbarClearance),
-                        ),
-                      ],
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: toolbarClearance),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: DismissFade(
-                controller: dismiss,
-                child: SubmissionActions(id: id, submission: loaded),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: DismissFade(
+                  controller: dismiss,
+                  child: SubmissionActions(id: id, submission: loaded),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
