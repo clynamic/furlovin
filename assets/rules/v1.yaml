@@ -1,5 +1,5 @@
 schema: 1
-revision: 12
+revision: 13
 refs:
   viewLink:
     - op: select
@@ -14,7 +14,7 @@ refs:
       pattern: /user/([^/]+)
   statsText:
     - op: select
-      css: div.userpage-section-right div.table
+      css: 'div.userpage-section-right div.table:not(#userpage-contact-item)'
     - op: text
 enums:
   SubmissionRating:
