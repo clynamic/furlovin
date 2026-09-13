@@ -21,7 +21,7 @@ mixin _$Submission {
  SubmissionRating get rating;/// The submission's title, free of the padding the page markup adds.
  String get title;/// The url form of the name of whoever posted the submission,
 /// lowercased and with underscores removed.
- String get uploader;/// The kind of work, as the artist filed it.
+ String get uploader;/// The kind of work, as the uploader filed it.
  String? get category;/// How many comments the submission carries.
  int? get comments;/// The rendered description, as markup rather than text.
  String? get description;/// The file's extension, without a leading dot.
@@ -37,9 +37,9 @@ mixin _$Submission {
  String? get noteLink;/// When the submission was posted.
  DateTime? get posted;/// Absolute url of a reduced copy of the submitted file.
  String? get preview;/// The image's pixel dimensions, as FA renders them.
- String? get resolution;/// The species the artist filed the work under.
- String? get species;/// Keywords the artist attached to the submission.
- List<String>? get tags;/// The subject matter the artist filed the work under.
+ String? get resolution;/// The species the uploader filed the work under.
+ String? get species;/// Keywords the uploader attached to the submission.
+ List<String>? get tags;/// The subject matter the uploader filed the work under.
  String? get theme;/// The kind of content a submission holds.
  SubmissionType? get type;/// Absolute url of the avatar of whoever posted the submission.
  String? get uploaderAvatar;/// The name of whoever posted the submission, as displayed.
@@ -279,7 +279,7 @@ class _Submission extends Submission {
 /// The url form of the name of whoever posted the submission,
 /// lowercased and with underscores removed.
 @override final  String uploader;
-/// The kind of work, as the artist filed it.
+/// The kind of work, as the uploader filed it.
 @override final  String? category;
 /// How many comments the submission carries.
 @override final  int? comments;
@@ -307,11 +307,11 @@ class _Submission extends Submission {
 @override final  String? preview;
 /// The image's pixel dimensions, as FA renders them.
 @override final  String? resolution;
-/// The species the artist filed the work under.
+/// The species the uploader filed the work under.
 @override final  String? species;
-/// Keywords the artist attached to the submission.
+/// Keywords the uploader attached to the submission.
  final  List<String>? _tags;
-/// Keywords the artist attached to the submission.
+/// Keywords the uploader attached to the submission.
 @override List<String>? get tags {
   final value = _tags;
   if (value == null) return null;
@@ -320,7 +320,7 @@ class _Submission extends Submission {
   return EqualUnmodifiableListView(value);
 }
 
-/// The subject matter the artist filed the work under.
+/// The subject matter the uploader filed the work under.
 @override final  String? theme;
 /// The kind of content a submission holds.
 @override final  SubmissionType? type;

@@ -31,7 +31,7 @@ abstract class Submission with _$Submission {
     /// lowercased and with underscores removed.
     required String uploader,
 
-    /// The kind of work, as the artist filed it.
+    /// The kind of work, as the uploader filed it.
     String? category,
 
     /// How many comments the submission carries.
@@ -71,13 +71,13 @@ abstract class Submission with _$Submission {
     /// The image's pixel dimensions, as FA renders them.
     String? resolution,
 
-    /// The species the artist filed the work under.
+    /// The species the uploader filed the work under.
     String? species,
 
-    /// Keywords the artist attached to the submission.
+    /// Keywords the uploader attached to the submission.
     List<String>? tags,
 
-    /// The subject matter the artist filed the work under.
+    /// The subject matter the uploader filed the work under.
     String? theme,
 
     /// The kind of content a submission holds.
