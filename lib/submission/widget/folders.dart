@@ -179,3 +179,44 @@ class FolderPicker extends StatelessWidget {
     );
   }
 }
+
+class FolderTile extends StatelessWidget {
+  const FolderTile({super.key, required this.folder});
+
+  final Folder folder;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        shape: const RoundedRectangleBorder(borderRadius: Corner.panels),
+        leading: Icon(
+          Icons.folder_outlined,
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+        title: Text(folder.name),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: Space.small,
+          children: [
+            if (folder.count case final int count)
+              Text(
+                '$count',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            Icon(
+              Icons.chevron_right,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ],
+        ),
+        onTap: () => context.openSource(folder.source),
+      ),
+    );
+  }
+}
