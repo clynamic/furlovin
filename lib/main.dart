@@ -1,3 +1,4 @@
+import 'package:app_links/app_links.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/app/app.dart';
 import 'package:furlovin/identity/identity.dart';
@@ -32,6 +33,11 @@ class _AppState extends ConsumerState<App> {
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
       routerConfig: router,
+      builder: (context, child) => LinkListener(
+        links: AppLinks().uriLinkStream,
+        navigator: rootNavigator,
+        child: child!,
+      ),
     );
   }
 }
