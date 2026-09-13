@@ -18,7 +18,7 @@ abstract class MiniGallery with _$MiniGallery {
     /// Which listing the neighbours come from, such as the main gallery.
     required String name,
     int? count,
-    @Default(const {}) Map<String, String> failed,
+    @Default(const {}) Map<String, ParseException> failed,
   }) = _MiniGallery;
 
   static const String entity = 'miniGallery';

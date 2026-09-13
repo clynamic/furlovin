@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:furlovin/parser/data/failure.dart';
 import 'package:meta/meta.dart';
 
 @immutable
@@ -6,7 +7,7 @@ class ParseOutcome {
   const ParseOutcome({this.values = const {}, this.failed = const {}});
 
   final Map<String, Object?> values;
-  final Map<String, String> failed;
+  final Map<String, ParseException> failed;
 
   bool get isComplete => failed.isEmpty;
 
@@ -44,7 +45,7 @@ class PageOutcome {
 
   final Map<String, ParseOutcome> single;
   final Map<String, List<ParseOutcome>> items;
-  final Map<String, String> missing;
+  final Map<String, ParseException> missing;
 
   @override
   String toString() =>

@@ -9,16 +9,25 @@ class ParseEngine {
   StepContext get _context => StepContext(base: base);
 
   Object? evaluate(FieldRule rule, Object? root) {
+    final List<ParseException> causes = [];
     for (final List<Step> alternative in rule.alternatives) {
-      final Object? value = _run(alternative, root);
-      if (value == null) continue;
-      if (rule.repeated) {
-        final List<Object>? items = rule.type.coerceList(value);
-        if (items != null && items.isNotEmpty) return items;
-        continue;
+      try {
+        final Object? value = _run(alternative, root);
+        if (value == null) continue;
+        if (rule.repeated) {
+          final List<Object>? items = rule.type.coerceList(value);
+          if (items != null && items.isNotEmpty) return items;
+          continue;
+        }
+        return rule.type.coerce(value);
+      } on ParseException catch (e) {
+        causes.add(e);
+      } on Object catch (e) {
+        causes.add(UnexpectedParseError.of(e));
       }
-      return rule.type.coerce(value);
     }
+    if (causes case [final ParseException only]) throw only;
+    if (causes.isNotEmpty) throw NoMatch(causes: causes);
     return null;
   }
 
@@ -42,21 +51,17 @@ class ParseEngine {
 
   ParseOutcome parseOne(EntityRule rule, Object? root) {
     final Map<String, Object?> values = {};
-    final Map<String, String> failed = {};
+    final Map<String, ParseException> failed = {};
     for (final MapEntry<String, FieldRule> field in rule.fields.entries) {
       try {
         final Object? value = evaluate(field.value, root);
         if (value == null && field.value.required) {
-          failed[field.key] = 'nothing matched';
+          failed[field.key] = const NoMatch();
           continue;
         }
         values[field.key] = value;
-      } on CoercionException catch (e) {
-        failed[field.key] = '$e';
-      } on StepException catch (e) {
-        failed[field.key] = e.reason;
-      } on Object catch (e) {
-        failed[field.key] = e.toString();
+      } on ParseException catch (e) {
+        failed[field.key] = e;
       }
     }
     return ParseOutcome(values: values, failed: failed);
@@ -83,7 +88,7 @@ extension RuleSetParsing on RuleSet {
     hydrate(document);
     final Map<String, ParseOutcome> single = {};
     final Map<String, List<ParseOutcome>> lists = {};
-    final Map<String, String> missing = {};
+    final Map<String, ParseException> missing = {};
     for (final MapEntry<String, SlotRule> entry in rule.slots.entries) {
       try {
         if (entry.value.list) {
@@ -91,10 +96,10 @@ extension RuleSetParsing on RuleSet {
         } else {
           single[entry.key] = parseSlot(entry.value, document, base: base);
         }
-      } on StepException catch (e) {
-        missing[entry.key] = e.reason;
+      } on ParseException catch (e) {
+        missing[entry.key] = e;
       } on Object catch (e) {
-        missing[entry.key] = e.toString();
+        missing[entry.key] = UnexpectedParseError.of(e);
       }
     }
     return PageOutcome(single: single, items: lists, missing: missing);

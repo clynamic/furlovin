@@ -31,7 +31,7 @@ mixin _$User {
  String? get title;/// How many times the profile has been viewed.
  int? get views;/// How many members watch this one.
  int? get watchedBy;/// How many members this one watches.
- int? get watching; Map<String, String> get failed;
+ int? get watching; Map<String, ParseException> get failed;
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -67,7 +67,7 @@ abstract mixin class $UserCopyWith<$Res>  {
   factory $UserCopyWith(User value, $Res Function(User) _then) = _$UserCopyWithImpl;
 @useResult
 $Res call({
- String name, String? avatar, String? banner, int? commentsEarned, int? commentsMade, String? displayName, int? favorites, int? journals, String? profile, DateTime? registered, int? submissions, String? symbol, String? title, int? views, int? watchedBy, int? watching, Map<String, String> failed
+ String name, String? avatar, String? banner, int? commentsEarned, int? commentsMade, String? displayName, int? favorites, int? journals, String? profile, DateTime? registered, int? submissions, String? symbol, String? title, int? views, int? watchedBy, int? watching, Map<String, ParseException> failed
 });
 
 
@@ -103,7 +103,7 @@ as String?,views: freezed == views ? _self.views : views // ignore: cast_nullabl
 as int?,watchedBy: freezed == watchedBy ? _self.watchedBy : watchedBy // ignore: cast_nullable_to_non_nullable
 as int?,watching: freezed == watching ? _self.watching : watching // ignore: cast_nullable_to_non_nullable
 as int?,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 
@@ -188,7 +188,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String? avatar,  String? banner,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  int? watchedBy,  int? watching,  Map<String, String> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String? avatar,  String? banner,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  int? watchedBy,  int? watching,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
 return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.commentsMade,_that.displayName,_that.favorites,_that.journals,_that.profile,_that.registered,_that.submissions,_that.symbol,_that.title,_that.views,_that.watchedBy,_that.watching,_that.failed);case _:
@@ -209,7 +209,7 @@ return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String? avatar,  String? banner,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  int? watchedBy,  int? watching,  Map<String, String> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String? avatar,  String? banner,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  int? watchedBy,  int? watching,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _User():
 return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.commentsMade,_that.displayName,_that.favorites,_that.journals,_that.profile,_that.registered,_that.submissions,_that.symbol,_that.title,_that.views,_that.watchedBy,_that.watching,_that.failed);case _:
@@ -229,7 +229,7 @@ return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String? avatar,  String? banner,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  int? watchedBy,  int? watching,  Map<String, String> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String? avatar,  String? banner,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  int? watchedBy,  int? watching,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
 return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.commentsMade,_that.displayName,_that.favorites,_that.journals,_that.profile,_that.registered,_that.submissions,_that.symbol,_that.title,_that.views,_that.watchedBy,_that.watching,_that.failed);case _:
@@ -244,7 +244,7 @@ return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.
 
 
 class _User extends User {
-  const _User({required this.name, this.avatar, this.banner, this.commentsEarned, this.commentsMade, this.displayName, this.favorites, this.journals, this.profile, this.registered, this.submissions, this.symbol, this.title, this.views, this.watchedBy, this.watching,  Map<String, String> failed = const {}}): _failed = failed,super._();
+  const _User({required this.name, this.avatar, this.banner, this.commentsEarned, this.commentsMade, this.displayName, this.favorites, this.journals, this.profile, this.registered, this.submissions, this.symbol, this.title, this.views, this.watchedBy, this.watching,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 /// The url form of the name, lowercased and with underscores removed.
@@ -279,8 +279,8 @@ class _User extends User {
 @override final  int? watchedBy;
 /// How many members this one watches.
 @override final  int? watching;
- final  Map<String, String> _failed;
-@override@JsonKey() Map<String, String> get failed {
+ final  Map<String, ParseException> _failed;
+@override@JsonKey() Map<String, ParseException> get failed {
   if (_failed is EqualUnmodifiableMapView) return _failed;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_failed);
@@ -319,7 +319,7 @@ abstract mixin class _$UserCopyWith<$Res> implements $UserCopyWith<$Res> {
   factory _$UserCopyWith(_User value, $Res Function(_User) _then) = __$UserCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String? avatar, String? banner, int? commentsEarned, int? commentsMade, String? displayName, int? favorites, int? journals, String? profile, DateTime? registered, int? submissions, String? symbol, String? title, int? views, int? watchedBy, int? watching, Map<String, String> failed
+ String name, String? avatar, String? banner, int? commentsEarned, int? commentsMade, String? displayName, int? favorites, int? journals, String? profile, DateTime? registered, int? submissions, String? symbol, String? title, int? views, int? watchedBy, int? watching, Map<String, ParseException> failed
 });
 
 
@@ -355,7 +355,7 @@ as String?,views: freezed == views ? _self.views : views // ignore: cast_nullabl
 as int?,watchedBy: freezed == watchedBy ? _self.watchedBy : watchedBy // ignore: cast_nullable_to_non_nullable
 as int?,watching: freezed == watching ? _self.watching : watching // ignore: cast_nullable_to_non_nullable
 as int?,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 

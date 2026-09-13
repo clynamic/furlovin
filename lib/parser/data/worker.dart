@@ -27,7 +27,7 @@ class ParseFailure implements Exception {
   const ParseFailure(this.entity, this.failed);
 
   final String entity;
-  final Map<String, String> failed;
+  final Map<String, ParseException> failed;
 
   @override
   String toString() => 'Could not read $entity: ${failed.keys.join(', ')}';

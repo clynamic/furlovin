@@ -1,5 +1,6 @@
 export 'document.dart';
 export 'engine.dart';
+export 'failure.dart';
 export 'harvest.dart';
 export 'hydrate.dart';
 export 'loader.dart';

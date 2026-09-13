@@ -33,7 +33,8 @@ void main() {
   test('every item parses completely', () {
     final Map<String, int> failures = {};
     for (final ParseOutcome item in items) {
-      for (final MapEntry<String, String> failure in item.failed.entries) {
+      for (final MapEntry<String, ParseException> failure
+          in item.failed.entries) {
         failures.update(
           '${failure.key}: ${failure.value}',
           (e) => e + 1,

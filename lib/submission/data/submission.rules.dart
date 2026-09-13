@@ -91,7 +91,7 @@ abstract class Submission with _$Submission {
 
     /// How many times the submission has been viewed.
     int? views,
-    @Default(const {}) Map<String, String> failed,
+    @Default(const {}) Map<String, ParseException> failed,
   }) = _Submission;
 
   static const String entity = 'submission';

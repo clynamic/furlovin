@@ -35,7 +35,7 @@ abstract class Comment with _$Comment {
     /// The percentage width the site renders the comment at.
     /// Replies are narrower than their parent, so this encodes depth.
     int? width,
-    @Default(const {}) Map<String, String> failed,
+    @Default(const {}) Map<String, ParseException> failed,
   }) = _Comment;
 
   static const String entity = 'comment';

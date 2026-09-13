@@ -513,7 +513,7 @@ Class _model(String entity, String? description, List<RuleField> fields) {
                 (b) => b
                   ..name = 'failed'
                   ..named = true
-                  ..type = refer('Map<String, String>')
+                  ..type = refer('Map<String, ParseException>', parserUrl)
                   ..annotations.add(
                     refer('Default', freezedUrl).call([literalConstMap({})]),
                   ),

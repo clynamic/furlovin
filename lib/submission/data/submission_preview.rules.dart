@@ -52,7 +52,7 @@ abstract class SubmissionPreview with _$SubmissionPreview {
 
     /// The name of whoever posted the submission, as displayed.
     String? uploaderName,
-    @Default(const {}) Map<String, String> failed,
+    @Default(const {}) Map<String, ParseException> failed,
   }) = _SubmissionPreview;
 
   static const String entity = 'submissionPreview';

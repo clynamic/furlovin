@@ -23,7 +23,7 @@ mixin _$Viewer {
  String? get displayName;/// How many new favourites are waiting.
  int? get favouriteAlerts;/// How many new submissions are waiting.
  int? get submissionAlerts;/// How many new watchers are waiting.
- int? get watchAlerts; Map<String, String> get failed;
+ int? get watchAlerts; Map<String, ParseException> get failed;
 /// Create a copy of Viewer
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -59,7 +59,7 @@ abstract mixin class $ViewerCopyWith<$Res>  {
   factory $ViewerCopyWith(Viewer value, $Res Function(Viewer) _then) = _$ViewerCopyWithImpl;
 @useResult
 $Res call({
- String name, String? avatar, int? commentAlerts, String? displayName, int? favouriteAlerts, int? submissionAlerts, int? watchAlerts, Map<String, String> failed
+ String name, String? avatar, int? commentAlerts, String? displayName, int? favouriteAlerts, int? submissionAlerts, int? watchAlerts, Map<String, ParseException> failed
 });
 
 
@@ -86,7 +86,7 @@ as String?,favouriteAlerts: freezed == favouriteAlerts ? _self.favouriteAlerts :
 as int?,submissionAlerts: freezed == submissionAlerts ? _self.submissionAlerts : submissionAlerts // ignore: cast_nullable_to_non_nullable
 as int?,watchAlerts: freezed == watchAlerts ? _self.watchAlerts : watchAlerts // ignore: cast_nullable_to_non_nullable
 as int?,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 
@@ -171,7 +171,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String? avatar,  int? commentAlerts,  String? displayName,  int? favouriteAlerts,  int? submissionAlerts,  int? watchAlerts,  Map<String, String> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String? avatar,  int? commentAlerts,  String? displayName,  int? favouriteAlerts,  int? submissionAlerts,  int? watchAlerts,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Viewer() when $default != null:
 return $default(_that.name,_that.avatar,_that.commentAlerts,_that.displayName,_that.favouriteAlerts,_that.submissionAlerts,_that.watchAlerts,_that.failed);case _:
@@ -192,7 +192,7 @@ return $default(_that.name,_that.avatar,_that.commentAlerts,_that.displayName,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String? avatar,  int? commentAlerts,  String? displayName,  int? favouriteAlerts,  int? submissionAlerts,  int? watchAlerts,  Map<String, String> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String? avatar,  int? commentAlerts,  String? displayName,  int? favouriteAlerts,  int? submissionAlerts,  int? watchAlerts,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _Viewer():
 return $default(_that.name,_that.avatar,_that.commentAlerts,_that.displayName,_that.favouriteAlerts,_that.submissionAlerts,_that.watchAlerts,_that.failed);case _:
@@ -212,7 +212,7 @@ return $default(_that.name,_that.avatar,_that.commentAlerts,_that.displayName,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String? avatar,  int? commentAlerts,  String? displayName,  int? favouriteAlerts,  int? submissionAlerts,  int? watchAlerts,  Map<String, String> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String? avatar,  int? commentAlerts,  String? displayName,  int? favouriteAlerts,  int? submissionAlerts,  int? watchAlerts,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _Viewer() when $default != null:
 return $default(_that.name,_that.avatar,_that.commentAlerts,_that.displayName,_that.favouriteAlerts,_that.submissionAlerts,_that.watchAlerts,_that.failed);case _:
@@ -227,7 +227,7 @@ return $default(_that.name,_that.avatar,_that.commentAlerts,_that.displayName,_t
 
 
 class _Viewer extends Viewer {
-  const _Viewer({required this.name, this.avatar, this.commentAlerts, this.displayName, this.favouriteAlerts, this.submissionAlerts, this.watchAlerts,  Map<String, String> failed = const {}}): _failed = failed,super._();
+  const _Viewer({required this.name, this.avatar, this.commentAlerts, this.displayName, this.favouriteAlerts, this.submissionAlerts, this.watchAlerts,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 /// The url form of the name, lowercased and with underscores
@@ -245,8 +245,8 @@ class _Viewer extends Viewer {
 @override final  int? submissionAlerts;
 /// How many new watchers are waiting.
 @override final  int? watchAlerts;
- final  Map<String, String> _failed;
-@override@JsonKey() Map<String, String> get failed {
+ final  Map<String, ParseException> _failed;
+@override@JsonKey() Map<String, ParseException> get failed {
   if (_failed is EqualUnmodifiableMapView) return _failed;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_failed);
@@ -285,7 +285,7 @@ abstract mixin class _$ViewerCopyWith<$Res> implements $ViewerCopyWith<$Res> {
   factory _$ViewerCopyWith(_Viewer value, $Res Function(_Viewer) _then) = __$ViewerCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String? avatar, int? commentAlerts, String? displayName, int? favouriteAlerts, int? submissionAlerts, int? watchAlerts, Map<String, String> failed
+ String name, String? avatar, int? commentAlerts, String? displayName, int? favouriteAlerts, int? submissionAlerts, int? watchAlerts, Map<String, ParseException> failed
 });
 
 
@@ -312,7 +312,7 @@ as String?,favouriteAlerts: freezed == favouriteAlerts ? _self.favouriteAlerts :
 as int?,submissionAlerts: freezed == submissionAlerts ? _self.submissionAlerts : submissionAlerts // ignore: cast_nullable_to_non_nullable
 as int?,watchAlerts: freezed == watchAlerts ? _self.watchAlerts : watchAlerts // ignore: cast_nullable_to_non_nullable
 as int?,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 

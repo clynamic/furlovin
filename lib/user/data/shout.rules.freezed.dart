@@ -21,7 +21,7 @@ mixin _$Shout {
  String? get authorAvatar;/// The writer name as displayed.
  String? get authorName;/// The message, as markup rather than text.
  String? get body;/// When the message was left.
- DateTime? get posted; Map<String, String> get failed;
+ DateTime? get posted; Map<String, ParseException> get failed;
 /// Create a copy of Shout
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -57,7 +57,7 @@ abstract mixin class $ShoutCopyWith<$Res>  {
   factory $ShoutCopyWith(Shout value, $Res Function(Shout) _then) = _$ShoutCopyWithImpl;
 @useResult
 $Res call({
- int id, String? author, String? authorAvatar, String? authorName, String? body, DateTime? posted, Map<String, String> failed
+ int id, String? author, String? authorAvatar, String? authorName, String? body, DateTime? posted, Map<String, ParseException> failed
 });
 
 
@@ -83,7 +83,7 @@ as String?,authorName: freezed == authorName ? _self.authorName : authorName // 
 as String?,body: freezed == body ? _self.body : body // ignore: cast_nullable_to_non_nullable
 as String?,posted: freezed == posted ? _self.posted : posted // ignore: cast_nullable_to_non_nullable
 as DateTime?,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 
@@ -168,7 +168,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  Map<String, String> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Shout() when $default != null:
 return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.body,_that.posted,_that.failed);case _:
@@ -189,7 +189,7 @@ return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  Map<String, String> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _Shout():
 return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.body,_that.posted,_that.failed);case _:
@@ -209,7 +209,7 @@ return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  Map<String, String> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? author,  String? authorAvatar,  String? authorName,  String? body,  DateTime? posted,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _Shout() when $default != null:
 return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.body,_that.posted,_that.failed);case _:
@@ -224,7 +224,7 @@ return $default(_that.id,_that.author,_that.authorAvatar,_that.authorName,_that.
 
 
 class _Shout extends Shout {
-  const _Shout({required this.id, this.author, this.authorAvatar, this.authorName, this.body, this.posted,  Map<String, String> failed = const {}}): _failed = failed,super._();
+  const _Shout({required this.id, this.author, this.authorAvatar, this.authorName, this.body, this.posted,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 /// The message's numeric identifier.
@@ -239,8 +239,8 @@ class _Shout extends Shout {
 @override final  String? body;
 /// When the message was left.
 @override final  DateTime? posted;
- final  Map<String, String> _failed;
-@override@JsonKey() Map<String, String> get failed {
+ final  Map<String, ParseException> _failed;
+@override@JsonKey() Map<String, ParseException> get failed {
   if (_failed is EqualUnmodifiableMapView) return _failed;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_failed);
@@ -279,7 +279,7 @@ abstract mixin class _$ShoutCopyWith<$Res> implements $ShoutCopyWith<$Res> {
   factory _$ShoutCopyWith(_Shout value, $Res Function(_Shout) _then) = __$ShoutCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String? author, String? authorAvatar, String? authorName, String? body, DateTime? posted, Map<String, String> failed
+ int id, String? author, String? authorAvatar, String? authorName, String? body, DateTime? posted, Map<String, ParseException> failed
 });
 
 
@@ -305,7 +305,7 @@ as String?,authorName: freezed == authorName ? _self.authorName : authorName // 
 as String?,body: freezed == body ? _self.body : body // ignore: cast_nullable_to_non_nullable
 as String?,posted: freezed == posted ? _self.posted : posted // ignore: cast_nullable_to_non_nullable
 as DateTime?,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,
+as Map<String, ParseException>,
   ));
 }
 

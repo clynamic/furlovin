@@ -29,7 +29,7 @@ abstract class Folder with _$Folder {
     /// The heading the member filed the folder under. Only the gallery
     /// sidebar carries it, and folders outside any heading have none.
     String? group,
-    @Default(const {}) Map<String, String> failed,
+    @Default(const {}) Map<String, ParseException> failed,
   }) = _Folder;
 
   static const String entity = 'folder';
