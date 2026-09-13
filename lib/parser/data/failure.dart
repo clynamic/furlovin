@@ -56,22 +56,26 @@ final class DroppedItems extends ParseException {
 }
 
 final class EmptyStep extends ParseException {
-  const EmptyStep(this.alternative, this.step);
+  const EmptyStep(this.alternative, this.step, {this.input});
 
   final int alternative;
   final String step;
+  final String? input;
 
   @override
-  String get message => 'alternative $alternative: $step matched nothing';
+  String get message =>
+      'alternative $alternative: $step matched nothing'
+      '${input == null ? '' : ' in $input'}';
 
   @override
   bool operator ==(Object other) =>
       other is EmptyStep &&
       other.alternative == alternative &&
-      other.step == step;
+      other.step == step &&
+      other.input == input;
 
   @override
-  int get hashCode => Object.hash(alternative, step);
+  int get hashCode => Object.hash(alternative, step, input);
 }
 
 final class StepException extends ParseException {
