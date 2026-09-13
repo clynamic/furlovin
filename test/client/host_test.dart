@@ -51,5 +51,14 @@ void main() {
       );
       expect(const Session().cookieHeader, isNull);
     });
+
+    test('withholds the viewport size so every device gets one layout', () {
+      expect(
+        const Session(cookies: {'a': 'x', 'sz': '412x915', 'b': 'y'})
+            .cookieHeader,
+        'a=x; b=y',
+      );
+      expect(const Session(cookies: {'sz': '412x915'}).cookieHeader, isNull);
+    });
   });
 }
