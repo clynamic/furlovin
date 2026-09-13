@@ -165,6 +165,19 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                               child: SubmissionTags(tags: tags),
                             ),
                           ),
+                        if (detail.asData?.value.folders
+                            case final List<Folder> folders
+                            when folders.isNotEmpty)
+                          PersistentSliverSection(
+                            name: 'folders',
+                            title: 'Folders',
+                            count: folders.length,
+                            sliver: SliverList.builder(
+                              itemCount: folders.length,
+                              itemBuilder: (context, index) =>
+                                  FolderTile(folder: folders[index]),
+                            ),
+                          ),
                         if (comments.isNotEmpty)
                           PersistentSliverSection(
                             name: 'comments',
