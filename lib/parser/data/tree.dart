@@ -85,7 +85,7 @@ class TreeEngine {
   TreeEngine({required this.types, required this.base})
     : _steps = ParseEngine(base: base);
 
-  final TypeSet types;
+  final RuleSet types;
   final Uri base;
   final ParseEngine _steps;
 
@@ -97,7 +97,7 @@ class TreeEngine {
     final Map<String, Object?> values = {};
     final Map<String, ParseException> failed = {};
     for (final TypeField field in rule.fields.values) {
-      final _Reading reading = _read(field, root);
+      final _Reading reading = _guarded(field, root);
       values[field.name] = reading.value;
       final ParseException? issue = reading.issue;
       if (issue == null) continue;
@@ -108,6 +108,26 @@ class TreeEngine {
       if (report) failed[field.name] = issue;
     }
     return ParseOutcome(values: values, failed: failed);
+  }
+
+  _Reading _guarded(TypeField field, Node root) {
+    try {
+      return _read(field, root);
+    } on ParseException catch (e) {
+      return (
+        value: field.list ? const <Object>[] : null,
+        issue: e,
+        absent: true,
+        hard: true,
+      );
+    } on Object catch (e) {
+      return (
+        value: field.list ? const <Object>[] : null,
+        issue: UnexpectedParseError.of(e),
+        absent: true,
+        hard: true,
+      );
+    }
   }
 
   _Reading _read(TypeField field, Node root) {
@@ -244,7 +264,7 @@ class TreeEngine {
   }
 }
 
-extension TypeSetParsing on TypeSet {
+extension RuleSetParsing on RuleSet {
   ParseOutcome parsePage(String type, Document document, {required Uri base}) {
     final TypeRule? rule = types[type];
     if (rule == null || !rule.page) {

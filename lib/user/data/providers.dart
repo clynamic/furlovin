@@ -19,15 +19,15 @@ final Provider<Retention> userRetentionProvider = Provider<Retention>(
   (ref) => Retention(userRetention),
 );
 
-final FutureProviderFamily<UserDetail, String> userProvider = FutureProvider
+final FutureProviderFamily<UserDocument, String> userProvider = FutureProvider
     .autoDispose
-    .family<UserDetail, String>((ref, name) async {
+    .family<UserDocument, String>((ref, name) async {
       final Retention retention = ref.read(userRetentionProvider);
       final KeepAliveLink link = ref.keepAlive();
       ref.onDispose(() => retention.release(name));
       final UserClient client = await ref.watch(userClientProvider.future);
       try {
-        final UserDetail detail = await client.user(name);
+        final UserDocument detail = await client.user(name);
         retention.hold(name, link);
         return detail;
       } on Object {

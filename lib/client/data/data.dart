@@ -2,6 +2,7 @@ export 'client.dart';
 export 'error.dart';
 export 'host.dart';
 export 'images.dart';
+export 'page.dart';
 export 'providers.dart';
 export 'repository.dart';
 export 'service.dart';

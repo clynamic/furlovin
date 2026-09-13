@@ -5,15 +5,15 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:furlovin/parser/parser.dart';
 
-part 'folder_entry.rules.freezed.dart';
+part 'folder_row.rules.freezed.dart';
 
 /// A row in the gallery sidebar. FA renders the open folder as plain text
 /// without a link, so that row carries no user, id or slug.
 @freezed
-abstract class FolderEntry with _$FolderEntry {
-  const FolderEntry._();
+abstract class FolderRow with _$FolderRow {
+  const FolderRow._();
 
-  const factory FolderEntry({
+  const factory FolderRow({
     required String name,
     int? count,
     String? group,
@@ -21,14 +21,14 @@ abstract class FolderEntry with _$FolderEntry {
     String? slug,
     String? user,
     @Default(const {}) Map<String, ParseException> failed,
-  }) = _FolderEntry;
+  }) = _FolderRow;
 
-  static const String entity = 'folderEntry';
+  static const String ruleType = 'folderRow';
 
-  static FolderEntry? fromOutcome(ParseOutcome outcome) {
+  static FolderRow? fromOutcome(ParseOutcome outcome) {
     final String? name = outcome.get<String>('name');
     if (name == null) return null;
-    return FolderEntry(
+    return FolderRow(
       name: name,
       count: outcome.get<int>('count'),
       group: outcome.get<String>('group'),

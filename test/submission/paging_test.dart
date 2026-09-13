@@ -7,9 +7,8 @@ import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
-SubmissionPreview _preview(int id, {int? favouriteId}) => SubmissionPreview(
+SubmissionPreview _preview(int id) => SubmissionPreview(
   id: id,
-  favouriteId: favouriteId,
   link: 'https://www.furaffinity.net/view/$id/',
   rating: SubmissionRating.general,
   thumbnail: 'https://t.furaffinity.net/$id@600-0.jpg',
@@ -44,14 +43,11 @@ class _FavouritesClient extends SubmissionClient {
   _FavouritesClient(this.pages, {required super.rules})
     : super(client: FaClient());
 
-  final Map<int, List<SubmissionPreview>> pages;
+  final Map<int, List<Favorite>> pages;
   final List<int> asked = [];
 
   @override
-  Future<List<SubmissionPreview>> favorites(
-    String user, {
-    int after = 0,
-  }) async {
+  Future<List<Favorite>> favorites(String user, {int after = 0}) async {
     asked.add(after);
     return pages[after] ?? const [];
   }
@@ -137,8 +133,11 @@ void main() {
 
   test('favourites continue after the last favourite id', () async {
     final _FavouritesClient client = _FavouritesClient({
-      0: [_preview(1, favouriteId: 900), _preview(2, favouriteId: 800)],
-      800: [_preview(3, favouriteId: 700)],
+      0: [
+        Favorite(id: 900, submission: _preview(1)),
+        Favorite(id: 800, submission: _preview(2)),
+      ],
+      800: [Favorite(id: 700, submission: _preview(3))],
     }, rules: rules);
     final ProviderContainer container = ProviderContainer(
       overrides: [submissionClientProvider.overrideWith((ref) async => client)],

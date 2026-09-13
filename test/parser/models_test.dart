@@ -1,23 +1,18 @@
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:furlovin/client/client.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/submission.dart';
-import 'package:html/parser.dart' as html;
+
+import '../_support/documents.dart';
 
 void main() {
   late RuleSet rules;
   late List<ParseOutcome> outcomes;
 
   setUpAll(() {
-    rules = RuleSet.fromJson(
-      decodeRules(File('assets/rules/v1.yaml').readAsStringSync()),
-    );
-    outcomes = rules.parseSlotAll(
-      rules.pages['browse']!.slots['submissions']!,
-      html.parse(File('test/_fixtures/browse.html').readAsStringSync()),
-      base: Uri.parse(faOrigin),
+    rules = loadRules();
+    outcomes = children(
+      parseFixture(rules, BrowseDocument.ruleType, 'browse'),
+      'submissions',
     );
   });
 
@@ -26,11 +21,17 @@ void main() {
     expect(generatedSchema, RuleSet.currentSchema);
   });
 
-  test('manifest covers every entity the rules declare', () {
-    expect(ruleManifest.keys, containsAll(rules.entities.keys));
-    for (final MapEntry<String, List<String>> entry in ruleManifest.entries) {
-      expect(rules[entry.key]!.fields.keys, containsAll(entry.value));
-    }
+  test('the manifest is exactly the shapes the rules declare', () {
+    expect(rules.validateAgainst(ruleManifest), isEmpty);
+    expect(ruleManifest.keys, containsAll(rules.types.keys));
+  });
+
+  test('rules that change a compiled shape are rejected', () {
+    final Map<String, Map<String, String>> changed = {
+      ...ruleManifest,
+      'submission': {...ruleManifest['submission']!, 'title': 'string'},
+    };
+    expect(rules.validateAgainst(changed), isNotEmpty);
   });
 
   test('every outcome becomes a typed model', () {

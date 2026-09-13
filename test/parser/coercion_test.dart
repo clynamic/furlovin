@@ -2,29 +2,31 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:html/parser.dart' as html;
 
-EntityRule _entity(
+RuleSet _entity(
   String type,
   String attribute, {
   bool required = false,
   bool expected = false,
 }) => RuleSet.fromJson({
   'schema': generatedSchema,
-  'revision': 1,
   'enums': {
     'Rating': {
       'feature': 'test',
       'values': ['general', 'adult'],
     },
   },
-  'entities': {
+  'types': {
     'thing': {
       'feature': 'test',
       'fields': {
         'value': {
           'type': type,
-          'required': required,
-          'expected': expected,
-          'steps': [
+          'presence': required
+              ? 'required'
+              : expected
+              ? 'expected'
+              : 'optional',
+          'read': [
             [
               {'op': 'attr', 'name': attribute},
             ],
@@ -33,18 +35,17 @@ EntityRule _entity(
       },
     },
   },
-})['thing']!;
+});
 
-EntityRule _fallback() => RuleSet.fromJson({
+RuleSet _fallback() => RuleSet.fromJson({
   'schema': generatedSchema,
-  'revision': 1,
-  'entities': {
+  'types': {
     'thing': {
       'feature': 'test',
       'fields': {
         'value': {
           'type': 'int',
-          'steps': [
+          'read': [
             [
               {'op': 'index', 'at': 0},
             ],
@@ -56,11 +57,12 @@ EntityRule _fallback() => RuleSet.fromJson({
       },
     },
   },
-})['thing']!;
+});
 
-ParseOutcome _parse(EntityRule rule, String markup) =>
-    ParseEngine(base: Uri.parse('https://www.furaffinity.net'))
-        .parseOne(rule, html.parse(markup).querySelector('span'));
+ParseOutcome _parse(RuleSet rules, String markup) => TreeEngine(
+  types: rules,
+  base: Uri.parse('https://www.furaffinity.net'),
+).parseType(rules['thing']!, html.parse(markup).querySelector('span')!);
 
 void main() {
   group('coercion', () {
@@ -84,7 +86,7 @@ void main() {
         _entity('int', 'v'),
         '<span v="abc"></span>',
       );
-      expect(outcome.values.containsKey('value'), isFalse);
+      expect(outcome['value'], isNull);
       expect(outcome.failed['value'], const CoercionException('int', 'abc'));
     });
 

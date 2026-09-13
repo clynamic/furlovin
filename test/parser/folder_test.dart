@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/parser/parser.dart';
@@ -7,38 +5,32 @@ import 'package:furlovin/submission/submission.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' as html;
 
+import '../_support/documents.dart';
+
 void main() {
   late RuleSet rules;
 
-  setUpAll(() {
-    rules = RuleSet.fromJson(
-      decodeRules(File('assets/rules/v1.yaml').readAsStringSync()),
-    );
-  });
+  setUpAll(() => rules = loadRules());
 
-  Document fixture(String name) =>
-      html.parse(File('test/_fixtures/$name.html').readAsStringSync());
+  List<FolderRow> rows(String name) => GalleryDocument.fromOutcome(
+    parseFixture(rules, GalleryDocument.ruleType, name),
+  )!.folders;
 
-  List<T> all<T>(ListSlot<T> slot, String page) => rules
-      .parseSlotAll(
-        rules.pages[slot.page]!.slots[slot.name]!,
-        fixture(page),
-        base: Uri.parse(faOrigin),
-      )
-      .map(slot.build)
-      .whereType<T>()
-      .toList();
+  SubmissionDocument submission(String name) => SubmissionDocument.fromOutcome(
+    parseFixture(rules, SubmissionDocument.ruleType, name),
+  )!;
 
+  ParseOutcome loose(Document page) => TreeEngine(
+    types: rules,
+    base: Uri.parse(faOrigin),
+  ).parseType(rules[SubmissionDocument.ruleType]!, page);
   group('gallery sidebar', () {
     late List<Folder> folders;
 
     setUpAll(
       () => folders = [
-        for (final FolderEntry entry in all(
-          GallerySlots.folders,
-          'gallery_folders',
-        ))
-          ?entry.within(const GallerySource.main('fennel76')),
+        for (final FolderRow row in rows('gallery_folders'))
+          ?row.within(const GallerySource.main('fennel76')),
       ],
     );
 
@@ -87,9 +79,9 @@ void main() {
       1255257,
       'Juniper17',
     );
-    late List<FolderEntry> entries;
+    late List<FolderRow> entries;
 
-    setUpAll(() => entries = all(GallerySlots.folders, 'folder_grouped'));
+    setUpAll(() => entries = rows('folder_grouped'));
 
     test('keeps the open folder in its place without a link', () {
       expect(entries, hasLength(14));
@@ -103,7 +95,7 @@ void main() {
 
     test('takes the open folder identity from the request', () {
       final List<Folder> folders = [
-        for (final FolderEntry entry in entries) ?entry.within(open),
+        for (final FolderRow entry in entries) ?entry.within(open),
       ];
       expect(folders, hasLength(14));
       expect(
@@ -120,10 +112,7 @@ void main() {
     });
 
     test('the main gallery and scraps are not folder rows', () {
-      expect(
-        all(GallerySlots.folders, 'gallery_folders').where((e) => e.id == null),
-        isEmpty,
-      );
+      expect(rows('gallery_folders').where((e) => e.id == null), isEmpty);
     });
 
     test('a row without a link is dropped outside a folder page', () {
@@ -145,20 +134,15 @@ void main() {
         </a>
       </div>
     ''');
-    final Folder folder = rules
-        .parseSlotAll(
-          rules.pages['submission']!.slots['folders']!,
-          page,
-          base: Uri.parse(faOrigin),
-        )
-        .map(SubmissionSlots.folders.build)
-        .single!;
+    final Folder folder = Folder.fromOutcome(
+      children(loose(page), 'folders').single,
+    )!;
     expect(folder.name, 'poplar110 wide name');
   });
 
   group('submission page', () {
     test('lists the folders a submission sits in, without groups', () {
-      expect(all(SubmissionSlots.folders, 'view_folders'), const [
+      expect(submission('view_folders').folders, const [
         Folder(
           user: 'birch92',
           id: 1232817,
@@ -171,52 +155,36 @@ void main() {
     });
 
     test('splits the mini gallery around the submission', () {
-      final List<int> newer = [
-        for (final SubmissionPreview item in all(
-          SubmissionSlots.newer,
-          'view_comments',
-        ))
-          item.id,
-      ];
-      final List<int> older = [
-        for (final SubmissionPreview item in all(
-          SubmissionSlots.older,
-          'view_comments',
-        ))
-          item.id,
-      ];
+      final MiniGallery gallery = submission('view_comments').miniGallery!;
+      final List<int> newer = gallery.newer.map((e) => e.id).toList();
+      final List<int> older = gallery.older.map((e) => e.id).toList();
       expect(newer, [28250384, 28235854, 28196107]);
       expect(older, [28151556, 28139782, 28128819]);
     });
 
     test('a first submission has only older neighbours', () {
-      expect(all(SubmissionSlots.newer, 'view'), isEmpty);
-      expect(all(SubmissionSlots.older, 'view'), isNotEmpty);
+      final MiniGallery gallery = submission('view').miniGallery!;
+      expect(gallery.newer, isEmpty);
+      expect(gallery.older, isNotEmpty);
     });
 
     test('reads only the first mini gallery', () {
-      final Document page = fixture('view_comments');
+      final Document page = html.parse(fixture('view_comments'));
       final Element first = page.querySelector('div#minigallery > section')!;
       first.parent!.append(first.clone(true));
-      List<int> ids(String slot) => rules
-          .parseSlotAll(
-            rules.pages['submission']!.slots[slot]!,
-            page,
-            base: Uri.parse(faOrigin),
-          )
-          .map((e) => e.get<int>('id')!)
-          .toList();
-      expect(ids('newer'), [28250384, 28235854, 28196107]);
-      expect(ids('older'), [28151556, 28139782, 28128819]);
+      final MiniGallery gallery = SubmissionDocument.fromOutcome(
+        rules.parsePage(
+          SubmissionDocument.ruleType,
+          page,
+          base: Uri.parse(faOrigin),
+        ),
+      )!.miniGallery!;
+      expect(gallery.newer.map((e) => e.id), [28250384, 28235854, 28196107]);
+      expect(gallery.older.map((e) => e.id), [28151556, 28139782, 28128819]);
     });
 
     test('names the listing the neighbours come from', () {
-      final ParseOutcome outcome = rules.parseSlot(
-        rules.pages['submission']!.slots['miniGallery']!,
-        fixture('view_comments'),
-        base: Uri.parse(faOrigin),
-      );
-      final MiniGallery gallery = MiniGallery.fromOutcome(outcome)!;
+      final MiniGallery gallery = submission('view_comments').miniGallery!;
       expect(gallery.link, 'https://www.furaffinity.net/gallery/fennel76/');
       expect(gallery.count, 891);
       expect(gallery.name, isNotEmpty);

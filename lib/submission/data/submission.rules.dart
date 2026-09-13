@@ -75,7 +75,7 @@ abstract class Submission with _$Submission {
     String? species,
 
     /// Keywords the uploader attached to the submission.
-    List<String>? tags,
+    @Default(const []) List<String> tags,
 
     /// The subject matter the uploader filed the work under.
     String? theme,
@@ -94,7 +94,7 @@ abstract class Submission with _$Submission {
     @Default(const {}) Map<String, ParseException> failed,
   }) = _Submission;
 
-  static const String entity = 'submission';
+  static const String ruleType = 'submission';
 
   static Submission? fromOutcome(ParseOutcome outcome) {
     final String? file = outcome.get<String>('file');
@@ -128,7 +128,7 @@ abstract class Submission with _$Submission {
       preview: outcome.get<String>('preview'),
       resolution: outcome.get<String>('resolution'),
       species: outcome.get<String>('species'),
-      tags: outcome.get<List<String>>('tags'),
+      tags: [...?(outcome['tags'] as List<Object?>?)?.whereType<String>()],
       theme: outcome.get<String>('theme'),
       type: SubmissionType.byName(outcome.get<String>('type')),
       uploaderAvatar: outcome.get<String>('uploaderAvatar'),

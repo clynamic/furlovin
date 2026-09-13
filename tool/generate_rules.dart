@@ -50,7 +50,6 @@ void main(List<String> arguments) {
     exit(1);
   }
   final File source = versions.last;
-
   final Map<String, Object?> json = decodeRules(source.readAsStringSync());
   final int schema = (json['schema']! as num).toInt();
   if (schema != _version(source)) {
@@ -59,54 +58,32 @@ void main(List<String> arguments) {
     );
     exit(1);
   }
-  final Map<String, Object?> entities = (json['entities']! as Map)
-      .cast<String, Object?>();
 
-  final List<String> problems = [];
-  final Map<String, List<Map<String, Object?>>> refs = {};
-  final Map<String, Object?> declared = ((json['refs'] as Map?) ?? const {})
-      .cast<String, Object?>();
-  for (final MapEntry<String, Object?> ref in declared.entries) {
-    refs[ref.key] = [
-      for (final Object? step in ref.value! as List)
-        (step! as Map).cast<String, Object?>(),
-    ];
-  }
-
-  final Map<String, Object?> enums = ((json['enums'] as Map?) ?? const {})
-      .cast<String, Object?>();
-
-  final Map<String, List<RuleField>> parsed = {
-    for (final MapEntry<String, Object?> entity in entities.entries)
-      entity.key: _fields(entity.key, entity.value, refs, enums, problems),
+  final Map<String, Object?> enums = _map(json['enums']);
+  final Map<String, Object?> refs = _map(json['refs']);
+  final Map<String, Map<String, Object?>> types = {
+    for (final MapEntry<String, Object?> entry in _map(json['types']).entries)
+      entry.key: _map(entry.value),
   };
 
-  final Map<String, Object?> pages = ((json['pages'] as Map?) ?? const {})
-      .cast<String, Object?>();
-  for (final MapEntry<String, Object?> page in pages.entries) {
-    final Map<String, Object?> spec = (page.value! as Map)
-        .cast<String, Object?>();
-    if ((spec['feature'] as String? ?? '').isEmpty) {
-      problems.add('page ${page.key}: missing "feature"');
+  final List<String> problems = [];
+  for (final MapEntry<String, Map<String, Object?>> type in types.entries) {
+    if ((type.value['feature'] as String? ?? '').isEmpty) {
+      problems.add('${type.key}: missing "feature"');
     }
-    final Map<String, Object?> slots = ((spec['slots'] as Map?) ?? const {})
-        .cast<String, Object?>();
-    if (slots.isEmpty) problems.add('page ${page.key}: no slots');
-    for (final MapEntry<String, Object?> slot in slots.entries) {
-      final Map<String, Object?> shape = (slot.value! as Map)
-          .cast<String, Object?>();
-      final String entity = shape['entity'] as String? ?? '';
-      if (!entities.containsKey(entity)) {
-        problems.add(
-          'page ${page.key}, slot ${slot.key}: unknown entity "$entity"',
-        );
-      }
-      if ((shape['selector'] as String? ?? '').isEmpty) {
-        problems.add('page ${page.key}, slot ${slot.key}: missing selector');
-      }
+    for (final MapEntry<String, Object?> field in _map(
+      type.value['fields'],
+    ).entries) {
+      _check(
+        '${type.key}.${field.key}',
+        _map(field.value),
+        types,
+        enums,
+        refs,
+        problems,
+      );
     }
   }
-
   if (problems.isNotEmpty) {
     stderr.writeln('rule file is invalid:');
     for (final String problem in problems) {
@@ -124,15 +101,8 @@ void main(List<String> arguments) {
   final Set<String> written = {};
 
   for (final MapEntry<String, Object?> entry in enums.entries) {
-    final Map<String, Object?> spec = (entry.value! as Map)
-        .cast<String, Object?>();
-    final String feature = spec['feature'] as String? ?? '';
-    if (feature.isEmpty) {
-      stderr.writeln('${entry.key}: missing "feature"');
-      exit(1);
-    }
-    final String file = '${_snake(entry.key)}.rules.dart';
-    final String path = '$libDir/$feature/data/$file';
+    final Map<String, Object?> spec = _map(entry.value);
+    final String path = _path(spec['feature']! as String, entry.key);
     _write(
       path,
       Library(
@@ -146,17 +116,19 @@ void main(List<String> arguments) {
     written.add(path);
   }
 
-  for (final MapEntry<String, List<RuleField>> entry in parsed.entries) {
-    final String feature =
-        ((entities[entry.key]! as Map).cast<String, Object?>()['feature']
-            as String?) ??
-        '';
-    if (feature.isEmpty) {
-      stderr.writeln('${entry.key}: missing "feature"');
-      exit(1);
-    }
-    final String file = '${_snake(entry.key)}.rules.dart';
-    final String path = '$libDir/$feature/data/$file';
+  final Map<String, Map<String, String>> manifest = {};
+  for (final MapEntry<String, Map<String, Object?>> type in types.entries) {
+    final List<ModelField> fields = [
+      for (final MapEntry<String, Object?> field in _map(
+        type.value['fields'],
+      ).entries)
+        ModelField.of(field.key, _map(field.value), types, enums),
+    ]..sort();
+    manifest[type.key] = {
+      for (final ModelField field in fields) field.name: field.signature,
+    };
+    final String path = _path(type.value['feature']! as String, type.key);
+    final String file = path.split('/').last;
     _write(
       path,
       Library(
@@ -166,57 +138,12 @@ void main(List<String> arguments) {
           )
           ..body.add(
             _model(
-              entry.key,
-              (entities[entry.key]! as Map)
-                      .cast<String, Object?>()['description']
-                  as String?,
-              entry.value,
+              type.key,
+              type.value['description'] as String?,
+              fields,
+              page: type.value['page'] as bool? ?? false,
             ),
           ),
-      ),
-    );
-    written.add(path);
-  }
-
-  final Map<String, List<MapEntry<String, Map<String, Object?>>>> byFeature =
-      {};
-  for (final MapEntry<String, Object?> page in pages.entries) {
-    final Map<String, Object?> spec = (page.value! as Map)
-        .cast<String, Object?>();
-    byFeature
-        .putIfAbsent(spec['feature']! as String, () => [])
-        .add(MapEntry(page.key, spec));
-  }
-  for (final MapEntry<String, List<MapEntry<String, Map<String, Object?>>>>
-      feature
-      in byFeature.entries) {
-    final String path = '$libDir/${feature.key}/data/pages.rules.dart';
-    final Set<String> used = {
-      for (final MapEntry<String, Map<String, Object?>> page in feature.value)
-        for (final Object? slot
-            in ((page.value['slots'] as Map?) ?? const {}).values)
-          (slot! as Map).cast<String, Object?>()['entity']! as String,
-    };
-    _write(
-      path,
-      Library(
-        (b) => b
-          ..directives.addAll([
-            for (final String entity in used.toList()..sort())
-              Directive.import(
-                _entityImport(
-                  entity,
-                  (entities[entity]! as Map).cast<String, Object?>()['feature']!
-                      as String,
-                ),
-              ),
-            Directive.import('package:furlovin/parser/parser.dart'),
-          ])
-          ..body.addAll([
-            for (final MapEntry<String, Map<String, Object?>> page
-                in feature.value)
-              _slots(page.key, page.value),
-          ]),
       ),
     );
     written.add(path);
@@ -244,14 +171,8 @@ void main(List<String> arguments) {
           (b) => b
             ..name = 'ruleManifest'
             ..modifier = FieldModifier.constant
-            ..type = refer('Map<String, List<String>>')
-            ..assignment = literalConstMap({
-              for (final MapEntry<String, List<RuleField>> entry
-                  in parsed.entries)
-                entry.key: [
-                  for (final RuleField field in entry.value) field.name,
-                ]..sort(),
-            }).code,
+            ..type = refer('Map<String, Map<String, String>>')
+            ..assignment = literalConstMap(manifest).code,
         ),
       ]),
     ),
@@ -279,14 +200,76 @@ void main(List<String> arguments) {
   for (final String path in removed) {
     stdout.writeln('  removed $path');
   }
-  stdout.writeln('${parsed.length} entities, schema $schema');
+  stdout.writeln('${types.length} types, schema $schema');
 }
 
 String header = '';
 
+Map<String, Object?> _map(Object? json) =>
+    ((json as Map?) ?? const {}).cast<String, Object?>();
+
+List<Object?> _list(Object? json) => (json as List?) ?? const [];
+
+void _check(
+  String where,
+  Map<String, Object?> field,
+  Map<String, Map<String, Object?>> types,
+  Map<String, Object?> enums,
+  Map<String, Object?> refs,
+  List<String> problems,
+) {
+  final String type = field['type'] as String? ?? 'string';
+  final bool nested = types.containsKey(type);
+  if (!nested && !builtInTypes.containsKey(type) && !enums.containsKey(type)) {
+    problems.add('$where: unknown type "$type"');
+  }
+  final String presence = field['presence'] as String? ?? 'optional';
+  if (!{'required', 'expected', 'optional'}.contains(presence)) {
+    problems.add('$where: unknown presence "$presence"');
+  }
+  final bool list = field['list'] as bool? ?? false;
+  if ((nested || list) && _list(field['at']).isEmpty) {
+    problems.add('$where: needs at');
+  }
+  if (nested && field.containsKey('read')) {
+    problems.add('$where: a type field cannot read');
+  }
+  if (!nested && _list(field['read']).isEmpty) {
+    problems.add('$where: needs read');
+  }
+  for (final Object? alternative in _list(field['read'])) {
+    final List<Object?> steps = _list(alternative);
+    if (steps.isEmpty) problems.add('$where: empty pipeline');
+    for (final Object? step in steps) {
+      final Map<String, Object?> spec = _map(step);
+      if (spec[r'$ref'] case final Object reference) {
+        if (!refs.containsKey(reference)) {
+          problems.add('$where: unknown ref "$reference"');
+        }
+        continue;
+      }
+      final String op = spec['op'] as String? ?? '';
+      if (!knownOps.contains(op)) problems.add('$where: unknown op "$op"');
+      if (op == 'regex' || op == 'replace') {
+        try {
+          RegExp(spec['pattern']! as String);
+        } on FormatException catch (e) {
+          problems.add('$where: bad regex: $e');
+        }
+      }
+    }
+  }
+}
+
 void _write(String path, Library library) {
   final String emitted = library
-      .accept(DartEmitter(allocator: Allocator(), orderDirectives: true))
+      .accept(
+        DartEmitter(
+          allocator: Allocator(),
+          orderDirectives: true,
+          useNullSafetySyntax: true,
+        ),
+      )
       .toString();
   File(path)
     ..createSync(recursive: true)
@@ -297,155 +280,28 @@ void _write(String path, Library library) {
     );
 }
 
-String? _enumUrl(String name, Map<String, Object?> enums) {
-  final Map<String, Object?>? spec = (enums[name] as Map?)
-      ?.cast<String, Object?>();
-  final String? feature = spec?['feature'] as String?;
-  if (feature == null) return null;
-  return 'package:furlovin/$feature/data/${_snake(name)}.rules.dart';
-}
+String _path(String feature, String name) =>
+    '$libDir/$feature/data/${_snake(name)}.rules.dart';
+
+String _url(String feature, String name) =>
+    'package:furlovin/$feature/data/${_snake(name)}.rules.dart';
 
 int _version(File file) =>
     int.parse(RegExp(r'v(\d+)\.yaml$').firstMatch(file.path)!.group(1)!);
-
-Class _slots(String page, Map<String, Object?> spec) {
-  final Map<String, Object?> slots = ((spec['slots'] as Map?) ?? const {})
-      .cast<String, Object?>();
-  return Class(
-    (b) => b
-      ..name = '${_pascal(page)}Slots'
-      ..abstract = true
-      ..modifier = ClassModifier.final$
-      ..fields.addAll([
-        for (final MapEntry<String, Object?> slot in slots.entries)
-          _slot(page, slot.key, (slot.value! as Map).cast<String, Object?>()),
-      ]),
-  );
-}
-
-Field _slot(String page, String name, Map<String, Object?> shape) {
-  final String entity = shape['entity']! as String;
-  final String model = _pascal(entity);
-  final String kind = (shape['list'] as bool? ?? false)
-      ? 'ListSlot'
-      : 'SingleSlot';
-  return Field(
-    (b) => b
-      ..name = name
-      ..static = true
-      ..modifier = FieldModifier.constant
-      ..type = refer('$kind<$model>')
-      ..assignment = refer(kind).constInstance([
-        literalString(page),
-        literalString(name),
-        literalString(entity),
-        refer('$model.fromOutcome'),
-      ]).code,
-  );
-}
-
-String _entityImport(String entity, String feature) =>
-    'package:furlovin/$feature/data/${_snake(entity)}.rules.dart';
 
 String _snake(String value) => value
     .replaceAllMapped(RegExp(r'([a-z0-9])([A-Z])'), (m) => '${m[1]}_${m[2]}')
     .toLowerCase();
 
-List<Map<String, Object?>> _expand(
-  Object? pipeline,
-  Map<String, List<Map<String, Object?>>> refs,
-  String where,
-  List<String> problems,
-) {
-  final List<Map<String, Object?>> steps = [];
-  for (final Object? step in pipeline! as List) {
-    final Map<String, Object?> spec = (step! as Map).cast<String, Object?>();
-    final Object? reference = spec[r'$ref'];
-    if (reference == null) {
-      steps.add(spec);
-      continue;
-    }
-    final List<Map<String, Object?>>? resolved = refs[reference];
-    if (resolved == null) {
-      problems.add('$where: unknown ref "$reference"');
-      continue;
-    }
-    steps.addAll(resolved);
-  }
-  return steps;
-}
+String _pascal(String value) => value
+    .split(RegExp(r'[_\s-]+'))
+    .where((e) => e.isNotEmpty)
+    .map((e) => e[0].toUpperCase() + e.substring(1))
+    .join();
 
-List<RuleField> _fields(
-  String entity,
-  Object? spec,
-  Map<String, List<Map<String, Object?>>> refs,
-  Map<String, Object?> enums,
-  List<String> problems,
-) {
-  final Map<String, Object?> fields =
-      ((spec! as Map).cast<String, Object?>()['fields']! as Map)
-          .cast<String, Object?>();
-  final List<RuleField> result = [];
-
-  for (final MapEntry<String, Object?> field in fields.entries) {
-    final Map<String, Object?> value = (field.value! as Map)
-        .cast<String, Object?>();
-    final List<Object?> alternatives = (value['steps']! as List).cast();
-    final String declared = value['type'] as String? ?? 'string';
-    final String? dartType = builtInTypes[declared];
-    final bool isEnum = dartType == null;
-    if (isEnum && !enums.containsKey(declared)) {
-      problems.add('$entity.${field.key}: unknown type "$declared"');
-    }
-
-    for (final Object? alternative in alternatives) {
-      final String where = '$entity.${field.key}';
-      final List<Map<String, Object?>> steps = _expand(
-        alternative,
-        refs,
-        where,
-        problems,
-      );
-      if (steps.isEmpty) {
-        problems.add('$where: empty pipeline');
-        continue;
-      }
-      for (final Map<String, Object?> spec in steps) {
-        final String op = spec['op'] as String? ?? '';
-        if (!knownOps.contains(op)) {
-          problems.add('$where: unknown op "$op"');
-        }
-        if (op == 'regex' || op == 'replace') {
-          try {
-            RegExp(spec['pattern']! as String);
-          } on FormatException catch (e) {
-            problems.add('$where: bad regex: $e');
-          }
-        }
-      }
-    }
-
-    final bool repeated = value['repeated'] as bool? ?? false;
-    result.add(
-      RuleField(
-        name: field.key,
-        type: repeated
-            ? 'List<${dartType ?? declared}>'
-            : (dartType ?? declared),
-        required: value['required'] as bool? ?? false,
-        description: value['description'] as String?,
-        typeUrl: isEnum ? _enumUrl(declared, enums) : null,
-        element: repeated ? (dartType ?? declared) : null,
-      ),
-    );
-  }
-
-  result.sort((a, b) {
-    if (a.required != b.required) return a.required ? -1 : 1;
-    return a.name.compareTo(b.name);
-  });
-  return result;
-}
+List<String> _docs(String? description) => description == null
+    ? const []
+    : description.split('\n').map((e) => '/// $e').toList();
 
 Enum _enum(String name, String? description, List<String> values) => Enum(
   (b) => b
@@ -473,12 +329,116 @@ Enum _enum(String name, String? description, List<String> values) => Enum(
     ),
 );
 
-List<String> _docs(String? description) => description == null
-    ? const []
-    : description.split('\n').map((e) => '/// $e').toList();
+enum FieldKind { scalar, enumeration, nested }
 
-Class _model(String entity, String? description, List<RuleField> fields) {
-  final String name = _pascal(entity);
+class ModelField implements Comparable<ModelField> {
+  const ModelField({
+    required this.name,
+    required this.kind,
+    required this.declared,
+    required this.element,
+    required this.list,
+    required this.required,
+    this.description,
+  });
+
+  factory ModelField.of(
+    String name,
+    Map<String, Object?> json,
+    Map<String, Map<String, Object?>> types,
+    Map<String, Object?> enums,
+  ) {
+    final String declared = json['type'] as String? ?? 'string';
+    final FieldKind kind = types.containsKey(declared)
+        ? FieldKind.nested
+        : enums.containsKey(declared)
+        ? FieldKind.enumeration
+        : FieldKind.scalar;
+    return ModelField(
+      name: name,
+      kind: kind,
+      declared: declared,
+      element: switch (kind) {
+        FieldKind.scalar => refer(builtInTypes[declared]!),
+        FieldKind.enumeration => refer(
+          declared,
+          _url(_map(enums[declared])['feature']! as String, declared),
+        ),
+        FieldKind.nested => refer(
+          _pascal(declared),
+          _url(types[declared]!['feature']! as String, declared),
+        ),
+      },
+      list: json['list'] as bool? ?? false,
+      required: json['presence'] == 'required',
+      description: json['description'] as String?,
+    );
+  }
+
+  final String name;
+  final FieldKind kind;
+  final String declared;
+  final Reference element;
+  final bool list;
+  final bool required;
+  final String? description;
+
+  String get signature =>
+      '${list ? '[$declared]' : declared}${required ? '!' : ''}';
+
+  Reference get dartType => list
+      ? TypeReference(
+          (b) => b
+            ..symbol = 'List'
+            ..types.add(element),
+        )
+      : TypeReference(
+          (b) => b
+            ..symbol = element.symbol
+            ..url = element.url
+            ..isNullable = !required,
+        );
+
+  Code read(String outcome) => Code.scope((allocate) {
+    final String type = allocate(element);
+    final String raw = "$outcome['$name']";
+    if (list) {
+      return switch (kind) {
+        FieldKind.scalar =>
+          '[...?($raw as List<Object?>?)?.whereType<$type>()]',
+        FieldKind.enumeration =>
+          '[for (final Object? item in ($raw as List<Object?>?) ?? const []) '
+              '?$type.byName(item as String?)]',
+        FieldKind.nested =>
+          '[for (final Object? item in ($raw as List<Object?>?) ?? const []) '
+              'if (item is ${allocate(refer('ParseOutcome', parserUrl))}) '
+              '?$type.fromOutcome(item)]',
+      };
+    }
+    return switch (kind) {
+      FieldKind.scalar => "$outcome.get<$type>('$name')",
+      FieldKind.enumeration => "$type.byName($outcome.get<String>('$name'))",
+      FieldKind.nested =>
+        'switch ($raw) { '
+            "final ${allocate(refer('ParseOutcome', parserUrl))} child => "
+            '$type.fromOutcome(child), _ => null }',
+    };
+  });
+
+  @override
+  int compareTo(ModelField other) {
+    if (required != other.required) return required ? -1 : 1;
+    return name.compareTo(other.name);
+  }
+}
+
+Class _model(
+  String type,
+  String? description,
+  List<ModelField> fields, {
+  required bool page,
+}) {
+  final String name = _pascal(type);
   return Class(
     (b) => b
       ..name = name
@@ -498,17 +458,21 @@ Class _model(String entity, String? description, List<RuleField> fields) {
             ..constant = true
             ..redirect = refer('_$name')
             ..optionalParameters.addAll([
-              for (final RuleField field in fields)
+              for (final ModelField field in fields)
                 Parameter(
                   (b) => b
                     ..name = field.name
                     ..named = true
-                    ..required = field.required
+                    ..required = field.required && !field.list
                     ..docs.addAll(_docs(field.description))
-                    ..type = refer(
-                      field.required ? field.type : '${field.type}?',
-                      field.typeUrl,
-                    ),
+                    ..annotations.addAll([
+                      if (field.list)
+                        refer(
+                          'Default',
+                          freezedUrl,
+                        ).call([literalConstList([])]),
+                    ])
+                    ..type = field.dartType,
                 ),
               Parameter(
                 (b) => b
@@ -519,37 +483,35 @@ Class _model(String entity, String? description, List<RuleField> fields) {
                     refer('Default', freezedUrl).call([literalConstMap({})]),
                   ),
               ),
+              if (page)
+                Parameter(
+                  (b) => b
+                    ..name = 'report'
+                    ..named = true
+                    ..type = refer('ReadReport?', parserUrl),
+                ),
             ]),
         ),
       ])
       ..fields.add(
         Field(
           (b) => b
-            ..name = 'entity'
+            ..name = 'ruleType'
             ..static = true
             ..modifier = FieldModifier.constant
             ..type = refer('String')
-            ..assignment = literalString(entity).code,
+            ..assignment = literalString(type).code,
         ),
       )
-      ..methods.add(_fromOutcome(name, fields)),
+      ..methods.add(_fromOutcome(name, fields, page: page)),
   );
 }
 
-Expression _read(RuleField field) {
-  final Expression raw = refer('outcome')
-      .property('get')
-      .call(
-        [literalString(field.name)],
-        {},
-        [refer(field.isEnum ? 'String' : field.type)],
-      );
-  return field.isEnum
-      ? refer(field.type, field.typeUrl).property('byName').call([raw])
-      : raw;
-}
-
-Method _fromOutcome(String name, List<RuleField> fields) => Method(
+Method _fromOutcome(
+  String name,
+  List<ModelField> fields, {
+  required bool page,
+}) => Method(
   (b) => b
     ..name = 'fromOutcome'
     ..static = true
@@ -561,47 +523,40 @@ Method _fromOutcome(String name, List<RuleField> fields) => Method(
           ..type = refer('ParseOutcome', parserUrl),
       ),
     )
+    ..optionalParameters.addAll([
+      if (page)
+        Parameter(
+          (b) => b
+            ..name = 'report'
+            ..named = true
+            ..type = refer('ReadReport?', parserUrl),
+        ),
+    ])
     ..body = Block.of([
-      for (final RuleField field in fields.where((e) => e.required)) ...[
+      for (final ModelField field in fields.where(
+        (e) => e.required && !e.list,
+      )) ...[
         declareFinal(
           field.name,
-          type: refer('${field.type}?'),
-        ).assign(_read(field)).statement,
+          type: TypeReference(
+            (b) => b
+              ..symbol = field.element.symbol
+              ..url = field.element.url
+              ..isNullable = true,
+          ),
+        ).assign(CodeExpression(field.read('outcome'))).statement,
         Code('if (${field.name} == null) return null;'),
       ],
       refer(name)
           .newInstance([], {
-            for (final RuleField field in fields)
-              field.name: field.required ? refer(field.name) : _read(field),
+            for (final ModelField field in fields)
+              field.name: field.required && !field.list
+                  ? refer(field.name)
+                  : CodeExpression(field.read('outcome')),
             'failed': refer('outcome').property('failed'),
+            if (page) 'report': refer('report'),
           })
           .returned
           .statement,
     ]),
 );
-
-String _pascal(String value) => value
-    .split(RegExp(r'[_\s-]+'))
-    .where((e) => e.isNotEmpty)
-    .map((e) => e[0].toUpperCase() + e.substring(1))
-    .join();
-
-class RuleField {
-  const RuleField({
-    required this.name,
-    required this.type,
-    required this.required,
-    this.description,
-    this.typeUrl,
-    this.element,
-  });
-
-  final String name;
-  final String type;
-  final bool required;
-  final String? description;
-  final String? typeUrl;
-  final String? element;
-
-  bool get isEnum => typeUrl != null && element == null;
-}

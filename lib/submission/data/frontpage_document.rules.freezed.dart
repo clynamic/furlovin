@@ -1,0 +1,297 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'frontpage_document.rules.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$FrontpageDocument {
+
+ List<SubmissionPreview> get submissions; Map<String, ParseException> get failed; ReadReport? get report;
+/// Create a copy of FrontpageDocument
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrontpageDocumentCopyWith<FrontpageDocument> get copyWith => _$FrontpageDocumentCopyWithImpl<FrontpageDocument>(this as FrontpageDocument, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as FrontpageDocument;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrontpageDocument&&const DeepCollectionEquality().equals(other.submissions, _this.submissions)&&const DeepCollectionEquality().equals(other.failed, _this.failed)&&(identical(other.report, _this.report) || other.report == _this.report));
+}
+
+
+@override
+int get hashCode {
+  final _this = this as FrontpageDocument;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.submissions),const DeepCollectionEquality().hash(_this.failed),_this.report);
+}
+
+@override
+String toString() {
+  final _this = this as FrontpageDocument;
+  return 'FrontpageDocument(submissions: ${_this.submissions}, failed: ${_this.failed}, report: ${_this.report})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrontpageDocumentCopyWith<$Res>  {
+  factory $FrontpageDocumentCopyWith(FrontpageDocument value, $Res Function(FrontpageDocument) _then) = _$FrontpageDocumentCopyWithImpl;
+@useResult
+$Res call({
+ List<SubmissionPreview> submissions, Map<String, ParseException> failed, ReadReport? report
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrontpageDocumentCopyWithImpl<$Res>
+    implements $FrontpageDocumentCopyWith<$Res> {
+  _$FrontpageDocumentCopyWithImpl(this._self, this._then);
+
+  final FrontpageDocument _self;
+  final $Res Function(FrontpageDocument) _then;
+
+/// Create a copy of FrontpageDocument
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? submissions = null,Object? failed = null,Object? report = freezed,}) {
+  return _then(FrontpageDocument(
+submissions: null == submissions ? _self.submissions : submissions // ignore: cast_nullable_to_non_nullable
+as List<SubmissionPreview>,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
+as Map<String, ParseException>,report: freezed == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
+as ReadReport?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrontpageDocument].
+extension FrontpageDocumentPatterns on FrontpageDocument {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrontpageDocument value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrontpageDocument() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrontpageDocument value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrontpageDocument():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrontpageDocument value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrontpageDocument() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<SubmissionPreview> submissions,  Map<String, ParseException> failed,  ReadReport? report)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrontpageDocument() when $default != null:
+return $default(_that.submissions,_that.failed,_that.report);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<SubmissionPreview> submissions,  Map<String, ParseException> failed,  ReadReport? report)  $default,) {final _that = this;
+switch (_that) {
+case _FrontpageDocument():
+return $default(_that.submissions,_that.failed,_that.report);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<SubmissionPreview> submissions,  Map<String, ParseException> failed,  ReadReport? report)?  $default,) {final _that = this;
+switch (_that) {
+case _FrontpageDocument() when $default != null:
+return $default(_that.submissions,_that.failed,_that.report);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrontpageDocument extends FrontpageDocument {
+  const _FrontpageDocument({ List<SubmissionPreview> submissions = const [],  Map<String, ParseException> failed = const {}, this.report}): _submissions = submissions,_failed = failed,super._();
+  
+
+ final  List<SubmissionPreview> _submissions;
+@override@JsonKey() List<SubmissionPreview> get submissions {
+  if (_submissions is EqualUnmodifiableListView) return _submissions;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_submissions);
+}
+
+ final  Map<String, ParseException> _failed;
+@override@JsonKey() Map<String, ParseException> get failed {
+  if (_failed is EqualUnmodifiableMapView) return _failed;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_failed);
+}
+
+@override final  ReadReport? report;
+
+/// Create a copy of FrontpageDocument
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrontpageDocumentCopyWith<_FrontpageDocument> get copyWith => __$FrontpageDocumentCopyWithImpl<_FrontpageDocument>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrontpageDocument&&const DeepCollectionEquality().equals(other.submissions, _submissions)&&const DeepCollectionEquality().equals(other.failed, _failed)&&(identical(other.report, report) || other.report == report));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_submissions),const DeepCollectionEquality().hash(_failed),report);
+}
+
+@override
+String toString() {
+    return 'FrontpageDocument(submissions: $submissions, failed: $failed, report: $report)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrontpageDocumentCopyWith<$Res> implements $FrontpageDocumentCopyWith<$Res> {
+  factory _$FrontpageDocumentCopyWith(_FrontpageDocument value, $Res Function(_FrontpageDocument) _then) = __$FrontpageDocumentCopyWithImpl;
+@override @useResult
+$Res call({
+ List<SubmissionPreview> submissions, Map<String, ParseException> failed, ReadReport? report
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrontpageDocumentCopyWithImpl<$Res>
+    implements _$FrontpageDocumentCopyWith<$Res> {
+  __$FrontpageDocumentCopyWithImpl(this._self, this._then);
+
+  final _FrontpageDocument _self;
+  final $Res Function(_FrontpageDocument) _then;
+
+/// Create a copy of FrontpageDocument
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? submissions = null,Object? failed = null,Object? report = freezed,}) {
+  return _then(_FrontpageDocument(
+submissions: null == submissions ? _self._submissions : submissions // ignore: cast_nullable_to_non_nullable
+as List<SubmissionPreview>,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
+as Map<String, ParseException>,report: freezed == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
+as ReadReport?,
+  ));
+}
+
+
+}
+
+// dart format on

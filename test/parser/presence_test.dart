@@ -12,7 +12,7 @@ Map<String, Object?> _text(String css) => {
   ],
 };
 
-final TypeSet _types = TypeSet.fromJson({
+final RuleSet _types = RuleSet.fromJson({
   'schema': 1,
   'types': {
     'item': {

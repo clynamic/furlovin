@@ -42,7 +42,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<SubmissionDetail> detail = ref.watch(
+    final AsyncValue<SubmissionDocument> detail = ref.watch(
       submissionProvider(id),
     );
     final Session session = ref
@@ -167,10 +167,12 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                             when broken.unreadable('miniGallery'))
                           UnreadableSection(broken, 'miniGallery', 'Gallery'),
                         if (detail.asData?.value
-                            case SubmissionDetail(
-                              miniGallery: final MiniGallery gallery,
-                              :final List<SubmissionPreview> newer,
-                              :final List<SubmissionPreview> older,
+                            case SubmissionDocument(
+                              miniGallery: MiniGallery(
+                                    :final List<SubmissionPreview> newer,
+                                    :final List<SubmissionPreview> older,
+                                  ) &&
+                                  final MiniGallery gallery,
                               :final Submission submission,
                             )
                             when newer.isNotEmpty || older.isNotEmpty)

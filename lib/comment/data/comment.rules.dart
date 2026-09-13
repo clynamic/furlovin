@@ -38,7 +38,7 @@ abstract class Comment with _$Comment {
     @Default(const {}) Map<String, ParseException> failed,
   }) = _Comment;
 
-  static const String entity = 'comment';
+  static const String ruleType = 'comment';
 
   static Comment? fromOutcome(ParseOutcome outcome) {
     final int? id = outcome.get<int>('id');

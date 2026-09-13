@@ -1,32 +1,25 @@
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:furlovin/client/client.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:furlovin/user/user.dart';
-import 'package:html/parser.dart' as html;
+
+import '../_support/documents.dart';
 
 void main() {
   late RuleSet rules;
 
-  PageOutcome parse(String fixture) => rules.parseDocument(
-    'user',
-    html.parse(File('test/_fixtures/$fixture').readAsStringSync()),
-    base: Uri.parse(faOrigin),
-  );
+  ParseOutcome outcome(String name) =>
+      parseFixture(rules, UserDocument.ruleType, name);
 
-  setUpAll(() {
-    rules = RuleSet.fromJson(
-      decodeRules(File('assets/rules/v1.yaml').readAsStringSync()),
-    );
-  });
+  UserDocument parse(String name) => UserDocument.fromOutcome(outcome(name))!;
+
+  setUpAll(() => rules = loadRules());
 
   test('reads a profile without gaps', () {
-    final ParseOutcome outcome = parse('user.html').single['profile']!;
-    expect(outcome.failed, isEmpty);
+    final ParseOutcome profile = child(outcome('user'), 'user');
+    expect(profile.failed, isEmpty);
 
-    final User user = User.fromOutcome(outcome)!;
+    final User user = User.fromOutcome(profile)!;
     expect(user.name, 'olive33');
     expect(user.displayName, 'Cedar33');
     expect(user.symbol, 'Member');
@@ -41,9 +34,7 @@ void main() {
   });
 
   test('reads the counts, commas and all', () {
-    final User user = User.fromOutcome(
-      parse('user_full.html').single['profile']!,
-    )!;
+    final User user = parse('user_full').user;
     expect(user.views, 371919);
     expect(user.submissions, 320);
     expect(user.favorites, 59487);
@@ -55,10 +46,7 @@ void main() {
   });
 
   test('reads contacts, including one that is not a link', () {
-    final List<Contact> contacts = parse('user_full.html').items['contacts']!
-        .map(Contact.fromOutcome)
-        .nonNulls
-        .toList();
+    final List<Contact> contacts = parse('user_full').contacts;
     expect(contacts, hasLength(5));
     expect(contacts.map((e) => e.kind), [
       'youtube',
@@ -79,20 +67,14 @@ void main() {
   });
 
   test('keeps a mailto link rather than treating it as unlinked', () {
-    final List<Contact> contacts = parse('user.html').items['contacts']!
-        .map(Contact.fromOutcome)
-        .nonNulls
-        .toList();
+    final List<Contact> contacts = parse('user').contacts;
     final Contact email = contacts.firstWhere((e) => e.kind == 'email');
     expect(email.link, startsWith('mailto:'));
     expect(email.value, contains('@'));
   });
 
   test('reads shouts', () {
-    final List<Shout> shouts = parse('user_full.html').items['shouts']!
-        .map(Shout.fromOutcome)
-        .nonNulls
-        .toList();
+    final List<Shout> shouts = parse('user_full').shouts;
     expect(shouts, hasLength(12));
     for (final Shout shout in shouts) {
       expect(shout.id, greaterThan(0));
@@ -104,11 +86,8 @@ void main() {
   });
 
   test('reads the gallery and favourite previews', () {
-    final PageOutcome page = parse('user_full.html');
-    final List<SubmissionPreview> gallery = page.items['gallery']!
-        .map(SubmissionPreview.fromOutcome)
-        .nonNulls
-        .toList();
+    final UserDocument page = parse('user_full');
+    final List<SubmissionPreview> gallery = page.gallery;
     expect(gallery, hasLength(20));
     expect(gallery.every((e) => e.id > 0), isTrue);
     expect(
@@ -117,19 +96,17 @@ void main() {
     );
     expect(gallery.every((e) => e.title != null), isTrue);
     expect(gallery.every((e) => e.uploader == 'ginkgo29-v0942'), isTrue);
-    expect(page.items['favorites'], hasLength(20));
+    expect(page.favorites, hasLength(20));
   });
 
-  test('leaves no slot unreachable', () {
-    expect(parse('user.html').missing, isEmpty);
-    expect(parse('user_full.html').missing, isEmpty);
+  test('leaves no section unreachable', () {
+    for (final String name in ['user', 'user_full']) {
+      expect(outcome(name).failed.values.whereType<StepException>(), isEmpty);
+    }
   });
 
   test('reads the profile questions and their answers', () {
-    final List<Fact> facts = parse('user_full.html').items['facts']!
-        .map(Fact.fromOutcome)
-        .nonNulls
-        .toList();
+    final List<Fact> facts = parse('user_full').facts;
     expect(facts, isNotEmpty);
 
     final Map<String, String> answers = {
@@ -142,10 +119,7 @@ void main() {
   });
 
   test('separates the availability answers from the rest', () {
-    final List<Fact> facts = parse('user_full.html').items['facts']!
-        .map(Fact.fromOutcome)
-        .nonNulls
-        .toList();
+    final List<Fact> facts = parse('user_full').facts;
     final List<Fact> first = facts.takeWhile((e) => e.group == null).toList();
     expect(first.map((e) => e.label), [
       'Ember Yarrow106',

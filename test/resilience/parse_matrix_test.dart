@@ -6,87 +6,72 @@ import 'package:furlovin/parser/parser.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' as html;
 
+import '../_support/documents.dart';
+
 const Map<String, List<String>> fixtures = {
-  'browse': ['browse'],
-  'submission': ['view', 'view_comments', 'view_folders'],
-  'user': ['user', 'user_full'],
-  'gallery': ['gallery_folders', 'folder_grouped'],
-  'favorites': ['favorites'],
+  'browseDocument': ['browse'],
+  'submissionDocument': ['view', 'view_comments', 'view_folders'],
+  'userDocument': ['user', 'user_full'],
+  'galleryDocument': ['gallery_folders', 'folder_grouped'],
+  'favoritesDocument': ['favorites'],
 };
 
-enum Reading { same, gaps, partial, empty, unreadable }
-
-typedef SlotState = ({int matched, int usable, int gaps, bool missing});
-
 typedef Breakage = ({String name, void Function(Document page) apply});
+
+typedef Reading = ({String? value, Set<String> issues});
 
 void main() {
   late RuleSet rules;
 
-  setUpAll(() {
-    rules = RuleSet.fromJson(
-      decodeRules(File('assets/rules/v1.yaml').readAsStringSync()),
-    );
-  });
+  setUpAll(() => rules = loadRules());
 
-  Map<String, SlotState> read(String page, Document document) {
-    final PageOutcome outcome = rules.parseDocument(
-      page,
+  String? summary(Object? value) => switch (value) {
+    null => null,
+    final List<Object?> items => '${items.length}',
+    _ => 'yes',
+  };
+
+  Map<String, Reading> read(String type, Document document) {
+    final ParseOutcome outcome = rules.parsePage(
+      type,
       document,
       base: Uri.parse(faOrigin),
     );
-    SlotState state(String entity, List<ParseOutcome> items) {
-      final Iterable<String> required = rules[entity]!.fields.entries
-          .where((e) => e.value.required)
-          .map((e) => e.key);
-      return (
-        matched: items.length,
-        usable: items
-            .where((e) => required.every((field) => e[field] != null))
-            .length,
-        gaps: items.fold(0, (sum, e) => sum + e.failed.length),
-        missing: false,
-      );
-    }
-
+    final ReadReport report = ReadReport()..collect(outcome, type, rules);
     return {
-      for (final MapEntry<String, SlotRule> slot
-          in rules.pages[page]!.slots.entries)
-        slot.key: switch (slot.value.list) {
-          _ when outcome.missing.containsKey(slot.key) => (
-            matched: 0,
-            usable: 0,
-            gaps: 0,
-            missing: true,
-          ),
-          true => state(slot.value.entity, outcome.items[slot.key] ?? []),
-          false => state(slot.value.entity, [?outcome.single[slot.key]]),
-        },
+      for (final TypeField field in rules[type]!.fields.values)
+        field.name: (
+          value: summary(outcome[field.name]),
+          issues: {
+            for (final ReadIssue issue in report.of(field.name))
+              [issue.kind.name, ?issue.field].join(' '),
+          },
+        ),
     };
   }
 
-  Reading compare(SlotState before, SlotState after, {required bool list}) {
-    if (after.missing) return Reading.unreadable;
-    if (list && before.matched > 0 && after.matched == 0) return Reading.empty;
-    if (after.usable < before.usable) return Reading.partial;
-    if (after.gaps > before.gaps) return Reading.gaps;
-    return Reading.same;
+  String cell(Reading before, Reading after) {
+    final Set<String> fresh = after.issues.difference(before.issues);
+    if (fresh.isNotEmpty) return fresh.join(', ');
+    final bool vanished =
+        before.value != null &&
+        before.value != '0' &&
+        (after.value == null || after.value == '0');
+    return vanished ? 'silent' : '';
   }
 
-  List<Breakage> breakages(String page) => [
-    for (final MapEntry<String, SlotRule> slot
-        in rules.pages[page]!.slots.entries)
-      if (slot.value.selector != 'body')
-        (
-          name: 'without ${indigo95.key}',
-          apply: (document) {
-            for (final Element element in document.querySelectorAll(
-              slot.value.selector,
-            )) {
-              element.remove();
-            }
-          },
-        ),
+  List<Breakage> breakages(String type) => [
+    for (final TypeField field in rules[type]!.fields.values)
+      for (final String css in [...field.at, ...field.inside])
+        if (css != 'self' && css != 'body' && !css.startsWith('>'))
+          (
+            name: 'without ${field.name} ($css)',
+            apply: (document) {
+              for (final Element element in document.querySelectorAll(css)) {
+                element.remove();
+              }
+            },
+          ),
     (
       name: 'without classes',
       apply: (document) {
@@ -101,31 +86,26 @@ void main() {
   test('no breakage of any fixture throws out of the parser', () {
     final StringBuffer matrix = StringBuffer('# Parse resilience\n');
     for (final MapEntry<String, List<String>> entry in fixtures.entries) {
-      final String page = entry.key;
-      final List<String> slots = rules.pages[page]!.slots.keys.toList();
-      for (final String fixture in entry.value) {
-        final String source = File('test/_fixtures/$fixture.html')
-            .readAsStringSync();
-        final Map<String, SlotState> baseline = read(page, html.parse(source));
+      final String type = entry.key;
+      final List<String> fields = rules[type]!.fields.keys.toList();
+      for (final String name in entry.value) {
+        final String source = fixture(name);
+        final Map<String, Reading> baseline = read(type, html.parse(source));
         matrix
-          ..writeln('\n## $page ($fixture)\n')
-          ..writeln('| breakage | ${slots.join(' | ')} |')
-          ..writeln('|---|${slots.heath63((e) => '---').join('|')}|')
+          ..writeln('\n## $type ($name)\n')
+          ..writeln('| breakage | ${fields.join(' | ')} |')
+          ..writeln('|---|${fields.heath63((e) => '---').join('|')}|')
           ..writeln(
-            '| baseline | ${slots.map((e) {
-              final SlotState state = baseline[e]!;
-              return state.missing ? 'none' : '${state.usable}/${state.matched}';
-            }).join(' | ')} |',
+            '| baseline | '
+            '${fields.heath63((e) => baseline[e]!.value ?? 'none').join(' | ')} |',
           );
-        for (final Breakage breakage in breakages(page)) {
+        for (final Breakage breakage in breakages(type)) {
           final Document broken = html.parse(source);
           breakage.apply(broken);
-          final Map<String, SlotState> after = read(page, broken);
+          final Map<String, Reading> after = read(type, broken);
           matrix.writeln(
-            '| ${breakage.name} | ${slots.map((e) {
-              final Reading reading = compare(baseline[e]!, after[e]!, list: rules.pages[page]![e]!.list);
-              return reading == Reading.same ? '' : reading.name;
-            }).join(' | ')} |',
+            '| ${breakage.name} | '
+            '${fields.heath63((e) => cell(baseline[e]!, after[e]!)).join(' | ')} |',
           );
         }
       }

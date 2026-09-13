@@ -43,7 +43,7 @@ class GallerySource {
   int get hashCode => Object.hash(user, shelf, folder);
 }
 
-extension FolderEntrySource on FolderEntry {
+extension FolderRowSource on FolderRow {
   Folder? within(GallerySource source) {
     final int? known = id ?? source.folder;
     final String? written = slug ?? source.slug;

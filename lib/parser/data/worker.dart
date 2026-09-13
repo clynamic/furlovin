@@ -16,12 +16,13 @@ class ParseRequest {
   final String page;
   final String base;
 
-  PageOutcome run() =>
+  ParseOutcome run() =>
       RuleSet.fromJson(rules)
-          .parseDocument(page, html.parse(document), base: Uri.parse(base));
+          .parsePage(page, html.parse(document), base: Uri.parse(base));
 }
 
-Future<PageOutcome> parseAway(ParseRequest request) => Isolate.run(request.run);
+Future<ParseOutcome> parseAway(ParseRequest request) =>
+    Isolate.run(request.run);
 
 class ParseFailure implements Exception {
   const ParseFailure(this.entity, this.failed);
