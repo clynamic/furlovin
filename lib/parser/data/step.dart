@@ -18,6 +18,8 @@ sealed class Step {
     return switch (op) {
       'select' => SelectStep(json['css']! as String),
       'selectAll' => SelectAllStep(json['css']! as String),
+      'closest' => ClosestStep(json['css']! as String),
+      'previous' => PreviousStep(json['css']! as String),
       'attr' => AttrStep(json['name']! as String),
       'text' => TextStep(own: json['own'] as bool? ?? false),
       'html' => const HtmlStep(),
@@ -51,6 +53,15 @@ class StepContext {
   const StepContext({required this.base});
 
   final Uri base;
+}
+
+bool _matches(Element element, String css) {
+  final Node? parent = element.parent ?? element.parentNode;
+  return switch (parent) {
+    Element() => parent.querySelectorAll(css).contains(element),
+    Document() => parent.querySelectorAll(css).contains(element),
+    _ => false,
+  };
 }
 
 Element? _element(Object? input, String op) {
@@ -90,6 +101,46 @@ class SelectAllStep extends Step {
   Object? apply(Object? input, StepContext context) {
     if (input is Document) return input.querySelectorAll(css);
     return _element(input, op)?.querySelectorAll(css);
+  }
+
+  @override
+  Map<String, Object?> toJson() => {'op': op, 'css': css};
+}
+
+class ClosestStep extends Step {
+  const ClosestStep(this.css);
+
+  final String css;
+
+  @override
+  String get op => 'closest';
+
+  @override
+  Object? apply(Object? input, StepContext context) {
+    Element? at = _element(input, op)?.parent;
+    while (at != null) {
+      if (_matches(at, css)) return at;
+      at = at.parent;
+    }
+    return null;
+  }
+
+  @override
+  Map<String, Object?> toJson() => {'op': op, 'css': css};
+}
+
+class PreviousStep extends Step {
+  const PreviousStep(this.css);
+
+  final String css;
+
+  @override
+  String get op => 'previous';
+
+  @override
+  Object? apply(Object? input, StepContext context) {
+    final Element? before = _element(input, op)?.previousElementSibling;
+    return before != null && _matches(before, css) ? before : null;
   }
 
   @override
