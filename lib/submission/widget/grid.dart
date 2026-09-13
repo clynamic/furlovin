@@ -244,31 +244,76 @@ class SubmissionGrid extends StatelessWidget {
   }
 }
 
-class SubmissionStrip extends ConsumerWidget {
+class SubmissionStrip extends ConsumerStatefulWidget {
   const SubmissionStrip({
     super.key,
     required this.submissions,
     this.height = 150,
     this.limit = stripLimit,
+    this.current,
   });
 
   final List<SubmissionPreview> submissions;
   final double height;
   final int limit;
+  final int? current;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SubmissionStrip> createState() => _SubmissionStripState();
+}
+
+class _SubmissionStripState extends ConsumerState<SubmissionStrip> {
+  final ScrollController _scroll = ScrollController();
+  final GlobalKey _current = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.current != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _center());
+    }
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  void _center() {
+    final RenderBox? tile =
+        _current.currentContext?.findRenderObject() as RenderBox?;
+    final RenderObject? viewport = context.findRenderObject();
+    if (!mounted || tile == null || viewport is! RenderBox) return;
+    if (!_scroll.hasClients) return;
+    final double left = tile.localToGlobal(Offset.zero, ancestor: viewport).dx;
+    final double target =
+        _scroll.offset + left - (viewport.size.width - tile.size.width) / 2;
+    _scroll.jumpTo(
+      target.clamp(
+        _scroll.position.minScrollExtent,
+        _scroll.position.maxScrollExtent,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     final Session session = ref
         .watch(sessionProvider)
         .maybeWhen(data: (e) => e, orElse: () => const Session());
     final CacheManager? cache = ref
         .watch(thumbnailCacheProvider)
         .maybeWhen(data: (e) => e, orElse: () => null);
-    final List<SubmissionPreview> shown = submissions.take(limit).toList();
+    final List<SubmissionPreview> shown = widget.submissions
+        .take(widget.limit)
+        .toList();
     return SizedBox(
-      height: height,
+      height: widget.height,
       child: ScrollEdgeFade(
         child: ListView.separated(
+          controller: _scroll,
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.only(right: Space.medium),
           itemCount: shown.length,
@@ -276,24 +321,39 @@ class SubmissionStrip extends ConsumerWidget {
               const SizedBox(width: Space.small),
           itemBuilder: (context, index) {
             final SubmissionPreview submission = shown[index];
+            final bool here = submission.id == widget.current;
             final double ratio =
                 (submission.thumbnailWidth ?? 1) /
                 (submission.thumbnailHeight ?? 1);
             return AspectRatio(
+              key: here ? _current : null,
               aspectRatio: ratio.clamp(0.5, 2),
-              child: ClipRRect(
-                borderRadius: Corner.cards,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: InkWell(
-                    onTap: () => context.openSubmission(
-                      submission.id,
-                      preview: submission,
-                    ),
-                    child: SubmissionThumbnail(
-                      submission: submission,
-                      session: session,
-                      cache: cache,
+              child: Container(
+                foregroundDecoration: here
+                    ? BoxDecoration(
+                        borderRadius: Corner.cards,
+                        border: Border.all(
+                          color: theme.colorScheme.primary,
+                          width: 3,
+                        ),
+                      )
+                    : null,
+                child: ClipRRect(
+                  borderRadius: Corner.cards,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: InkWell(
+                      onTap: here
+                          ? null
+                          : () => context.openSubmission(
+                              submission.id,
+                              preview: submission,
+                            ),
+                      child: SubmissionThumbnail(
+                        submission: submission,
+                        session: session,
+                        cache: cache,
+                      ),
                     ),
                   ),
                 ),
