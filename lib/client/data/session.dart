@@ -7,6 +7,8 @@ class Session {
 
   static const List<String> required = ['a', 'b'];
 
+  static const List<String> withheld = ['sz'];
+
   final Map<String, String> cookies;
   final String? userAgent;
 
@@ -17,8 +19,11 @@ class Session {
       required.where((name) => (cookies[name] ?? '').isEmpty).toList();
 
   String? get cookieHeader {
-    if (cookies.isEmpty) return null;
-    return cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
+    final List<String> sent = [
+      for (final MapEntry<String, String> cookie in cookies.entries)
+        if (!withheld.contains(cookie.key)) '${cookie.key}=${cookie.value}',
+    ];
+    return sent.isEmpty ? null : sent.join('; ');
   }
 
   String get discriminator {
