@@ -198,20 +198,24 @@ class ShellBar extends StatelessWidget {
       borderRadius: Corner.toolbar,
       child: SizedBox(
         height: barHeight,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final (int at, ShellDestination destination)
-                in shellDestinations.indexed)
-              ShellTab(
-                destination: destination,
-                chosen: at == index,
-                count: viewer == null
-                    ? null
-                    : destination.alerts?.call(viewer!),
-                onTap: () => onGo(at),
-              ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(Space.tight),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (int at, ShellDestination destination)
+                  in shellDestinations.indexed)
+                ShellTab(
+                  destination: destination,
+                  chosen: at == index,
+                  count: viewer == null
+                      ? null
+                      : destination.alerts?.call(viewer!),
+                  onTap: () => onGo(at),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -240,11 +244,11 @@ class ShellTab extends StatelessWidget {
         : theme.colorScheme.onSurfaceVariant;
     return InkWell(
       onTap: onTap,
-      borderRadius: Corner.toolbar,
+      borderRadius: Corner.cards,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: Space.page,
-          vertical: Space.small,
+          vertical: Space.tight,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
