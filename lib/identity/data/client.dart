@@ -3,6 +3,7 @@ import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/parser/parser.dart';
 
 const String controlsPath = '/controls/';
+const String logoutPath = '/logout/';
 
 class ViewerClient {
   ViewerClient({required this.client, required this.rules});
@@ -16,4 +17,6 @@ class ViewerClient {
     controlsPath,
     (outcome, errors) => ControlsDocument.fromOutcome(outcome, errors: errors),
   )).viewer;
+
+  Future<void> logOut(String key) => client.post(logoutPath, {'key': key});
 }

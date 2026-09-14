@@ -1,5 +1,5 @@
 schema: 1
-revision: 16
+revision: 17
 refs:
   viewLink:
     - op: select
@@ -1120,6 +1120,12 @@ types:
               name: title
             - op: regex
               pattern: ^(\d+)
+      logoutKey:
+        read:
+          - - op: select
+              css: 'form.logout-link input[name="key"]'
+            - op: attr
+              name: value
 
   controlsDocument:
     feature: identity

@@ -141,6 +141,7 @@ const Map<String, Map<String, String>> ruleManifest = {
     'commentAlerts': 'int',
     'displayName': 'string',
     'favouriteAlerts': 'int',
+    'logoutKey': 'string',
     'submissionAlerts': 'int',
     'watchAlerts': 'int',
   },
