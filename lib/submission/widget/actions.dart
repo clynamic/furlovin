@@ -74,17 +74,7 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
         final bool? goal = _wanted;
         final String? link = _liveLink;
         if (goal == null || link == null || goal == _live) break;
-        final SubmissionClient client = await ref.read(
-          submissionClientProvider.future,
-        );
-        await client.favourite(link);
-        if (!mounted) return;
-        ref.invalidate(submissionProvider(id));
-        try {
-          await ref.read(submissionProvider(id).future);
-        } on Object {
-          break;
-        }
+        await ref.read(submissionProvider(id).notifier).favourite(link);
         if (!mounted) return;
       }
     } on Object catch (error) {
