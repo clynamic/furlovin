@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:furlovin/logs/logs.dart';
 import 'package:mime/mime.dart';
 
 class DioFileService extends FileService {
@@ -11,21 +12,41 @@ class DioFileService extends FileService {
 
   final Duration receiveTimeout;
 
+  final Logger logger = Logger('Images');
+
   @override
   Future<FileServiceResponse> get(
     String url, {
     Map<String, String>? headers,
-  }) async => DioFileServiceResponse(
-    await (await dio()).get<ResponseBody>(
-      url,
-      options: Options(
-        responseType: ResponseType.stream,
-        headers: headers,
-        receiveTimeout: receiveTimeout,
-        validateStatus: (status) => true,
-      ),
-    ),
-  );
+  }) async {
+    final Logger scope = logger.child({'url': url});
+    final Response<ResponseBody> response;
+    try {
+      response = await (await dio()).get<ResponseBody>(
+        url,
+        options: Options(
+          responseType: ResponseType.stream,
+          headers: headers,
+          receiveTimeout: receiveTimeout,
+          validateStatus: (status) => true,
+        ),
+      );
+    } on DioException catch (e) {
+      scope.warn('Image request failed', {'type': e.type.name}, e);
+      rethrow;
+    }
+    final int status = response.statusCode ?? 0;
+    final Map<String, Object?> fields = {
+      'status': status,
+      'bytes': response.data?.contentLength,
+    };
+    if (status >= 400) {
+      scope.warn('Image answered {status}', fields);
+    } else {
+      scope.debug('Image answered {status}', fields);
+    }
+    return DioFileServiceResponse(response);
+  }
 }
 
 class DioFileServiceResponse implements FileServiceResponse {
