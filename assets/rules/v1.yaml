@@ -1,5 +1,5 @@
 schema: 1
-revision: 15
+revision: 16
 refs:
   viewLink:
     - op: select
@@ -794,6 +794,25 @@ types:
             - op: replace
               pattern: ','
               with: ''
+      watched:
+        type: bool
+        read:
+          - - op: select
+              css: 'a#watch-button[href^="/unwatch/"]'
+            - op: literal
+              value: 'true'
+          - - op: select
+              css: 'a#watch-button[href^="/watch/"]'
+            - op: literal
+              value: 'false'
+      watchKey:
+        read:
+          - - op: select
+              css: a#watch-button
+            - op: attr
+              name: href
+            - op: regex
+              pattern: key=(\w+)
 
   contact:
     feature: user

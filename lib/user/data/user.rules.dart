@@ -54,6 +54,8 @@ abstract class User with _$User {
 
     /// How many times the profile has been viewed.
     int? views,
+    String? watchKey,
+    bool? watched,
 
     /// How many members watch this one.
     int? watchedBy,
@@ -83,6 +85,8 @@ abstract class User with _$User {
       symbol: outcome.get<String>('symbol'),
       title: outcome.get<String>('title'),
       views: outcome.get<int>('views'),
+      watchKey: outcome.get<String>('watchKey'),
+      watched: outcome.get<bool>('watched'),
       watchedBy: outcome.get<int>('watchedBy'),
       watching: outcome.get<int>('watching'),
       failed: outcome.failed,

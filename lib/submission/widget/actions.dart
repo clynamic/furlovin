@@ -28,66 +28,28 @@ class SubmissionActions extends ConsumerStatefulWidget {
   ConsumerState<SubmissionActions> createState() => _SubmissionActionsState();
 }
 
-const int favouriteAttempts = 4;
-
 class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
-  bool? _wanted;
-  bool _syncing = false;
-
   int get id => widget.id;
 
   Submission? get submission => widget.submission;
 
   String? get favouriteLink => submission?.favouriteLink;
 
-  bool get favourited => _wanted ?? _shown;
+  bool get favourited => submission?.favourited ?? false;
 
-  bool get _shown => submission?.favourited ?? false;
-
-  Submission? get _liveSubmission =>
-      ref.read(submissionProvider(id)).asData?.value.submission;
-
-  String? get _liveLink => _liveSubmission?.favouriteLink;
-
-  bool? get _live => _liveSubmission?.favourited;
-
-  @override
-  void didUpdateWidget(SubmissionActions old) {
-    super.didUpdateWidget(old);
-    if (!_syncing && _wanted != null && _wanted == _live) _wanted = null;
-    unawaited(_sync());
-  }
-
-  void _toggle() {
-    if (favouriteLink == null) return;
-    setState(() => _wanted = !favourited);
-    unawaited(_sync());
-  }
-
-  Future<void> _sync() async {
-    if (_syncing) return;
-    if (_wanted == null || _wanted == _live) return;
-    _syncing = true;
+  Future<void> _toggle() async {
     try {
-      for (int attempt = 0; attempt < favouriteAttempts; attempt++) {
-        final bool? goal = _wanted;
-        final String? link = _liveLink;
-        if (goal == null || link == null || goal == _live) break;
-        await ref.read(submissionProvider(id).notifier).favourite(link);
-        if (!mounted) return;
-      }
+      await ref
+          .read(submissionProvider(id).notifier)
+          .setFavourited(!favourited);
     } on Object catch (error) {
       if (!mounted) return;
-      setState(() => _wanted = null);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
           content: Text(describeFailure(error)),
         ),
       );
-    } finally {
-      _syncing = false;
-      if (mounted && _wanted == _live) setState(() => _wanted = null);
     }
   }
 

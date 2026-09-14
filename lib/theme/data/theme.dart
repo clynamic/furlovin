@@ -92,6 +92,7 @@ ThemeData buildTheme(Brightness brightness) {
       if (isDark) Ratings.dark else Ratings.light,
     ],
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
+    iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     outlinedButtonTheme: const OutlinedButtonThemeData(style: buttonStyle),
     filledButtonTheme: FilledButtonThemeData(
       style: buttonStyle.copyWith(

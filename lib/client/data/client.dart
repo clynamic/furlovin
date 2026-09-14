@@ -53,12 +53,29 @@ class FaClient {
 
   set session(Session value) => _session.session = value;
 
-  Future<String> get(String path) async {
+  Future<String> get(String path) =>
+      _send(path, 'Fetching {path}', () => dio.get<String>(path));
+
+  Future<String> post(String path, Map<String, String> fields) => _send(
+    path,
+    'Posting to {path}',
+    () => dio.post<String>(
+      path,
+      data: fields,
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    ),
+  );
+
+  Future<String> _send(
+    String path,
+    String event,
+    Future<Response<String>> Function() request,
+  ) async {
     final Logger scope = logger.child({'path': path});
-    scope.debug('Fetching {path}');
+    scope.debug(event);
     late final Response<String> response;
     try {
-      response = await dio.get<String>(path);
+      response = await request();
     } on DioException catch (e) {
       if (e.error case final FaException held) {
         scope.warn('Held back as {failure}', {

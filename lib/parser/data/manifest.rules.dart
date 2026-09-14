@@ -97,6 +97,8 @@ const Map<String, Map<String, String>> ruleManifest = {
     'symbol': 'string',
     'title': 'string',
     'views': 'int',
+    'watchKey': 'string',
+    'watched': 'bool',
     'watchedBy': 'int',
     'watching': 'int',
   },

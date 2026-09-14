@@ -55,7 +55,7 @@ void main() {
       outcomes.first,
     )!;
     expect(first, same);
-    expect(first.copyWith(title: 'larch17'), isNot(same));
+    expect(first.copyWith(title: 'changed'), isNot(same));
   });
 
   test('a missing required field yields no model', () {

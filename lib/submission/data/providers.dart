@@ -223,6 +223,9 @@ class SubmissionDetail extends AsyncNotifier<SubmissionDocument> {
 
   final int id;
 
+  SubmissionDocument? _confirmed;
+  Optimistic<bool>? _favourite;
+
   @override
   Future<SubmissionDocument> build() async {
     ref.discardOnSessionChange();
@@ -235,6 +238,8 @@ class SubmissionDetail extends AsyncNotifier<SubmissionDocument> {
     try {
       final SubmissionDocument detail = await client.submission(id);
       retention.hold(id, link);
+      _confirmed = detail;
+      _favourite = null;
       return detail;
     } on Object {
       link.close();
@@ -242,15 +247,56 @@ class SubmissionDetail extends AsyncNotifier<SubmissionDocument> {
     }
   }
 
-  Future<void> favourite(String link) async {
+  Future<void> setFavourited(bool wanted) async {
+    final bool? favourited = _confirmed?.submission.favourited;
+    if (favourited == null) return;
+    final Optimistic<bool> sync = _favourite ??= Optimistic<bool>(
+      confirmed: favourited,
+      send: _sendFavourited,
+      settle: actionSettle,
+      spacing: actionSpacing,
+      pause: pauseOnRateLimit,
+    );
+    await sync.want(wanted, _publish);
+  }
+
+  Future<bool> _sendFavourited(bool wanted) async {
+    final String? link = _confirmed?.submission.favouriteLink;
+    if (link == null) throw const AuthenticationRequired();
     final SubmissionClient client = await ref.read(
       submissionClientProvider.future,
     );
+    SubmissionDocument answer;
     try {
-      state = AsyncData(await client.favourite(link));
+      answer = await client.favourite(link);
     } on ParseFailure {
-      ref.invalidateSelf();
-      await future;
+      answer = await client.submission(id);
     }
+    _confirmed = answer;
+    return answer.submission.favourited ?? false;
+  }
+
+  void _publish() {
+    final SubmissionDocument? document = _confirmed;
+    if (document == null || !ref.mounted) return;
+    final Optimistic<bool>? sync = _favourite;
+    state = AsyncData(
+      sync == null ? document : _withFavourited(document, sync.shown),
+    );
+  }
+
+  SubmissionDocument _withFavourited(
+    SubmissionDocument document,
+    bool favourited,
+  ) {
+    final Submission submission = document.submission;
+    if (submission.favourited == favourited) return document;
+    final int? count = submission.favorites;
+    return document.copyWith(
+      submission: submission.copyWith(
+        favourited: favourited,
+        favorites: count == null ? null : count + (favourited ? 1 : -1),
+      ),
+    );
   }
 }

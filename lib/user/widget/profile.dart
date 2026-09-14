@@ -78,16 +78,22 @@ class UserPage extends ConsumerWidget {
                   const EdgeInsets.only(top: Space.medium),
               sliver: SliverList.list(
                 children: [
-                  SpreadRow(
-                    leading: ProfileIdentity(user: user, fallback: name),
-                    trailing: (wide) => Skeletonizer(
-                      enabled: user == null,
-                      child: ProfileCounts(
-                        user: user,
-                        errors: errors,
-                        wide: wide,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: Space.medium,
+                    children: [
+                      Expanded(
+                        child: ProfileIdentity(user: user, fallback: name),
                       ),
-                    ),
+                      if (user?.watched case final bool watched
+                          when ref.watch(authenticatedProvider))
+                        WatchButton(name: name, watched: watched),
+                    ],
+                  ),
+                  const SizedBox(height: Space.medium),
+                  Skeletonizer(
+                    enabled: user == null,
+                    child: ProfileCounts(user: user, errors: errors),
                   ),
                   const SizedBox(height: Space.large),
                   ErrorBoundary(
@@ -592,5 +598,67 @@ class FactRow extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class WatchButton extends ConsumerWidget {
+  const WatchButton({super.key, required this.name, required this.watched});
+
+  final String name;
+  final bool watched;
+
+  Future<void> _set(BuildContext context, WidgetRef ref, bool wanted) async {
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final UserDetail detail = ref.read(userProvider(name).notifier);
+    if (!wanted) {
+      messenger.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text('Unwatched $name'),
+          persist: false,
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () => detail.setWatched(true),
+          ),
+        ),
+      );
+    }
+    try {
+      await detail.setWatched(wanted);
+    } on Object catch (error) {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            content: Text(describeFailure(error)),
+          ),
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    void toggle() => _set(context, ref, !watched);
+    if (MediaQuery.sizeOf(context).width < Layout.compact) {
+      return IconButton.filledTonal(
+        isSelected: watched,
+        tooltip: watched ? 'Watching' : 'Watch',
+        onPressed: toggle,
+        icon: const Icon(Icons.person_add_alt_1_outlined),
+        selectedIcon: const Icon(Icons.how_to_reg),
+      );
+    }
+    return watched
+        ? OutlinedButton.icon(
+            onPressed: toggle,
+            icon: const Icon(Icons.how_to_reg),
+            label: const Text('Watching'),
+          )
+        : FilledButton.tonalIcon(
+            onPressed: toggle,
+            icon: const Icon(Icons.person_add_alt_1_outlined),
+            label: const Text('Watch'),
+          );
   }
 }
