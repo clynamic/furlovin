@@ -35,8 +35,15 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
   late final DismissController dismiss = DismissController(
     DismissRoute.of(context),
   );
+  final ImageLoadController imageLoad = ImageLoadController();
 
   int get id => widget.id;
+
+  @override
+  void dispose() {
+    imageLoad.dispose();
+    super.dispose();
+  }
 
   SubmissionPreview? get preview => widget.preview;
 
@@ -123,17 +130,28 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                       surfaceTintColor: Colors.transparent,
                       flexibleSpace: FlexibleSpaceBar(
                         background: GestureDetector(
-                          onTap: () => openViewer(
-                            context,
-                            rungs: _rungs(context, loaded, thumbnails, artwork),
-                            tag: submissionHeroTag(id),
-                          ),
+                          onTap: preview == null && loaded == null
+                              ? null
+                              : () => openViewer(
+                                  context,
+                                  id: id,
+                                  preview: preview,
+                                  tag: submissionHeroTag(id),
+                                  aspectRatio: facade.naturalAspectRatio,
+                                ),
                           child: SubmissionHeader(
-                            rungs: _rungs(context, loaded, thumbnails, artwork),
+                            rungs: submissionRungs(
+                              context,
+                              preview: preview,
+                              loaded: loaded,
+                              thumbnails: thumbnails,
+                              artwork: artwork,
+                            ),
                             session: session,
                             tag: submissionHeroTag(id),
                             dismiss: dismiss,
                             aspectRatio: facade.naturalAspectRatio,
+                            load: imageLoad,
                           ),
                         ),
                       ),
@@ -410,41 +428,42 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
         : height * headerPortraitCeiling;
     return natural.clamp(math.min(floor, ceiling), ceiling);
   }
+}
 
-  List<ImageRung> _rungs(
-    BuildContext context,
-    Submission? loaded,
-    CacheManager? thumbnails,
-    CacheManager? artwork,
-  ) {
-    final double ratio = MediaQuery.devicePixelRatioOf(context);
-    final List<ImageRung> rungs = [];
+List<ImageRung> submissionRungs(
+  BuildContext context, {
+  required SubmissionPreview? preview,
+  required Submission? loaded,
+  required CacheManager? thumbnails,
+  required CacheManager? artwork,
+}) {
+  final double ratio = MediaQuery.devicePixelRatioOf(context);
+  final List<ImageRung> rungs = [];
 
-    if (preview case final SubmissionPreview value) {
-      rungs.add((
-        url: thumbnailFor(value.thumbnail, tileExtent, ratio),
-        cache: thumbnails,
-        decodeWidth: (tileExtent * ratio).round(),
-      ));
-    }
-
-    final String? middle =
-        loaded?.preview ??
-        (preview == null
-            ? null
-            : thumbnailAt(preview!.thumbnail, thumbnailSizes.last));
-    if (middle != null) {
-      rungs.add((url: middle, cache: thumbnails, decodeWidth: null));
-    }
-
-    if (loaded case final Submission value when value.type.isViewable) {
-      if (value.file case final String file) {
-        rungs.add((url: file, cache: artwork, decodeWidth: null));
-      }
-    }
-
-    return rungs;
+  if (preview case final SubmissionPreview value) {
+    rungs.add((
+      url: thumbnailFor(value.thumbnail, tileExtent, ratio),
+      cache: thumbnails,
+      decodeWidth: (tileExtent * ratio).round(),
+    ));
   }
+
+  final String? middle =
+      loaded?.preview ??
+      (preview == null
+          ? null
+          : thumbnailAt(preview.thumbnail, thumbnailSizes.last));
+  if (middle != null) {
+    rungs.add((url: middle, cache: thumbnails, decodeWidth: null));
+  }
+
+  if (loaded case final Submission value when value.type.isViewable) {
+    if (value.file case final String file) {
+      rungs.add((url: file, cache: artwork, decodeWidth: null));
+    }
+  }
+
+  return rungs;
 }
 
 class SubmissionFacade {
@@ -495,6 +514,7 @@ class SubmissionHeader extends StatelessWidget {
     required this.tag,
     required this.dismiss,
     this.aspectRatio,
+    this.load,
   });
 
   final List<ImageRung> rungs;
@@ -502,6 +522,7 @@ class SubmissionHeader extends StatelessWidget {
   final Object tag;
   final DismissController dismiss;
   final double? aspectRatio;
+  final ImageLoadController? load;
 
   @override
   Widget build(BuildContext context) => Stack(
@@ -521,12 +542,22 @@ class SubmissionHeader extends StatelessWidget {
           headers: session.headersFor,
           discriminator: session.discriminator,
           background: Colors.transparent,
+          load: load,
         ),
       ),
       DismissFade(
         controller: dismiss,
         child: const Align(alignment: Alignment.topCenter, child: TopScrim()),
       ),
+      if (load case final ImageLoadController known)
+        DismissFade(
+          controller: dismiss,
+          child: ImageLoadOverlay(
+            load: known,
+            locate: (size) =>
+                containedRect(aspectRatio, size) ?? Offset.zero & size,
+          ),
+        ),
     ],
   );
 }

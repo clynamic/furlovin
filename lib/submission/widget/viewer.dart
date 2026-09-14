@@ -2,21 +2,37 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/shared/shared.dart';
+import 'package:furlovin/submission/submission.dart';
 import 'package:material_ui/material_ui.dart';
 
 class SubmissionViewer extends ConsumerStatefulWidget {
-  const SubmissionViewer({super.key, required this.rungs, required this.tag});
+  const SubmissionViewer({
+    super.key,
+    required this.id,
+    required this.tag,
+    this.preview,
+    this.aspectRatio,
+  });
 
-  final List<ImageRung> rungs;
+  final int id;
+  final SubmissionPreview? preview;
   final Object tag;
+  final double? aspectRatio;
 
   static Route<void> route({
-    required List<ImageRung> rungs,
+    required int id,
     required Object tag,
+    SubmissionPreview? preview,
+    double? aspectRatio,
   }) => DismissRoute<void>(
     barrier: Colors.black,
     transition: DismissTransition.fade,
-    builder: (context) => SubmissionViewer(rungs: rungs, tag: tag),
+    builder: (context) => SubmissionViewer(
+      id: id,
+      tag: tag,
+      preview: preview,
+      aspectRatio: aspectRatio,
+    ),
   );
 
   @override
@@ -29,7 +45,8 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
     DismissRoute.of(context),
   );
   final ZoomController zoom = ZoomController();
-  double? _ratio;
+  final ImageLoadController load = ImageLoadController();
+  late double? _ratio = widget.aspectRatio;
 
   void _onRatio(double ratio) {
     if (_ratio == ratio) return;
@@ -42,6 +59,7 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
   @override
   void dispose() {
     zoom.dispose();
+    load.dispose();
     super.dispose();
   }
 
@@ -50,6 +68,13 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
     final Session session = ref
         .watch(sessionProvider)
         .maybeWhen(data: (e) => e, orElse: () => const Session());
+    final List<ImageRung> rungs = submissionRungs(
+      context,
+      preview: widget.preview,
+      loaded: ref.watch(submissionProvider(widget.id)).asData?.value.submission,
+      thumbnails: ref.watch(thumbnailCacheProvider),
+      artwork: ref.watch(artworkCacheProvider),
+    );
 
     return ClaimedBottom(
       child: Scaffold(
@@ -76,12 +101,29 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
                       aspectRatio: _ratio,
                     ),
                     child: ProgressiveImage(
-                      rungs: widget.rungs,
+                      rungs: rungs,
                       headers: session.headersFor,
                       discriminator: session.discriminator,
                       onRatio: _onRatio,
+                      load: load,
                     ),
                   ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: DismissFade(
+                controller: dismiss,
+                child: ImageLoadOverlay(
+                  load: load,
+                  moves: zoom.transformation,
+                  locate: (size) => switch (containedRect(_ratio, size)) {
+                    final Rect content => MatrixUtils.transformRect(
+                      zoom.transformation.value,
+                      content,
+                    ),
+                    null => null,
+                  },
                 ),
               ),
             ),
@@ -115,9 +157,15 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
 
 void openViewer(
   BuildContext context, {
-  required List<ImageRung> rungs,
+  required int id,
   required Object tag,
-}) {
-  if (rungs.isEmpty) return;
-  Navigator.of(context).push(SubmissionViewer.route(rungs: rungs, tag: tag));
-}
+  SubmissionPreview? preview,
+  double? aspectRatio,
+}) => Navigator.of(context).push(
+  SubmissionViewer.route(
+    id: id,
+    tag: tag,
+    preview: preview,
+    aspectRatio: aspectRatio,
+  ),
+);
