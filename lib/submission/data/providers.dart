@@ -109,11 +109,12 @@ final Provider<SubmissionPaging> browseProvider = Provider<SubmissionPaging>(
 );
 
 final Provider<SubmissionPaging> inboxProvider = Provider<SubmissionPaging>(
-  (ref) => submissionPaging(
-    ref,
-    (client, after) => client.inbox(after: after),
-    nextKey: (state) => state.items?.lastOrNull?.id ?? 0,
-  ),
+  (ref) => submissionPaging(ref, (client, after) async {
+    if (!ref.read(authenticatedProvider)) {
+      throw const AuthenticationRequired();
+    }
+    return client.inbox(after: after);
+  }, nextKey: (state) => state.items?.lastOrNull?.id ?? 0),
 );
 
 final ProviderFamily<ValueNotifier<List<Folder>?>, String>

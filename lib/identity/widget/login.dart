@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
@@ -6,9 +8,7 @@ import 'package:furlovin/logs/logs.dart';
 import 'package:material_ui/material_ui.dart';
 
 const String faLoginPath = '/login/';
-const String loggedInMarker = 'logout-link';
-const String loggedInFallback = 'loggedin_user_avatar';
-const String authCheckPath = '/controls/';
+const Duration sessionSwitchTimeout = Duration(seconds: 5);
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -48,17 +48,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
 
     try {
-      final String page = await FaClient(session: session).get(authCheckPath);
-      if (!page.contains(loggedInMarker) && !page.contains(loggedInFallback)) {
+      await store.write(session);
+      await _switchedTo(session.discriminator);
+      final Viewer? viewer = await ref.read(viewerProvider.future);
+      if (viewer == null) {
         logger.warn('Cookies present but the site does not know us');
+        await store.clear();
         if (mounted) setState(() => settling = false);
         return;
       }
-      await store.write(session);
       logger.info('Signed in');
       if (mounted) Navigator.of(context).maybePop(true);
-    } on FaException catch (error) {
+    } on Object catch (error) {
       logger.warn('Could not confirm the session', {'failure': '$error'});
+      await store.clear();
       if (!mounted) return;
       setState(() => settling = false);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -68,6 +71,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
       );
     }
+  }
+
+  Future<void> _switchedTo(String key) {
+    if (ref.read(sessionKeyProvider) == key) return Future<void>.value();
+    final Completer<void> switched = Completer<void>();
+    final ProviderSubscription<String?> watching = ref.listenManual(
+      sessionKeyProvider,
+      (previous, next) {
+        if (next == key && !switched.isCompleted) switched.complete();
+      },
+    );
+    return switched.future
+        .timeout(sessionSwitchTimeout)
+        .whenComplete(watching.close);
   }
 
   @override
