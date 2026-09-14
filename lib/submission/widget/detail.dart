@@ -789,9 +789,17 @@ class TagChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final bool light = theme.brightness == Brightness.light;
     return Material(
-      color: theme.colorScheme.surfaceContainerHighest,
-      borderRadius: Corner.panels,
+      color: light
+          ? theme.colorScheme.surface
+          : theme.colorScheme.surfaceContainerHighest,
+      shape: RoundedRectangleBorder(
+        borderRadius: Corner.panels,
+        side: light
+            ? BorderSide(color: theme.colorScheme.outlineVariant)
+            : BorderSide.none,
+      ),
       child: InkWell(
         borderRadius: Corner.panels,
         onTap: () => context.openQuery(

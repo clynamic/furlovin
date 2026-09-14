@@ -105,74 +105,78 @@ class SubmissionPagedGrid extends ConsumerWidget {
         .maybeWhen(data: (e) => e, orElse: () => const Session());
     final CacheManager cache = ref.watch(thumbnailCacheProvider);
 
-    return RevisitRefresh(
-      onRefresh: controller.restart,
-      edgeOffset: _headerExtent(context),
-      child: PagingListener<int, SubmissionPreview>(
-        controller: controller,
-        builder: (context, state, fetchNextPage) {
-          if (state.status == PagingStatus.loadingFirstPage) {
-            return SubmissionGrid.ghost(
-              ghost: const SubmissionPreviewGhost(),
-              session: session,
-              header: header,
-            );
-          }
-          return CustomScrollView(
-            slivers: [
-              if (header case final Widget value) value,
-              if (state.status == PagingStatus.firstPageError)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: failureFor(
-                    state.error!,
-                    onRetry: controller.restart,
-                    onLogin: ref.watch(authenticatedProvider)
-                        ? null
-                        : context.openLogin,
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding:
-                      const EdgeInsets.all(Space.small) +
-                      EdgeInsets.only(
-                        bottom: MediaQuery.paddingOf(context).bottom,
-                      ),
-                  sliver: PagedSliverMasonryGrid<int, SubmissionPreview>.extent(
-                    state: state,
-                    fetchNextPage: fetchNextPage,
-                    maxCrossAxisExtent: tileExtent,
-                    mainAxisSpacing: Space.small,
-                    crossAxisSpacing: Space.small,
-                    showNewPageProgressIndicatorAsGridChild: false,
-                    showNewPageErrorIndicatorAsGridChild: false,
-                    showNoMoreItemsIndicatorAsGridChild: false,
-                    builderDelegate:
-                        PagedChildBuilderDelegate<SubmissionPreview>(
-                          itemBuilder: (context, submission, index) =>
-                              SubmissionTile(
-                                submission: submission,
-                                session: session,
-                                cache: cache,
-                              ),
-                          noItemsFoundIndicatorBuilder: (context) =>
-                              const FailureView(
-                                icon: Icons.inbox_outlined,
-                                title: 'Nothing here',
-                                detail: 'The page held no submissions.',
-                              ),
-                          newPageErrorIndicatorBuilder: (context) =>
-                              NewPageError(
-                                error: state.error,
-                                onRetry: fetchNextPage,
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
+      child: RevisitRefresh(
+        onRefresh: controller.restart,
+        edgeOffset: _headerExtent(context),
+        child: PagingListener<int, SubmissionPreview>(
+          controller: controller,
+          builder: (context, state, fetchNextPage) {
+            if (state.status == PagingStatus.loadingFirstPage) {
+              return SubmissionGrid.ghost(
+                ghost: const SubmissionPreviewGhost(),
+                session: session,
+                header: header,
+              );
+            }
+            return CustomScrollView(
+              slivers: [
+                if (header case final Widget value) value,
+                if (state.status == PagingStatus.firstPageError)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: failureFor(
+                      state.error!,
+                      onRetry: controller.restart,
+                      onLogin: ref.watch(authenticatedProvider)
+                          ? null
+                          : context.openLogin,
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding:
+                        const EdgeInsets.all(Space.small) +
+                        EdgeInsets.only(
+                          bottom: MediaQuery.paddingOf(context).bottom,
+                        ),
+                    sliver:
+                        PagedSliverMasonryGrid<int, SubmissionPreview>.extent(
+                          state: state,
+                          fetchNextPage: fetchNextPage,
+                          maxCrossAxisExtent: tileExtent,
+                          mainAxisSpacing: Space.small,
+                          crossAxisSpacing: Space.small,
+                          showNewPageProgressIndicatorAsGridChild: false,
+                          showNewPageErrorIndicatorAsGridChild: false,
+                          showNoMoreItemsIndicatorAsGridChild: false,
+                          builderDelegate:
+                              PagedChildBuilderDelegate<SubmissionPreview>(
+                                itemBuilder: (context, submission, index) =>
+                                    SubmissionTile(
+                                      submission: submission,
+                                      session: session,
+                                      cache: cache,
+                                    ),
+                                noItemsFoundIndicatorBuilder: (context) =>
+                                    const FailureView(
+                                      icon: Icons.inbox_outlined,
+                                      title: 'Nothing here',
+                                      detail: 'The page held no submissions.',
+                                    ),
+                                newPageErrorIndicatorBuilder: (context) =>
+                                    NewPageError(
+                                      error: state.error,
+                                      onRetry: fetchNextPage,
+                                    ),
                               ),
                         ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:furlovin/app/app.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/shared/shared.dart';
+import 'package:furlovin/theme/theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -193,7 +194,7 @@ class ShellBar extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     return Material(
       color: theme.colorScheme.surfaceContainerLowest,
-      elevation: 3,
+      elevation: floatingElevation(theme),
       shadowColor: Colors.black,
       borderRadius: Corner.toolbar,
       child: SizedBox(
