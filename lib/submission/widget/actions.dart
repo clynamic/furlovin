@@ -153,11 +153,9 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
               FloatingActionButton(
                 heroTag: null,
                 tooltip: favourited ? 'Remove from favourites' : 'Favourite',
-                backgroundColor: favourited
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.surfaceContainerHighest,
+                backgroundColor: theme.colorScheme.surfaceContainerHighest,
                 foregroundColor: favourited
-                    ? theme.colorScheme.onPrimary
+                    ? theme.colorScheme.primary
                     : theme.colorScheme.onSurfaceVariant,
                 onPressed: favouriteLink == null ? null : _toggle,
                 child: Icon(
