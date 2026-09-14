@@ -106,6 +106,7 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
                     PopupMenuButton<SubmissionAction>(
                       tooltip: 'More',
                       position: PopupMenuPosition.over,
+                      useRootNavigator: true,
                       icon: Icon(
                         Icons.more_horiz,
                         color: theme.colorScheme.onSurface,
