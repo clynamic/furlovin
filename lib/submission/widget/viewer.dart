@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
+import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:material_ui/material_ui.dart';
@@ -70,6 +71,7 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
         .maybeWhen(data: (e) => e, orElse: () => const Session());
     final List<ImageRung> rungs = submissionRungs(
       context,
+      extent: ref.watch(tilesProvider).extent,
       preview: widget.preview,
       loaded: ref.watch(submissionProvider(widget.id)).asData?.value.submission,
       thumbnails: ref.watch(thumbnailCacheProvider),

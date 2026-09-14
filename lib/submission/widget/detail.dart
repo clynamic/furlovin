@@ -142,6 +142,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                           child: SubmissionHeader(
                             rungs: submissionRungs(
                               context,
+                              extent: ref.watch(tilesProvider).extent,
                               preview: preview,
                               loaded: loaded,
                               thumbnails: thumbnails,
@@ -432,6 +433,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
 
 List<ImageRung> submissionRungs(
   BuildContext context, {
+  required double extent,
   required SubmissionPreview? preview,
   required Submission? loaded,
   required CacheManager? thumbnails,
@@ -442,9 +444,9 @@ List<ImageRung> submissionRungs(
 
   if (preview case final SubmissionPreview value) {
     rungs.add((
-      url: thumbnailFor(value.thumbnail, tileExtent, ratio),
+      url: thumbnailFor(value.thumbnail, extent, ratio),
       cache: thumbnails,
-      decodeWidth: (tileExtent * ratio).round(),
+      decodeWidth: (extent * ratio).round(),
     ));
   }
 

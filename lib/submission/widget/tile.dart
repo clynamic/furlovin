@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/routing/routing.dart';
+import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:material_ui/material_ui.dart';
@@ -16,12 +17,14 @@ class SubmissionTile extends StatelessWidget {
     super.key,
     required this.submission,
     required this.session,
+    required this.tiles,
     this.cache,
     this.onTap,
   });
 
   final SubmissionPreview submission;
   final Session session;
+  final Tiles tiles;
   final CacheManager? cache;
   final VoidCallback? onTap;
 
@@ -32,12 +35,13 @@ class SubmissionTile extends StatelessWidget {
     return width / height;
   }
 
-  double get aspectRatio {
-    return (naturalAspectRatio ?? fallbackAspectRatio).clamp(
+  double get aspectRatio => switch (tiles.shape) {
+    TileShape.natural => (naturalAspectRatio ?? fallbackAspectRatio).clamp(
       minAspectRatio,
       maxAspectRatio,
-    );
-  }
+    ),
+    TileShape.even => evenTileAspectRatio,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -67,35 +71,37 @@ class SubmissionTile extends StatelessWidget {
                   child: SubmissionThumbnail(
                     submission: submission,
                     session: session,
+                    extent: tiles.extent,
                     cache: cache,
                   ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    submission.title ?? 'Untitled',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    submission.uploaderName ?? submission.uploader,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+            if (tiles.captions)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      submission.title ?? 'Untitled',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      submission.uploaderName ?? submission.uploader,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -108,8 +114,8 @@ class SubmissionThumbnail extends StatelessWidget {
     super.key,
     required this.submission,
     required this.session,
+    required this.extent,
     this.cache,
-    this.extent = tileExtent,
   });
 
   final SubmissionPreview submission;
