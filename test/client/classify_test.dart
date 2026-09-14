@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/client/client.dart';
+import 'package:furlovin/parser/parser.dart';
+
+import '../_support/documents.dart';
 
 Response<Object?> _response(
   int status, {
@@ -71,5 +74,29 @@ void main() {
             )!
             as RateLimited;
     expect(stale.retryAfter, Duration.zero);
+  });
+
+  test('reads the mature content notice as filtered content', () {
+    expect(
+      classify(_response(200, body: fixture('alder71_mature'))),
+      isA<ContentFiltered>(),
+    );
+  });
+
+  test('reads a registered users only notice as needing a log in', () {
+    expect(
+      classify(_response(200, body: fixture('alder71_registered'))),
+      isA<AuthenticationRequired>(),
+    );
+  });
+
+  test('retries a lost connection twice and nothing else', () {
+    const TransportFailure lost = TransportFailure('offline');
+    expect(retryFailure(0, lost), isNotNull);
+    expect(retryFailure(1, lost), isNotNull);
+    expect(retryFailure(2, lost), isNull);
+    expect(retryFailure(0, const ContentFiltered()), isNull);
+    expect(retryFailure(0, const AuthenticationRequired()), isNull);
+    expect(retryFailure(0, const ParseFailure('submission', {})), isNull);
   });
 }

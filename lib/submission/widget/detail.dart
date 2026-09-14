@@ -51,17 +51,27 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
     final CacheManager thumbnails = ref.watch(thumbnailCacheProvider);
     final CacheManager artwork = ref.watch(artworkCacheProvider);
 
-    if (detail case AsyncError(:final Object error) when preview == null) {
+    final Object? failure = switch (detail) {
+      AsyncError(:final Object error) => error,
+      _ => null,
+    };
+    final VoidCallback? onLogin = ref.watch(authenticatedProvider)
+        ? null
+        : context.openLogin;
+
+    if (failure != null && preview == null) {
       return Scaffold(
         appBar: AppBar(),
         body: failureFor(
-          error,
+          failure,
           onRetry: () => ref.invalidate(submissionProvider(id)),
+          onLogin: onLogin,
         ),
       );
     }
 
     final Submission? loaded = detail.asData?.value.submission;
+    final bool pending = loaded == null && failure == null;
     final DocumentErrors? errors = detail.asData?.value.errors;
     final List<CommentRow> comments = threadComments(
       detail.asData?.value.comments ?? const [],
@@ -141,9 +151,10 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                 SpreadRow(
                                   leading: SubmissionByline(facade: facade),
                                   trailing: (wide) => Skeletonizer(
-                                    enabled: loaded == null,
+                                    enabled: pending,
                                     child: SubmissionStats(
                                       submission: loaded,
+                                      loading: pending,
                                       errors: errors,
                                       wide: wide,
                                     ),
@@ -155,7 +166,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                   name: 'submission.description',
                                   paths: const ['submission.description'],
                                   builder: (context, broken) => Skeletonizer(
-                                    enabled: loaded == null,
+                                    enabled: pending,
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -166,9 +177,9 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                             broken: known,
                                             name: 'the description',
                                           ),
-                                        if (loaded == null)
+                                        if (pending)
                                           Text(BoneMock.paragraph)
-                                        else if (loaded.description
+                                        else if (loaded?.description
                                             case final String description)
                                           MarkupBody(markup: description),
                                       ],
@@ -340,19 +351,29 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                     ),
                                   ),
                           ),
-                          PersistentSliverSection(
-                            name: 'metadata',
-                            title: 'Details',
-                            sliver: SliverToBoxAdapter(
-                              child: Skeletonizer(
-                                enabled: loaded == null,
-                                child: SubmissionMetadata(
-                                  submission: loaded,
-                                  errors: errors,
+                          if (failure != null)
+                            SliverToBoxAdapter(
+                              child: failureFor(
+                                failure,
+                                onRetry: () =>
+                                    ref.invalidate(submissionProvider(id)),
+                                onLogin: onLogin,
+                              ),
+                            )
+                          else
+                            PersistentSliverSection(
+                              name: 'metadata',
+                              title: 'Details',
+                              sliver: SliverToBoxAdapter(
+                                child: Skeletonizer(
+                                  enabled: pending,
+                                  child: SubmissionMetadata(
+                                    submission: loaded,
+                                    errors: errors,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                           const SliverToBoxAdapter(
                             child: SizedBox(height: toolbarClearance),
                           ),
@@ -568,18 +589,20 @@ class SubmissionStats extends StatelessWidget {
     super.key,
     required this.submission,
     this.errors,
+    this.loading = false,
     this.wide = false,
   });
 
   final Submission? submission;
   final DocumentErrors? errors;
+  final bool loading;
   final bool wide;
 
   @override
   Widget build(BuildContext context) => StatisticsRow(
     errors: errors,
     name: 'submission.stats',
-    loading: submission == null,
+    loading: loading,
     wide: wide,
     stats: [
       (
