@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart' show SemanticsNode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/markup/markup.dart';
@@ -56,5 +57,147 @@ void main() {
     await tester.pump();
 
     expect(opened, ['/view/7/']);
+  });
+
+  testWidgets('a heading is larger than the text after it', (tester) async {
+    await show(
+      tester,
+      '<h1 class="bbcode bbcode_h1">Title</h1>body',
+      (href) {},
+    );
+
+    double sizeOf(String text) {
+      final RichText rich = tester.widget(
+        find.byWidgetPredicate(
+          (e) => e is RichText && e.text.toPlainText() == text,
+        ),
+      );
+      double? size;
+      rich.text.visitChildren((span) {
+        if (span is TextSpan && span.text == text) {
+          size = span.style?.fontSize;
+          return false;
+        }
+        return true;
+      });
+      return size!;
+    }
+
+    expect(sizeOf('Title'), greaterThan(sizeOf('body')));
+  });
+
+  testWidgets('a quote shows who wrote it', (tester) async {
+    await show(
+      tester,
+      '<span class="bbcode bbcode_quote"><span class="bbcode_quote_name">Fender wrote:</span>Example text.</span>',
+      (href) {},
+    );
+
+    expect(find.text('Fender'), findsOneWidget);
+    expect(find.textContaining('Example text.', findRichText: true), findsOne);
+  });
+
+  TextStyle? styleOf(WidgetTester tester, String text) {
+    TextStyle? found;
+    for (final RichText rich in tester.widgetList<RichText>(
+      find.byType(RichText),
+    )) {
+      rich.text.visitChildren((span) {
+        if (span is TextSpan && span.text == text) {
+          found = span.style;
+          return false;
+        }
+        return true;
+      });
+    }
+    return found;
+  }
+
+  testWidgets('a spoiler hides its text until tapped', (tester) async {
+    await show(
+      tester,
+      '<span class="bbcode bbcode_spoiler">they win</span>',
+      (href) {},
+    );
+    expect(styleOf(tester, 'they win')?.color, Colors.transparent);
+
+    await tester.tapAt(
+      tester.getTopLeft(find.byType(RichText)) + const Offset(8, 8),
+    );
+    await tester.pump();
+
+    expect(styleOf(tester, 'they win')?.color, isNot(Colors.transparent));
+  });
+
+  testWidgets('tapping a revealed spoiler hides it again', (tester) async {
+    await show(
+      tester,
+      '<span class="bbcode bbcode_spoiler">they win</span>',
+      (href) {},
+    );
+    final Offset text =
+        tester.getTopLeft(find.byType(RichText)) + const Offset(8, 8);
+
+    await tester.tapAt(text);
+    await tester.pump();
+    expect(styleOf(tester, 'they win')?.color, isNot(Colors.transparent));
+
+    await tester.tapAt(text);
+    await tester.pump();
+    expect(styleOf(tester, 'they win')?.color, Colors.transparent);
+  });
+
+  testWidgets('a link in a hidden spoiler reveals before it opens', (
+    tester,
+  ) async {
+    final List<String> opened = [];
+    await show(
+      tester,
+      '<span class="bbcode bbcode_spoiler"><a href="/view/9/">twist</a></span>',
+      opened.add,
+    );
+
+    await tester.tapAt(
+      tester.getTopLeft(find.byType(RichText)) + const Offset(8, 8),
+    );
+    await tester.pump();
+    expect(opened, isEmpty);
+
+    await tester.tapAt(
+      tester.getTopLeft(find.byType(RichText)) + const Offset(8, 8),
+    );
+    await tester.pump();
+    expect(opened, ['/view/9/']);
+
+    await tester.tapAt(
+      tester.getTopLeft(find.byType(RichText)) + const Offset(8, 8),
+    );
+    await tester.pump();
+    expect(opened, ['/view/9/', '/view/9/']);
+  });
+
+  testWidgets('a hidden spoiler is announced rather than read out', (
+    tester,
+  ) async {
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    await show(
+      tester,
+      'ending: <span class="bbcode bbcode_spoiler">they win</span> ok',
+      (href) {},
+    );
+
+    final List<String> labels = [];
+    void collect(SemanticsNode node) {
+      labels.add(node.label);
+      node.visitChildren((child) {
+        collect(child);
+        return true;
+      });
+    }
+
+    collect(tester.getSemantics(find.byType(Markup)));
+    expect(labels, contains('Spoiler, tap to reveal'));
+    expect(labels.join(' '), isNot(contains('they win')));
+    semantics.dispose();
   });
 }

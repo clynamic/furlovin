@@ -104,6 +104,62 @@ void main() {
     expect((blocks.single as MarkupParagraph).align, MarkupAlign.center);
   });
 
+  test('reads a heading as its own block with its level', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      '<h2 class="bbcode bbcode_h2">Rules</h2>after',
+    );
+    expect(blocks, hasLength(2));
+    expect((spansOf(blocks).single as MarkupText).style.heading, 2);
+    expect((spansOf(blocks, 1).single as MarkupText).style.heading, isNull);
+  });
+
+  test('a heading keeps its level inside the centring it wraps', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      '<h3 class="bbcode bbcode_h3"><code class="bbcode bbcode_center">Commissions</code></h3>',
+    );
+    final MarkupParagraph paragraph = blocks.single as MarkupParagraph;
+    expect(paragraph.align, MarkupAlign.center);
+    expect((paragraph.spans.single as MarkupText).style.heading, 3);
+  });
+
+  test('reads a named quote apart from the text around it', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      'before<span class="bbcode bbcode_quote"><span class="bbcode_quote_name">Fender wrote:</span>Example text.</span>after',
+    );
+    expect(blocks, hasLength(3));
+    final MarkupQuote quote = blocks[1] as MarkupQuote;
+    expect(quote.name, 'Fender');
+    expect(textOf(quote.blocks), 'Example text.');
+  });
+
+  test('reads a quote without a name', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      '<span class="bbcode bbcode_quote">Example text.</span>',
+    );
+    final MarkupQuote quote = blocks.single as MarkupQuote;
+    expect(quote.name, isNull);
+    expect(textOf(quote.blocks), 'Example text.');
+  });
+
+  test('left alignment inside centring goes back to the start', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      '<code class="bbcode bbcode_center">middle<code class="bbcode bbcode_left">left</code></code>',
+    );
+    expect((blocks[0] as MarkupParagraph).align, MarkupAlign.center);
+    expect((blocks[1] as MarkupParagraph).align, MarkupAlign.start);
+  });
+
+  test('keeps what a spoiler hides together, links included', () {
+    final List<MarkupBlock> blocks = parseMarkup(
+      'ending: <span class="bbcode bbcode_spoiler">they <a href="/view/9/">win</a></span>',
+    );
+    final MarkupSpoiler spoiler = spansOf(blocks)
+        .whereType<MarkupSpoiler>()
+        .single;
+    expect((spoiler.spans.first as MarkupText).text, 'they ');
+    expect((spoiler.spans.last as MarkupLink).href, '/view/9/');
+  });
+
   test('routes FA links by shape', () {
     expect(readTarget('/view/123/'), isA<SubmissionTarget>());
     expect((readTarget('/view/123/') as SubmissionTarget).id, 123);
