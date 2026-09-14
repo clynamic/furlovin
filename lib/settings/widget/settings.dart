@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/routing/routing.dart';
+import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -82,6 +83,15 @@ class SettingsPage extends ConsumerWidget {
                     ),
             ),
           ),
+          const SizedBox(height: Space.page),
+          Text(
+            'Appearance',
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: Space.small),
+          const AppearanceSettings(),
         ],
       ),
     );
