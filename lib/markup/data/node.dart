@@ -10,6 +10,7 @@ class MarkupStyle {
     this.underline = false,
     this.strike = false,
     this.color,
+    this.heading,
   });
 
   final bool bold;
@@ -17,6 +18,7 @@ class MarkupStyle {
   final bool underline;
   final bool strike;
   final Color? color;
+  final int? heading;
 
   MarkupStyle copyWith({
     bool? bold,
@@ -24,12 +26,14 @@ class MarkupStyle {
     bool? underline,
     bool? strike,
     Color? color,
+    int? heading,
   }) => MarkupStyle(
     bold: bold ?? this.bold,
     italic: italic ?? this.italic,
     underline: underline ?? this.underline,
     strike: strike ?? this.strike,
     color: color ?? this.color,
+    heading: heading ?? this.heading,
   );
 }
 
@@ -66,6 +70,12 @@ class MarkupEmote extends MarkupSpan {
   final String name;
 }
 
+class MarkupSpoiler extends MarkupSpan {
+  const MarkupSpoiler(this.spans);
+
+  final List<MarkupSpan> spans;
+}
+
 class MarkupBreak extends MarkupSpan {
   const MarkupBreak();
 }
@@ -84,4 +94,11 @@ class MarkupParagraph extends MarkupBlock {
 
 class MarkupRule extends MarkupBlock {
   const MarkupRule();
+}
+
+class MarkupQuote extends MarkupBlock {
+  const MarkupQuote({required this.blocks, this.name});
+
+  final String? name;
+  final List<MarkupBlock> blocks;
 }

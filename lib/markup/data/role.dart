@@ -27,8 +27,12 @@ const String italicClass = 'bbcode_i';
 const String underlineClass = 'bbcode_u';
 const String strikeClass = 'bbcode_s';
 const String ruleClass = 'bbcode_hr';
+const String leftClass = 'bbcode_left';
 const String centerClass = 'bbcode_center';
 const String rightClass = 'bbcode_right';
+const String spoilerClass = 'bbcode_spoiler';
+const String quoteClass = 'bbcode_quote';
+const String quoteNameClass = 'bbcode_quote_name';
 const String emoteClass = 'smilie';
 const String mentionClass = 'iconusername';
 const String displayNameClass = 'c-usernameBlockSimple__displayName';
@@ -71,6 +75,16 @@ class TextRole extends MarkupRole {
   final String text;
 }
 
+class QuoteRole extends MarkupRole {
+  const QuoteRole({this.name});
+
+  final String? name;
+}
+
+class SpoilerRole extends MarkupRole {
+  const SpoilerRole();
+}
+
 class SkipRole extends MarkupRole {
   const SkipRole();
 }
@@ -87,6 +101,9 @@ MarkupRole roleOf(dom.Element element) {
   final Set<String> classes = element.classes;
 
   if (tag == 'br') return const BreakRole();
+  if (classes.contains(quoteNameClass)) return const SkipRole();
+  if (classes.contains(quoteClass)) return quoteOf(element);
+  if (classes.contains(spoilerClass)) return const SpoilerRole();
   if (tag == 'hr' || classes.contains(ruleClass)) return const RuleRole();
 
   if (classes.contains(emoteClass)) {
@@ -107,6 +124,17 @@ MarkupRole roleOf(dom.Element element) {
   }
 
   return ContentRole(block: blockTags.contains(tag), align: alignOf(classes));
+}
+
+final RegExp _wrote = RegExp(r'\s*wrote:\s*$');
+
+MarkupRole quoteOf(dom.Element element) {
+  final String? name = element
+      .querySelector('.$quoteNameClass')
+      ?.text
+      .replaceFirst(_wrote, '')
+      .trim();
+  return QuoteRole(name: (name == null || name.isEmpty) ? null : name);
 }
 
 MarkupRole mentionOf(dom.Element element, String href) {
@@ -134,6 +162,7 @@ String? emoteOf(Set<String> classes) {
 }
 
 MarkupAlign? alignOf(Set<String> classes) {
+  if (classes.contains(leftClass)) return MarkupAlign.start;
   if (classes.contains(centerClass)) return MarkupAlign.center;
   if (classes.contains(rightClass)) return MarkupAlign.end;
   return null;
@@ -159,5 +188,13 @@ MarkupStyle styleOf(dom.Element element, MarkupStyle inherited) {
         strikeTags.contains(tag) ||
         classes.contains(strikeClass),
     color: colour ?? inherited.color,
+    heading: inherited.heading ?? headingOf(tag),
   );
 }
+
+final RegExp _headingTag = RegExp(r'^h([1-6])$');
+
+int? headingOf(String tag) => switch (_headingTag.firstMatch(tag)) {
+  final RegExpMatch match => int.parse(match.group(1)!),
+  null => null,
+};

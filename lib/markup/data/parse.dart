@@ -80,6 +80,14 @@ class MarkupReader {
         _add(MarkupText(text, style: style));
       case SkipRole():
         break;
+      case QuoteRole(:final String? name):
+        _flush(outer);
+        final MarkupReader inner = MarkupReader()
+          ..children(node, styleOf(node, style), outer);
+        final List<MarkupBlock> blocks = inner.finish();
+        if (blocks.isNotEmpty || name != null) {
+          _blocks.add(MarkupQuote(name: name, blocks: blocks));
+        }
       case MentionRole(
         :final String name,
         :final String? display,
@@ -96,6 +104,9 @@ class MarkupReader {
         );
       case LinkRole(:final String href):
         _link(node, href, style, outer);
+      case SpoilerRole():
+        final List<MarkupSpan> spans = _inline(node, style, outer);
+        if (spans.isNotEmpty) _add(MarkupSpoiler(spans));
       case ContentRole(:final bool block, :final MarkupAlign? align):
         final bool breaks = block || align != null;
         final MarkupAlign inner = breaks ? (align ?? outer) : outer;
@@ -117,15 +128,23 @@ class MarkupReader {
     MarkupStyle style,
     MarkupAlign align,
   ) {
+    final List<MarkupSpan> spans = _inline(node, style, align);
+    if (spans.isEmpty) return;
+    _add(MarkupLink(href: href, spans: spans));
+  }
+
+  List<MarkupSpan> _inline(
+    dom.Element node,
+    MarkupStyle style,
+    MarkupAlign align,
+  ) {
     final MarkupReader inner = MarkupReader()
       ..children(node, styleOf(node, style), align);
-    final List<MarkupSpan> spans = [
+    return [
       for (final MarkupBlock block in inner._blocks)
         if (block is MarkupParagraph) ...block.spans,
       ...inner._spans,
     ];
-    if (spans.isEmpty) return;
-    _add(MarkupLink(href: href, spans: spans));
   }
 
   void _add(MarkupSpan span) {
