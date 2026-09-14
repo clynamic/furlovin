@@ -15,9 +15,7 @@ class Emote extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final Smilie? smilie = smilies[name];
     if (smilie == null) return const SizedBox.shrink();
-    final CacheManager? cache = ref
-        .watch(thumbnailCacheProvider)
-        .maybeWhen(data: (e) => e, orElse: () => null);
+    final CacheManager cache = ref.watch(thumbnailCacheProvider);
     return SizedBox(
       width: smilie.width * scale,
       height: smilie.height * scale,

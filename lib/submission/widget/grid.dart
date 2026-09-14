@@ -91,9 +91,7 @@ class SubmissionPagedGrid extends ConsumerWidget {
     final Session session = ref
         .watch(sessionProvider)
         .maybeWhen(data: (e) => e, orElse: () => const Session());
-    final CacheManager? cache = ref
-        .watch(thumbnailCacheProvider)
-        .maybeWhen(data: (e) => e, orElse: () => null);
+    final CacheManager cache = ref.watch(thumbnailCacheProvider);
 
     return RefreshIndicator(
       onRefresh: controller.restart,
@@ -303,9 +301,7 @@ class _SubmissionStripState extends ConsumerState<SubmissionStrip> {
     final Session session = ref
         .watch(sessionProvider)
         .maybeWhen(data: (e) => e, orElse: () => const Session());
-    final CacheManager? cache = ref
-        .watch(thumbnailCacheProvider)
-        .maybeWhen(data: (e) => e, orElse: () => null);
+    final CacheManager cache = ref.watch(thumbnailCacheProvider);
     final List<SubmissionPreview> shown = widget.submissions
         .take(widget.limit)
         .toList();
