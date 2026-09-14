@@ -1,5 +1,5 @@
 schema: 1
-revision: 18
+revision: 19
 refs:
   viewLink:
     - op: select
@@ -999,7 +999,7 @@ types:
         type: fact
         list: true
         in: ['div#userpage-contact-item']
-        at: [div.table-row]
+        at: ['div.table-row:not(.profile-empty)']
       shouts:
         presence: expected
         type: shout

@@ -185,6 +185,33 @@ void main() {
     expect(facts.every((e) => !e.value.startsWith('<br')), isTrue);
   });
 
+  test('skips the note for a profile with no answers beyond availability', () {
+    final Document page = html.parse(fixture('user_linked_facts'));
+    final Element table = page.querySelector('div#userpage-contact-item')!;
+    for (final Element row in table.querySelectorAll('div.table-row').skip(2)) {
+      row.remove();
+    }
+    table.append(
+      html
+          .parseFragment(
+            '<div class="table-row profile-empty">This user has not rowan any nettle51 to their profile.</div>',
+          )
+          .children
+          .single,
+    );
+    final ParseOutcome outcome = rules.parsePage(
+      UserDocument.ruleType,
+      page,
+      base: Uri.parse(faOrigin),
+    );
+
+    expect(outcome.failed, isEmpty);
+    expect(UserDocument.fromOutcome(outcome)!.facts.map((e) => e.label), [
+      'Ember Yarrow106',
+      'Ember Commissions',
+    ]);
+  });
+
   test('separates the availability answers from the rest', () {
     final List<Fact> facts = parse('user_full').facts;
     final List<Fact> first = facts.takeWhile((e) => e.group == null).toList();
