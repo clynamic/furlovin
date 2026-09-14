@@ -92,6 +92,15 @@ class SettingsPage extends ConsumerWidget {
           ),
           const SizedBox(height: Space.small),
           const AppearanceSettings(),
+          const SizedBox(height: Space.page),
+          Text(
+            'Grid',
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: Space.small),
+          const TilesSettings(),
         ],
       ),
     );

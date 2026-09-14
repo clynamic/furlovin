@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/routing/routing.dart';
+import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-const double tileExtent = 220;
 const int stripLimit = 10;
 
 class BrowsePage extends ConsumerWidget {
@@ -104,6 +104,7 @@ class SubmissionPagedGrid extends ConsumerWidget {
         .watch(sessionProvider)
         .maybeWhen(data: (e) => e, orElse: () => const Session());
     final CacheManager cache = ref.watch(thumbnailCacheProvider);
+    final Tiles tiles = ref.watch(tilesProvider);
 
     return ColoredBox(
       color: Theme.of(context).colorScheme.surface,
@@ -117,6 +118,7 @@ class SubmissionPagedGrid extends ConsumerWidget {
               return SubmissionGrid.ghost(
                 ghost: const SubmissionPreviewGhost(),
                 session: session,
+                tiles: tiles,
                 header: header,
               );
             }
@@ -145,7 +147,7 @@ class SubmissionPagedGrid extends ConsumerWidget {
                         PagedSliverMasonryGrid<int, SubmissionPreview>.extent(
                           state: state,
                           fetchNextPage: fetchNextPage,
-                          maxCrossAxisExtent: tileExtent,
+                          maxCrossAxisExtent: tiles.extent,
                           mainAxisSpacing: Space.small,
                           crossAxisSpacing: Space.small,
                           showNewPageProgressIndicatorAsGridChild: false,
@@ -157,6 +159,7 @@ class SubmissionPagedGrid extends ConsumerWidget {
                                     SubmissionTile(
                                       submission: submission,
                                       session: session,
+                                      tiles: tiles,
                                       cache: cache,
                                     ),
                                 noItemsFoundIndicatorBuilder: (context) =>
@@ -219,6 +222,7 @@ class SubmissionGrid extends StatelessWidget {
     super.key,
     required this.submissions,
     required this.session,
+    required this.tiles,
     this.header,
   }) : loading = false;
 
@@ -226,6 +230,7 @@ class SubmissionGrid extends StatelessWidget {
     super.key,
     required Ghost<SubmissionPreview> ghost,
     required this.session,
+    required this.tiles,
     this.header,
     int count = 12,
   }) : submissions = ghost.list(count),
@@ -233,6 +238,7 @@ class SubmissionGrid extends StatelessWidget {
 
   final List<SubmissionPreview> submissions;
   final Session session;
+  final Tiles tiles;
   final Widget? header;
   final bool loading;
 
@@ -249,13 +255,14 @@ class SubmissionGrid extends StatelessWidget {
                 const EdgeInsets.all(Space.small) +
                 EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
             sliver: SliverMasonryGrid.extent(
-              maxCrossAxisExtent: tileExtent,
+              maxCrossAxisExtent: tiles.extent,
               mainAxisSpacing: Space.small,
               crossAxisSpacing: Space.small,
               childCount: submissions.length,
               itemBuilder: (context, index) => SubmissionTile(
                 submission: submissions[index],
                 session: session,
+                tiles: tiles,
               ),
             ),
           ),
@@ -325,6 +332,7 @@ class _SubmissionStripState extends ConsumerState<SubmissionStrip> {
         .watch(sessionProvider)
         .maybeWhen(data: (e) => e, orElse: () => const Session());
     final CacheManager cache = ref.watch(thumbnailCacheProvider);
+    final double extent = ref.watch(tilesProvider).extent;
     final List<SubmissionPreview> shown = widget.submissions
         .take(widget.limit)
         .toList();
@@ -371,6 +379,7 @@ class _SubmissionStripState extends ConsumerState<SubmissionStrip> {
                       child: SubmissionThumbnail(
                         submission: submission,
                         session: session,
+                        extent: extent,
                         cache: cache,
                       ),
                     ),
