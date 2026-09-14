@@ -110,6 +110,17 @@ class SettingsPage extends ConsumerWidget {
           ),
           const SizedBox(height: Space.small),
           const ToolbarSettings(),
+          if (platformDownloads) ...[
+            const SizedBox(height: Space.page),
+            Text(
+              'Downloads',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: Space.small),
+            const DownloadSettings(),
+          ],
         ],
       ),
     );

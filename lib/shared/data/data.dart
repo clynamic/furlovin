@@ -1,4 +1,5 @@
 export 'contrast.dart';
+export 'download.dart';
 export 'ghost.dart';
 export 'markup.dart';
 export 'metrics.dart';

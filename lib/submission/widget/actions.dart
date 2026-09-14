@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
@@ -80,10 +82,54 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
     );
   }
 
+  bool _downloading = false;
+
+  void _say(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(behavior: SnackBarBehavior.floating, content: Text(message)),
+    );
+  }
+
+  Future<void> _download(String file) async {
+    final CacheManager artwork = ref.read(artworkCacheProvider);
+    final PreferenceStore store = ref.read(preferenceStoreProvider);
+    final String? folder = ref.read(downloadFolderProvider);
+    final String discriminator =
+        ref.read(sessionProvider).asData?.value.discriminator ??
+        const Session().discriminator;
+    try {
+      final DownloadTarget target = await Downloads.target(
+        chosen: folder,
+        onChosen: (value) => store.put(downloadFolderKey, value),
+      );
+      if (!mounted) return;
+      setState(() => _downloading = true);
+      final File local = await artwork.getSingleFile(
+        file,
+        key: '$file#$discriminator',
+      );
+      final String saved = await Downloads.write(
+        file: local,
+        name: Uri.parse(file).pathSegments.last,
+        target: target,
+      );
+      _say('Saved to $saved');
+    } on DownloadCancelled {
+      return;
+    } on Object catch (error) {
+      _say(describeFailure(error));
+    } finally {
+      if (mounted) setState(() => _downloading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final bool authenticated = ref.watch(authenticatedProvider);
+    ref.watch(downloadFolderProvider);
+    final String? file = submission?.file;
     final double gutter = Layout.gutterOf(context);
     final Hand handedness = ref.watch(handProvider);
     final List<Widget> toolbar = [
@@ -132,10 +178,17 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
                 onPressed: () => _share(context),
                 icon: Icon(platformShares ? Icons.share_outlined : Icons.link),
               ),
-              const IconButton(
+              IconButton(
                 tooltip: 'Download',
-                onPressed: null,
-                icon: Icon(Icons.download_outlined),
+                onPressed: file == null || _downloading || !platformDownloads
+                    ? null
+                    : () => _download(file),
+                icon: _downloading
+                    ? const SizedBox.square(
+                        dimension: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.download_outlined),
               ),
             ].forHand(handedness),
           ),
