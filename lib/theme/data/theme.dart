@@ -68,21 +68,48 @@ const ButtonStyle buttonStyle = ButtonStyle(
   ),
 );
 
-ThemeData buildTheme(Brightness brightness) {
+final Map<(Brightness, Color?, bool), ThemeData> _themes = {};
+
+ThemeData buildTheme(
+  Brightness brightness, {
+  Color? accent,
+  bool black = false,
+}) => _themes.putIfAbsent((
+  brightness,
+  accent,
+  brightness == Brightness.dark && black,
+), () => _buildTheme(brightness, accent: accent, black: black));
+
+ThemeData _buildTheme(
+  Brightness brightness, {
+  Color? accent,
+  bool black = false,
+}) {
   final bool isDark = brightness == Brightness.dark;
+  final bool isBlack = isDark && black;
   final ColorScheme scheme = ColorScheme.fromSeed(
-    seedColor: seedColor,
+    seedColor: accent ?? seedColor,
     brightness: brightness,
-    surface: isDark ? const Color(0xFF1A1D22) : const Color(0xFFFAF9F7),
-    surfaceContainerLowest: isDark
-        ? const Color(0xFF141619)
-        : const Color(0xFFFFFFFF),
-    surfaceContainer: isDark
-        ? const Color(0xFF22262D)
-        : const Color(0xFFF1EFEC),
-    surfaceContainerHighest: isDark
-        ? const Color(0xFF2C313A)
-        : const Color(0xFFE7E4E0),
+    surface: switch ((isDark, isBlack)) {
+      (_, true) => const Color(0xFF000000),
+      (true, _) => const Color(0xFF1A1D22),
+      _ => const Color(0xFFFAF9F7),
+    },
+    surfaceContainerLowest: switch ((isDark, isBlack)) {
+      (_, true) => const Color(0xFF0F0F10),
+      (true, _) => const Color(0xFF141619),
+      _ => const Color(0xFFFFFFFF),
+    },
+    surfaceContainer: switch ((isDark, isBlack)) {
+      (_, true) => const Color(0xFF18191B),
+      (true, _) => const Color(0xFF22262D),
+      _ => const Color(0xFFF1EFEC),
+    },
+    surfaceContainerHighest: switch ((isDark, isBlack)) {
+      (_, true) => const Color(0xFF232427),
+      (true, _) => const Color(0xFF2C313A),
+      _ => const Color(0xFFE7E4E0),
+    },
   );
 
   return ThemeData(
