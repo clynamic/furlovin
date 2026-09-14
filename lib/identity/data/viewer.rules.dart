@@ -28,6 +28,7 @@ abstract class Viewer with _$Viewer {
 
     /// How many new favourites are waiting.
     int? favouriteAlerts,
+    String? logoutKey,
 
     /// How many new submissions are waiting.
     int? submissionAlerts,
@@ -48,6 +49,7 @@ abstract class Viewer with _$Viewer {
       commentAlerts: outcome.get<int>('commentAlerts'),
       displayName: outcome.get<String>('displayName'),
       favouriteAlerts: outcome.get<int>('favouriteAlerts'),
+      logoutKey: outcome.get<String>('logoutKey'),
       submissionAlerts: outcome.get<int>('submissionAlerts'),
       watchAlerts: outcome.get<int>('watchAlerts'),
       failed: outcome.failed,

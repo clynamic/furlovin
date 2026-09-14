@@ -9,7 +9,6 @@ class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   Future<void> _forget(BuildContext context, WidgetRef ref) async {
-    final IdentityStore store = ref.read(identityStoreProvider);
     final bool? sure = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -27,7 +26,7 @@ class SettingsPage extends ConsumerWidget {
       ),
     );
     if (sure != true) return;
-    await store.clear();
+    await logOut(ref);
   }
 
   @override
