@@ -12,21 +12,26 @@ const int artworkCacheBytes = 256 * 1024 * 1024;
 const int thumbnailCacheObjects = 3000;
 const int artworkCacheObjects = 400;
 
-CacheManager createThumbnailCache(Dio dio, AppDatabase database) =>
-    CacheManager(
-      Config(
-        thumbnailCacheKey,
-        maxNrOfCacheObjects: thumbnailCacheObjects,
-        fileService: DioFileService(dio),
-        repo: DriftCacheRepository(
-          database: database,
-          store: thumbnailCacheKey,
-          maxBytes: thumbnailCacheBytes,
-        ),
-      ),
-    );
+CacheManager createThumbnailCache(
+  Future<Dio> Function() dio,
+  AppDatabase database,
+) => CacheManager(
+  Config(
+    thumbnailCacheKey,
+    maxNrOfCacheObjects: thumbnailCacheObjects,
+    fileService: DioFileService(dio),
+    repo: DriftCacheRepository(
+      database: database,
+      store: thumbnailCacheKey,
+      maxBytes: thumbnailCacheBytes,
+    ),
+  ),
+);
 
-CacheManager createArtworkCache(Dio dio, AppDatabase database) => CacheManager(
+CacheManager createArtworkCache(
+  Future<Dio> Function() dio,
+  AppDatabase database,
+) => CacheManager(
   Config(
     artworkCacheKey,
     maxNrOfCacheObjects: artworkCacheObjects,

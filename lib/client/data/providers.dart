@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
@@ -26,22 +27,27 @@ final FutureProvider<FaClient> clientProvider = FutureProvider<FaClient>((
   return client;
 });
 
-final FutureProvider<CacheManager> thumbnailCacheProvider =
-    FutureProvider<CacheManager>((ref) async {
-      final CacheManager cache = createThumbnailCache(
-        (await ref.watch(clientProvider.future)).dio,
-        ref.watch(databaseProvider),
-      );
-      ref.onDispose(cache.dispose);
-      return cache;
-    });
+Future<Dio> _currentDio(Ref ref) async =>
+    (await ref.read(clientProvider.future)).dio;
 
-final FutureProvider<CacheManager> artworkCacheProvider =
-    FutureProvider<CacheManager>((ref) async {
-      final CacheManager cache = createArtworkCache(
-        (await ref.watch(clientProvider.future)).dio,
-        ref.watch(databaseProvider),
-      );
-      ref.onDispose(cache.dispose);
-      return cache;
-    });
+final Provider<CacheManager> thumbnailCacheProvider = Provider<CacheManager>((
+  ref,
+) {
+  final CacheManager cache = createThumbnailCache(
+    () => _currentDio(ref),
+    ref.watch(databaseProvider),
+  );
+  ref.onDispose(cache.dispose);
+  return cache;
+});
+
+final Provider<CacheManager> artworkCacheProvider = Provider<CacheManager>((
+  ref,
+) {
+  final CacheManager cache = createArtworkCache(
+    () => _currentDio(ref),
+    ref.watch(databaseProvider),
+  );
+  ref.onDispose(cache.dispose);
+  return cache;
+});

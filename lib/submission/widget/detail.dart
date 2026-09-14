@@ -48,12 +48,8 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
     final Session session = ref
         .watch(sessionProvider)
         .maybeWhen(data: (e) => e, orElse: () => const Session());
-    final CacheManager? thumbnails = ref
-        .watch(thumbnailCacheProvider)
-        .maybeWhen(data: (e) => e, orElse: () => null);
-    final CacheManager? artwork = ref
-        .watch(artworkCacheProvider)
-        .maybeWhen(data: (e) => e, orElse: () => null);
+    final CacheManager thumbnails = ref.watch(thumbnailCacheProvider);
+    final CacheManager artwork = ref.watch(artworkCacheProvider);
 
     if (detail case AsyncError(:final Object error) when preview == null) {
       return Scaffold(

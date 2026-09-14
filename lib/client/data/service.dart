@@ -7,7 +7,7 @@ import 'package:mime/mime.dart';
 class DioFileService extends FileService {
   DioFileService(this.dio, {this.receiveTimeout = const Duration(seconds: 30)});
 
-  final Dio dio;
+  final Future<Dio> Function() dio;
 
   final Duration receiveTimeout;
 
@@ -16,7 +16,7 @@ class DioFileService extends FileService {
     String url, {
     Map<String, String>? headers,
   }) async => DioFileServiceResponse(
-    await dio.get<ResponseBody>(
+    await (await dio()).get<ResponseBody>(
       url,
       options: Options(
         responseType: ResponseType.stream,
