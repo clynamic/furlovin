@@ -127,6 +127,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                             session: session,
                             tag: submissionHeroTag(id),
                             dismiss: dismiss,
+                            aspectRatio: facade.naturalAspectRatio,
                           ),
                         ),
                       ),
@@ -453,7 +454,7 @@ class SubmissionFacade {
 
   static final RegExp _resolution = RegExp(r'^(\d+)\s*x\s*(\d+)$');
 
-  double get aspectRatio {
+  double? get naturalAspectRatio {
     double? width = preview?.thumbnailWidth;
     double? height = preview?.thumbnailHeight;
     if (submission?.resolution case final String value) {
@@ -462,9 +463,11 @@ class SubmissionFacade {
         height = double.parse(match.group(2)!);
       }
     }
-    if (width == null || height == null || height == 0) return 1;
-    return (width / height).clamp(0.4, 2.5);
+    if (width == null || height == null || height == 0) return null;
+    return width / height;
   }
+
+  double get aspectRatio => (naturalAspectRatio ?? 1).clamp(0.4, 2.5);
 }
 
 class SubmissionHeader extends StatelessWidget {
@@ -474,12 +477,14 @@ class SubmissionHeader extends StatelessWidget {
     required this.session,
     required this.tag,
     required this.dismiss,
+    this.aspectRatio,
   });
 
   final List<ImageRung> rungs;
   final Session session;
   final Object tag;
   final DismissController dismiss;
+  final double? aspectRatio;
 
   @override
   Widget build(BuildContext context) => Stack(
@@ -491,9 +496,9 @@ class SubmissionHeader extends StatelessWidget {
           color: Theme.of(context).colorScheme.surfaceContainer,
         ),
       ),
-      Hero(
+      ContentHero(
         tag: tag,
-        flightShuttleBuilder: _ownShuttle,
+        content: FittedContent(fit: BoxFit.contain, aspectRatio: aspectRatio),
         child: ProgressiveImage(
           rungs: rungs,
           headers: session.headersFor,
@@ -507,17 +512,6 @@ class SubmissionHeader extends StatelessWidget {
       ),
     ],
   );
-
-  static Widget _ownShuttle(
-    BuildContext flightContext,
-    Animation<double> animation,
-    HeroFlightDirection direction,
-    BuildContext fromHeroContext,
-    BuildContext toHeroContext,
-  ) => switch (direction) {
-    HeroFlightDirection.push => (toHeroContext.widget as Hero).child,
-    HeroFlightDirection.pop => (fromHeroContext.widget as Hero).child,
-  };
 }
 
 class SubmissionByline extends StatelessWidget {

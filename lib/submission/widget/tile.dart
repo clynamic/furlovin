@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/routing/routing.dart';
+import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -24,13 +25,18 @@ class SubmissionTile extends StatelessWidget {
   final CacheManager? cache;
   final VoidCallback? onTap;
 
-  double get aspectRatio {
+  double? get naturalAspectRatio {
     final double? width = submission.thumbnailWidth;
     final double? height = submission.thumbnailHeight;
-    if (width == null || height == null || height == 0) {
-      return fallbackAspectRatio;
-    }
-    return (width / height).clamp(minAspectRatio, maxAspectRatio);
+    if (width == null || height == null || height == 0) return null;
+    return width / height;
+  }
+
+  double get aspectRatio {
+    return (naturalAspectRatio ?? fallbackAspectRatio).clamp(
+      minAspectRatio,
+      maxAspectRatio,
+    );
   }
 
   @override
@@ -52,8 +58,12 @@ class SubmissionTile extends StatelessWidget {
               child: Skeleton.replace(
                 width: double.infinity,
                 height: double.infinity,
-                child: Hero(
+                child: ContentHero(
                   tag: submissionHeroTag(submission.id),
+                  content: FittedContent(
+                    fit: BoxFit.cover,
+                    aspectRatio: naturalAspectRatio,
+                  ),
                   child: SubmissionThumbnail(
                     submission: submission,
                     session: session,
