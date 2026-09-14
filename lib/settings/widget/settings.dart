@@ -13,7 +13,7 @@ class SettingsPage extends ConsumerWidget {
     final bool? sure = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Sign out?'),
+        title: const Text('Log out?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -21,7 +21,7 @@ class SettingsPage extends ConsumerWidget {
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Sign out'),
+            child: const Text('Log out'),
           ),
         ],
       ),
@@ -64,22 +64,22 @@ class SettingsPage extends ConsumerWidget {
                     ),
               title: Text(
                 authenticated
-                    ? (viewer?.displayName ?? viewer?.name ?? 'Signed in')
-                    : 'Not signed in',
+                    ? (viewer?.displayName ?? viewer?.name ?? 'Logged in')
+                    : 'Not logged in',
               ),
               subtitle: Text(
                 authenticated
-                    ? (viewer?.name == null ? 'Signed in' : '@${viewer!.name}')
+                    ? (viewer?.name == null ? 'Logged in' : '@${viewer!.name}')
                     : 'You can continue browsing anonymously.',
               ),
               trailing: authenticated
                   ? TextButton(
                       onPressed: () => _forget(context, ref),
-                      child: const Text('Sign out'),
+                      child: const Text('Log out'),
                     )
                   : FilledButton(
                       onPressed: () => context.openLogin(),
-                      child: const Text('Sign in'),
+                      child: const Text('Log in'),
                     ),
             ),
           ),

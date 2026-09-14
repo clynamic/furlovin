@@ -13,14 +13,12 @@ class SubmissionClient {
 
   final Logger logger = Logger('SubmissionClient');
 
-  Future<List<SubmissionPreview>> browse({int page = 1}) async =>
-      (await client.page(
-        rules,
-        BrowseDocument.ruleType,
-        '/browse/$page/',
-        (outcome, errors) =>
-            BrowseDocument.fromOutcome(outcome, errors: errors),
-      )).submissions;
+  Future<BrowseDocument> browse({int page = 1}) => client.page(
+    rules,
+    BrowseDocument.ruleType,
+    '/browse/$page/',
+    (outcome, errors) => BrowseDocument.fromOutcome(outcome, errors: errors),
+  );
 
   Future<List<SubmissionPreview>> inbox({int after = 0}) async =>
       (await client.page(

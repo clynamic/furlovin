@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/markup/markup.dart';
-import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:material_ui/material_ui.dart';
@@ -116,18 +115,6 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
     );
   }
 
-  void _needsAccount(BuildContext context) =>
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          content: const Text('Log in to do that'),
-          action: SnackBarAction(
-            label: 'Log in',
-            onPressed: () => context.openLogin(),
-          ),
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -198,25 +185,23 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
                 ),
               ),
             ),
-            const SizedBox(width: Space.snug),
-            FloatingActionButton(
-              heroTag: null,
-              tooltip: !authenticated
-                  ? 'Log in to favourite'
-                  : favourited
-                  ? 'Remove from favourites'
-                  : 'Favourite',
-              backgroundColor: favourited
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.surfaceContainerHighest,
-              foregroundColor: favourited
-                  ? theme.colorScheme.onPrimary
-                  : theme.colorScheme.onSurfaceVariant,
-              onPressed: !authenticated
-                  ? () => _needsAccount(context)
-                  : (favouriteLink == null ? null : _toggle),
-              child: Icon(favourited ? Icons.favorite : Icons.favorite_border),
-            ),
+            if (authenticated) ...[
+              const SizedBox(width: Space.snug),
+              FloatingActionButton(
+                heroTag: null,
+                tooltip: favourited ? 'Remove from favourites' : 'Favourite',
+                backgroundColor: favourited
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.surfaceContainerHighest,
+                foregroundColor: favourited
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSurfaceVariant,
+                onPressed: favouriteLink == null ? null : _toggle,
+                child: Icon(
+                  favourited ? Icons.favorite : Icons.favorite_border,
+                ),
+              ),
+            ],
           ],
         ),
       ),

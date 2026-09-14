@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/client/client.dart';
+import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -67,6 +68,7 @@ void main() {
   ProviderContainer host() {
     final ProviderContainer container = ProviderContainer(
       overrides: [
+        sessionKeyProvider.overrideWithValue('anonymous'),
         submissionClientProvider.overrideWith(
           (ref) async => SubmissionClient(client: FaClient(), rules: rules),
         ),
@@ -140,7 +142,10 @@ void main() {
       800: [Favorite(id: 700, submission: _preview(3))],
     }, rules: rules);
     final ProviderContainer container = ProviderContainer(
-      overrides: [submissionClientProvider.overrideWith((ref) async => client)],
+      overrides: [
+        sessionKeyProvider.overrideWithValue('anonymous'),
+        submissionClientProvider.overrideWith((ref) async => client),
+      ],
     );
     addTearDown(container.dispose);
     final SubmissionPaging controller = container.read(
@@ -163,7 +168,10 @@ void main() {
   test('a gallery shares its sidebar folders from the first page', () async {
     final _GalleryClient client = _GalleryClient(rules: rules);
     final ProviderContainer container = ProviderContainer(
-      overrides: [submissionClientProvider.overrideWith((ref) async => client)],
+      overrides: [
+        sessionKeyProvider.overrideWithValue('anonymous'),
+        submissionClientProvider.overrideWith((ref) async => client),
+      ],
     );
     addTearDown(container.dispose);
     final GalleryListing listing = container.read(

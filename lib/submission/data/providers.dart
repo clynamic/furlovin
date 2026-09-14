@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:furlovin/client/client.dart';
+import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
@@ -41,6 +42,7 @@ SubmissionPaging submissionPaging(
   Future<List<SubmissionPreview>> Function(SubmissionClient, int) fetch, {
   int Function(PagingState<int, SubmissionPreview> state)? nextKey,
 }) {
+  ref.discardOnSessionChange();
   late final SubmissionPaging controller;
   bool exhausted = false;
   controller = SubmissionPaging(
@@ -89,8 +91,21 @@ SubmissionPaging retainedPaging(
   return submissionPaging(ref, fetch, nextKey: nextKey);
 }
 
+final Provider<ValueNotifier<String?>> siteBannerProvider =
+    Provider<ValueNotifier<String?>>((ref) {
+      final ValueNotifier<String?> banner = ValueNotifier(null);
+      ref.onDispose(banner.dispose);
+      return banner;
+    });
+
 final Provider<SubmissionPaging> browseProvider = Provider<SubmissionPaging>(
-  (ref) => submissionPaging(ref, (client, page) => client.browse(page: page)),
+  (ref) => submissionPaging(ref, (client, page) async {
+    final BrowseDocument fetched = await client.browse(page: page);
+    if (fetched.banner case final String banner) {
+      ref.read(siteBannerProvider).value = banner;
+    }
+    return fetched.submissions;
+  }),
 );
 
 final Provider<SubmissionPaging> inboxProvider = Provider<SubmissionPaging>(
@@ -159,6 +174,7 @@ class SubmissionDetail extends AsyncNotifier<SubmissionDocument> {
 
   @override
   Future<SubmissionDocument> build() async {
+    ref.discardOnSessionChange();
     final Retention retention = ref.read(submissionRetentionProvider);
     final KeepAliveLink link = ref.keepAlive();
     ref.onDispose(() => retention.release(id));

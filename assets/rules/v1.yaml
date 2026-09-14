@@ -1,5 +1,5 @@
 schema: 1
-revision: 14
+revision: 15
 refs:
   viewLink:
     - op: select
@@ -965,6 +965,13 @@ types:
         list: true
         in: ['section#gallery-browse']
         at: ['figure[id^="sid-"]']
+      banner:
+        read:
+          - - op: select
+              css: site-banner picture img
+            - op: attr
+              name: src
+            - op: url
 
   galleryDocument:
     feature: submission

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:furlovin/client/client.dart';
+import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/user/user.dart';
@@ -22,6 +23,7 @@ final Provider<Retention> userRetentionProvider = Provider<Retention>(
 final FutureProviderFamily<UserDocument, String> userProvider = FutureProvider
     .autoDispose
     .family<UserDocument, String>((ref, name) async {
+      ref.discardOnSessionChange();
       final Retention retention = ref.read(userRetentionProvider);
       final KeepAliveLink link = ref.keepAlive();
       ref.onDispose(() => retention.release(name));

@@ -124,7 +124,7 @@ const Map<String, Map<String, String>> ruleManifest = {
     'gallery': '[submissionPreview]',
     'shouts': '[shout]',
   },
-  'browseDocument': {'submissions': '[submissionPreview]!'},
+  'browseDocument': {'submissions': '[submissionPreview]!', 'banner': 'string'},
   'galleryDocument': {
     'submissions': '[submissionPreview]!',
     'folders': '[folderRow]',

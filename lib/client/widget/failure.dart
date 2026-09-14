@@ -26,8 +26,8 @@ FailureView failureFor(Object error, {VoidCallback? onRetry}) =>
       ),
       AuthenticationRequired() => const FailureView(
         icon: Icons.login,
-        title: 'Signed out',
-        detail: 'This needs you to be signed in.',
+        title: 'Logged out',
+        detail: 'This needs you to be logged in.',
       ),
       Gone(:final String reason) => FailureView(
         icon: Icons.search_off,

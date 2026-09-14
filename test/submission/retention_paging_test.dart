@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/client/client.dart';
+import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/search/search.dart';
 import 'package:furlovin/submission/submission.dart';
@@ -44,6 +45,7 @@ void main() {
   ProviderContainer host() {
     final ProviderContainer container = ProviderContainer(
       overrides: [
+        sessionKeyProvider.overrideWithValue('anonymous'),
         submissionClientProvider.overrideWith(
           (ref) async => SubmissionClient(
             client: FaClient()..dio.httpClientAdapter = _Pages(),
