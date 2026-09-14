@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserDocument {
 
- User get user; List<Contact> get contacts; List<Fact> get facts; List<SubmissionPreview> get favorites; List<SubmissionPreview> get gallery; List<Shout> get shouts; Map<String, ParseException> get failed; DocumentErrors? get errors;
+ User get user; List<Contact> get contacts; List<Fact> get facts; List<SubmissionPreview> get favorites; FeaturedSubmission? get featured; List<SubmissionPreview> get gallery; List<Shout> get shouts; Map<String, ParseException> get failed; DocumentErrors? get errors;
 /// Create a copy of UserDocument
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +27,20 @@ $UserDocumentCopyWith<UserDocument> get copyWith => _$UserDocumentCopyWithImpl<U
 @override
 bool operator ==(Object other) {
   final _this = this as UserDocument;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDocument&&(identical(other.user, _this.user) || other.user == _this.user)&&const DeepCollectionEquality().equals(other.contacts, _this.contacts)&&const DeepCollectionEquality().equals(other.facts, _this.facts)&&const DeepCollectionEquality().equals(other.favorites, _this.favorites)&&const DeepCollectionEquality().equals(other.gallery, _this.gallery)&&const DeepCollectionEquality().equals(other.shouts, _this.shouts)&&const DeepCollectionEquality().equals(other.failed, _this.failed)&&(identical(other.errors, _this.errors) || other.errors == _this.errors));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDocument&&(identical(other.user, _this.user) || other.user == _this.user)&&const DeepCollectionEquality().equals(other.contacts, _this.contacts)&&const DeepCollectionEquality().equals(other.facts, _this.facts)&&const DeepCollectionEquality().equals(other.favorites, _this.favorites)&&(identical(other.featured, _this.featured) || other.featured == _this.featured)&&const DeepCollectionEquality().equals(other.gallery, _this.gallery)&&const DeepCollectionEquality().equals(other.shouts, _this.shouts)&&const DeepCollectionEquality().equals(other.failed, _this.failed)&&(identical(other.errors, _this.errors) || other.errors == _this.errors));
 }
 
 
 @override
 int get hashCode {
   final _this = this as UserDocument;
-  return Object.hash(runtimeType,_this.user,const DeepCollectionEquality().hash(_this.contacts),const DeepCollectionEquality().hash(_this.facts),const DeepCollectionEquality().hash(_this.favorites),const DeepCollectionEquality().hash(_this.gallery),const DeepCollectionEquality().hash(_this.shouts),const DeepCollectionEquality().hash(_this.failed),_this.errors);
+  return Object.hash(runtimeType,_this.user,const DeepCollectionEquality().hash(_this.contacts),const DeepCollectionEquality().hash(_this.facts),const DeepCollectionEquality().hash(_this.favorites),_this.featured,const DeepCollectionEquality().hash(_this.gallery),const DeepCollectionEquality().hash(_this.shouts),const DeepCollectionEquality().hash(_this.failed),_this.errors);
 }
 
 @override
 String toString() {
   final _this = this as UserDocument;
-  return 'UserDocument(user: ${_this.user}, contacts: ${_this.contacts}, facts: ${_this.facts}, favorites: ${_this.favorites}, gallery: ${_this.gallery}, shouts: ${_this.shouts}, failed: ${_this.failed}, errors: ${_this.errors})';
+  return 'UserDocument(user: ${_this.user}, contacts: ${_this.contacts}, facts: ${_this.facts}, favorites: ${_this.favorites}, featured: ${_this.featured}, gallery: ${_this.gallery}, shouts: ${_this.shouts}, failed: ${_this.failed}, errors: ${_this.errors})';
 }
 
 
@@ -51,11 +51,11 @@ abstract mixin class $UserDocumentCopyWith<$Res>  {
   factory $UserDocumentCopyWith(UserDocument value, $Res Function(UserDocument) _then) = _$UserDocumentCopyWithImpl;
 @useResult
 $Res call({
- User user, List<Contact> contacts, List<Fact> facts, List<SubmissionPreview> favorites, List<SubmissionPreview> gallery, List<Shout> shouts, Map<String, ParseException> failed, DocumentErrors? errors
+ User user, List<Contact> contacts, List<Fact> facts, List<SubmissionPreview> favorites, FeaturedSubmission? featured, List<SubmissionPreview> gallery, List<Shout> shouts, Map<String, ParseException> failed, DocumentErrors? errors
 });
 
 
-$UserCopyWith<$Res> get user;
+$UserCopyWith<$Res> get user;$FeaturedSubmissionCopyWith<$Res>? get featured;
 
 }
 /// @nodoc
@@ -68,13 +68,14 @@ class _$UserDocumentCopyWithImpl<$Res>
 
 /// Create a copy of UserDocument
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? user = null,Object? contacts = null,Object? facts = null,Object? favorites = null,Object? gallery = null,Object? shouts = null,Object? failed = null,Object? errors = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? user = null,Object? contacts = null,Object? facts = null,Object? favorites = null,Object? featured = freezed,Object? gallery = null,Object? shouts = null,Object? failed = null,Object? errors = freezed,}) {
   return _then(UserDocument(
 user: null == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
 as User,contacts: null == contacts ? _self.contacts : contacts // ignore: cast_nullable_to_non_nullable
 as List<Contact>,facts: null == facts ? _self.facts : facts // ignore: cast_nullable_to_non_nullable
 as List<Fact>,favorites: null == favorites ? _self.favorites : favorites // ignore: cast_nullable_to_non_nullable
-as List<SubmissionPreview>,gallery: null == gallery ? _self.gallery : gallery // ignore: cast_nullable_to_non_nullable
+as List<SubmissionPreview>,featured: freezed == featured ? _self.featured : featured // ignore: cast_nullable_to_non_nullable
+as FeaturedSubmission?,gallery: null == gallery ? _self.gallery : gallery // ignore: cast_nullable_to_non_nullable
 as List<SubmissionPreview>,shouts: null == shouts ? _self.shouts : shouts // ignore: cast_nullable_to_non_nullable
 as List<Shout>,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
 as Map<String, ParseException>,errors: freezed == errors ? _self.errors : errors // ignore: cast_nullable_to_non_nullable
@@ -89,6 +90,18 @@ $UserCopyWith<$Res> get user {
   
   return $UserCopyWith<$Res>(_self.user, (value) {
     return _then(_self.copyWith(user: value));
+  });
+}/// Create a copy of UserDocument
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FeaturedSubmissionCopyWith<$Res>? get featured {
+    if (_self.featured == null) {
+    return null;
+  }
+
+  return $FeaturedSubmissionCopyWith<$Res>(_self.featured!, (value) {
+    return _then(_self.copyWith(featured: value));
   });
 }
 }
@@ -172,10 +185,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( User user,  List<Contact> contacts,  List<Fact> facts,  List<SubmissionPreview> favorites,  List<SubmissionPreview> gallery,  List<Shout> shouts,  Map<String, ParseException> failed,  DocumentErrors? errors)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( User user,  List<Contact> contacts,  List<Fact> facts,  List<SubmissionPreview> favorites,  FeaturedSubmission? featured,  List<SubmissionPreview> gallery,  List<Shout> shouts,  Map<String, ParseException> failed,  DocumentErrors? errors)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserDocument() when $default != null:
-return $default(_that.user,_that.contacts,_that.facts,_that.favorites,_that.gallery,_that.shouts,_that.failed,_that.errors);case _:
+return $default(_that.user,_that.contacts,_that.facts,_that.favorites,_that.featured,_that.gallery,_that.shouts,_that.failed,_that.errors);case _:
   return orElse();
 
 }
@@ -193,10 +206,10 @@ return $default(_that.user,_that.contacts,_that.facts,_that.favorites,_that.gall
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( User user,  List<Contact> contacts,  List<Fact> facts,  List<SubmissionPreview> favorites,  List<SubmissionPreview> gallery,  List<Shout> shouts,  Map<String, ParseException> failed,  DocumentErrors? errors)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( User user,  List<Contact> contacts,  List<Fact> facts,  List<SubmissionPreview> favorites,  FeaturedSubmission? featured,  List<SubmissionPreview> gallery,  List<Shout> shouts,  Map<String, ParseException> failed,  DocumentErrors? errors)  $default,) {final _that = this;
 switch (_that) {
 case _UserDocument():
-return $default(_that.user,_that.contacts,_that.facts,_that.favorites,_that.gallery,_that.shouts,_that.failed,_that.errors);case _:
+return $default(_that.user,_that.contacts,_that.facts,_that.favorites,_that.featured,_that.gallery,_that.shouts,_that.failed,_that.errors);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -213,10 +226,10 @@ return $default(_that.user,_that.contacts,_that.facts,_that.favorites,_that.gall
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( User user,  List<Contact> contacts,  List<Fact> facts,  List<SubmissionPreview> favorites,  List<SubmissionPreview> gallery,  List<Shout> shouts,  Map<String, ParseException> failed,  DocumentErrors? errors)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( User user,  List<Contact> contacts,  List<Fact> facts,  List<SubmissionPreview> favorites,  FeaturedSubmission? featured,  List<SubmissionPreview> gallery,  List<Shout> shouts,  Map<String, ParseException> failed,  DocumentErrors? errors)?  $default,) {final _that = this;
 switch (_that) {
 case _UserDocument() when $default != null:
-return $default(_that.user,_that.contacts,_that.facts,_that.favorites,_that.gallery,_that.shouts,_that.failed,_that.errors);case _:
+return $default(_that.user,_that.contacts,_that.facts,_that.favorites,_that.featured,_that.gallery,_that.shouts,_that.failed,_that.errors);case _:
   return null;
 
 }
@@ -228,7 +241,7 @@ return $default(_that.user,_that.contacts,_that.facts,_that.favorites,_that.gall
 
 
 class _UserDocument extends UserDocument {
-  const _UserDocument({required this.user,  List<Contact> contacts = const [],  List<Fact> facts = const [],  List<SubmissionPreview> favorites = const [],  List<SubmissionPreview> gallery = const [],  List<Shout> shouts = const [],  Map<String, ParseException> failed = const {}, this.errors}): _contacts = contacts,_facts = facts,_favorites = favorites,_gallery = gallery,_shouts = shouts,_failed = failed,super._();
+  const _UserDocument({required this.user,  List<Contact> contacts = const [],  List<Fact> facts = const [],  List<SubmissionPreview> favorites = const [], this.featured,  List<SubmissionPreview> gallery = const [],  List<Shout> shouts = const [],  Map<String, ParseException> failed = const {}, this.errors}): _contacts = contacts,_facts = facts,_favorites = favorites,_gallery = gallery,_shouts = shouts,_failed = failed,super._();
   
 
 @override final  User user;
@@ -253,6 +266,7 @@ class _UserDocument extends UserDocument {
   return EqualUnmodifiableListView(_favorites);
 }
 
+@override final  FeaturedSubmission? featured;
  final  List<SubmissionPreview> _gallery;
 @override@JsonKey() List<SubmissionPreview> get gallery {
   if (_gallery is EqualUnmodifiableListView) return _gallery;
@@ -286,18 +300,18 @@ _$UserDocumentCopyWith<_UserDocument> get copyWith => __$UserDocumentCopyWithImp
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserDocument&&(identical(other.user, user) || other.user == user)&&const DeepCollectionEquality().equals(other.contacts, _contacts)&&const DeepCollectionEquality().equals(other.facts, _facts)&&const DeepCollectionEquality().equals(other.favorites, _favorites)&&const DeepCollectionEquality().equals(other.gallery, _gallery)&&const DeepCollectionEquality().equals(other.shouts, _shouts)&&const DeepCollectionEquality().equals(other.failed, _failed)&&(identical(other.errors, errors) || other.errors == errors));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserDocument&&(identical(other.user, user) || other.user == user)&&const DeepCollectionEquality().equals(other.contacts, _contacts)&&const DeepCollectionEquality().equals(other.facts, _facts)&&const DeepCollectionEquality().equals(other.favorites, _favorites)&&(identical(other.featured, featured) || other.featured == featured)&&const DeepCollectionEquality().equals(other.gallery, _gallery)&&const DeepCollectionEquality().equals(other.shouts, _shouts)&&const DeepCollectionEquality().equals(other.failed, _failed)&&(identical(other.errors, errors) || other.errors == errors));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,user,const DeepCollectionEquality().hash(_contacts),const DeepCollectionEquality().hash(_facts),const DeepCollectionEquality().hash(_favorites),const DeepCollectionEquality().hash(_gallery),const DeepCollectionEquality().hash(_shouts),const DeepCollectionEquality().hash(_failed),errors);
+    return Object.hash(runtimeType,user,const DeepCollectionEquality().hash(_contacts),const DeepCollectionEquality().hash(_facts),const DeepCollectionEquality().hash(_favorites),featured,const DeepCollectionEquality().hash(_gallery),const DeepCollectionEquality().hash(_shouts),const DeepCollectionEquality().hash(_failed),errors);
 }
 
 @override
 String toString() {
-    return 'UserDocument(user: $user, contacts: $contacts, facts: $facts, favorites: $favorites, gallery: $gallery, shouts: $shouts, failed: $failed, errors: $errors)';
+    return 'UserDocument(user: $user, contacts: $contacts, facts: $facts, favorites: $favorites, featured: $featured, gallery: $gallery, shouts: $shouts, failed: $failed, errors: $errors)';
 }
 
 
@@ -308,11 +322,11 @@ abstract mixin class _$UserDocumentCopyWith<$Res> implements $UserDocumentCopyWi
   factory _$UserDocumentCopyWith(_UserDocument value, $Res Function(_UserDocument) _then) = __$UserDocumentCopyWithImpl;
 @override @useResult
 $Res call({
- User user, List<Contact> contacts, List<Fact> facts, List<SubmissionPreview> favorites, List<SubmissionPreview> gallery, List<Shout> shouts, Map<String, ParseException> failed, DocumentErrors? errors
+ User user, List<Contact> contacts, List<Fact> facts, List<SubmissionPreview> favorites, FeaturedSubmission? featured, List<SubmissionPreview> gallery, List<Shout> shouts, Map<String, ParseException> failed, DocumentErrors? errors
 });
 
 
-@override $UserCopyWith<$Res> get user;
+@override $UserCopyWith<$Res> get user;@override $FeaturedSubmissionCopyWith<$Res>? get featured;
 
 }
 /// @nodoc
@@ -325,13 +339,14 @@ class __$UserDocumentCopyWithImpl<$Res>
 
 /// Create a copy of UserDocument
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? user = null,Object? contacts = null,Object? facts = null,Object? favorites = null,Object? gallery = null,Object? shouts = null,Object? failed = null,Object? errors = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? user = null,Object? contacts = null,Object? facts = null,Object? favorites = null,Object? featured = freezed,Object? gallery = null,Object? shouts = null,Object? failed = null,Object? errors = freezed,}) {
   return _then(_UserDocument(
 user: null == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
 as User,contacts: null == contacts ? _self._contacts : contacts // ignore: cast_nullable_to_non_nullable
 as List<Contact>,facts: null == facts ? _self._facts : facts // ignore: cast_nullable_to_non_nullable
 as List<Fact>,favorites: null == favorites ? _self._favorites : favorites // ignore: cast_nullable_to_non_nullable
-as List<SubmissionPreview>,gallery: null == gallery ? _self._gallery : gallery // ignore: cast_nullable_to_non_nullable
+as List<SubmissionPreview>,featured: freezed == featured ? _self.featured : featured // ignore: cast_nullable_to_non_nullable
+as FeaturedSubmission?,gallery: null == gallery ? _self._gallery : gallery // ignore: cast_nullable_to_non_nullable
 as List<SubmissionPreview>,shouts: null == shouts ? _self._shouts : shouts // ignore: cast_nullable_to_non_nullable
 as List<Shout>,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
 as Map<String, ParseException>,errors: freezed == errors ? _self.errors : errors // ignore: cast_nullable_to_non_nullable
@@ -347,6 +362,18 @@ $UserCopyWith<$Res> get user {
   
   return $UserCopyWith<$Res>(_self.user, (value) {
     return _then(_self.copyWith(user: value));
+  });
+}/// Create a copy of UserDocument
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FeaturedSubmissionCopyWith<$Res>? get featured {
+    if (_self.featured == null) {
+    return null;
+  }
+
+  return $FeaturedSubmissionCopyWith<$Res>(_self.featured!, (value) {
+    return _then(_self.copyWith(featured: value));
   });
 }
 }

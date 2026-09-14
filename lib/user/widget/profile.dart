@@ -118,6 +118,33 @@ class UserPage extends ConsumerWidget {
             ),
             ErrorBoundary(
               errors: errors,
+              name: 'user.featured',
+              paths: const ['featured'],
+              builder: (context, broken) => switch (loaded?.featured) {
+                final FeaturedSubmission featured => PersistentSliverSection(
+                  name: 'featured',
+                  title: 'Featured',
+                  sliver: BreakageSliver(
+                    broken: broken,
+                    name: 'the featured submission',
+                    sliver: SliverToBoxAdapter(
+                      child: FeaturedSubmissionCard(
+                        featured: featured,
+                        uploader: user?.name ?? name,
+                        uploaderName: user?.displayName,
+                      ),
+                    ),
+                  ),
+                ),
+                _ => BrokenSection(
+                  broken: broken,
+                  name: 'featured',
+                  title: 'Featured',
+                ),
+              },
+            ),
+            ErrorBoundary(
+              errors: errors,
               name: 'user.facts',
               paths: const ['facts'],
               builder: (context, broken) => switch (loaded?.facts) {
@@ -660,5 +687,67 @@ class WatchButton extends ConsumerWidget {
             icon: const Icon(Icons.person_add_alt_1_outlined),
             label: const Text('Watch'),
           );
+  }
+}
+
+const double featuredMaxHeight = 420;
+const double featuredPlaceholderHeight = 240;
+
+class FeaturedSubmissionCard extends StatelessWidget {
+  const FeaturedSubmissionCard({
+    super.key,
+    required this.featured,
+    required this.uploader,
+    this.uploaderName,
+  });
+
+  final FeaturedSubmission featured;
+  final String uploader;
+  final String? uploaderName;
+
+  SubmissionPreview get preview => SubmissionPreview(
+    id: featured.id,
+    link: featured.link,
+    rating: featured.rating,
+    thumbnail: featured.thumbnail,
+    title: featured.title,
+    uploader: uploader,
+    uploaderName: uploaderName,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      margin: EdgeInsets.zero,
+      child: InkWell(
+        onTap: () => context.openSubmission(featured.id, preview: preview),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: featuredMaxHeight),
+              child: FaImage(
+                url: featured.thumbnail,
+                fit: BoxFit.contain,
+                placeholder: const SizedBox(height: featuredPlaceholderHeight),
+              ),
+            ),
+            if (featured.title case final String title)
+              Padding(
+                padding: const EdgeInsets.all(Space.snug),
+                child: Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleSmall,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
