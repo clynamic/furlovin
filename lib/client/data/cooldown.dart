@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:furlovin/client/client.dart';
+import 'package:furlovin/shared/shared.dart';
 
 const Duration rateLimitPause = Duration(seconds: 30);
 const Duration challengePause = Duration(seconds: 60);
@@ -65,3 +66,9 @@ class CooldownInterceptor extends Interceptor {
     handler.next(response);
   }
 }
+
+Duration? pauseOnRateLimit(Object error, int attempt) => switch (error) {
+  RateLimited(:final Duration? retryAfter) =>
+    retryAfter ?? actionSpacing * attempt,
+  _ => null,
+};

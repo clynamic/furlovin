@@ -55,35 +55,58 @@ void main() {
     return (container, adapter);
   }
 
-  test('favouriting keeps the page the favourite answered with', () async {
-    final (ProviderContainer container, _Pages adapter) = await host({
-      '/view/1/': fixture('view'),
-      '/fav/1/': fixture('view_folders'),
-    });
+  String withLink(String page, String href) => page.replaceFirst(
+    '<div id="submission-options">',
+    '<div id="submission-options"><a href="$href">Fav</a>',
+  );
 
-    await container
-        .read(submissionProvider(1).notifier)
-        .favourite('https://www.furaffinity.net/fav/1/?key=x');
+  test(
+    'favouriting shows at once and keeps the page it answered with',
+    () async {
+      final (ProviderContainer container, _Pages adapter) = await host({
+        '/view/1/': withLink(fixture('view'), '/fav/1/?key=x'),
+        '/fav/1/': withLink(fixture('view_folders'), '/unfav/1/?key=y'),
+      });
+      final Submission before = container
+          .read(submissionProvider(1))
+          .value!
+          .submission;
 
-    expect(adapter.requested, ['/fav/1/']);
-    expect(
-      container.read(submissionProvider(1)).value?.submission.id,
-      63882441,
-    );
-  });
+      final Future<void> favouriting = container
+          .read(submissionProvider(1).notifier)
+          .setFavourited(true);
+      final Submission shown = container
+          .read(submissionProvider(1))
+          .value!
+          .submission;
+      expect(shown.favourited, isTrue);
+      expect(shown.favorites, before.favorites! + 1);
+
+      await favouriting;
+      expect(adapter.requested, ['/fav/1/']);
+      final Submission settled = container
+          .read(submissionProvider(1))
+          .value!
+          .submission;
+      expect(settled.id, 63882441);
+      expect(settled.favourited, isTrue);
+    },
+  );
 
   test('an unreadable answer falls back to reading the page again', () async {
     final (ProviderContainer container, _Pages adapter) = await host({
-      '/view/1/': fixture('view'),
+      '/view/1/': withLink(fixture('view'), '/fav/1/?key=x'),
       '/fav/1/': '<html><body></body></html>',
     });
+    adapter.pages['/view/1/'] = withLink(fixture('view'), '/unfav/1/?key=y');
 
-    await container
-        .read(submissionProvider(1).notifier)
-        .favourite('https://www.furaffinity.net/fav/1/?key=x');
+    await container.read(submissionProvider(1).notifier).setFavourited(true);
 
     expect(adapter.requested, ['/fav/1/', '/view/1/']);
-    expect(container.read(submissionProvider(1)).hasValue, isTrue);
+    expect(
+      container.read(submissionProvider(1)).value?.submission.favourited,
+      isTrue,
+    );
   });
 
   test('a new session discards a loaded submission', () async {

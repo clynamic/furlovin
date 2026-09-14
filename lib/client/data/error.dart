@@ -9,6 +9,7 @@ String describeFailure(Object error) => switch (error) {
   AuthenticationRequired() => 'That needs you to be logged in.',
   ContentFiltered() => 'That is rated Mature or Adult.',
   Gone(:final String reason) => reason,
+  ActionRejected(:final String reason) => reason,
   Forbidden() => 'Fur Affinity refused that.',
   RequestRejected(:final int status) =>
     'Fur Affinity rejected that request ($status).',
@@ -68,6 +69,15 @@ class Gone extends FaException {
 
   @override
   String toString() => 'Gone: $reason';
+}
+
+class ActionRejected extends FaException {
+  const ActionRejected(this.reason);
+
+  final String reason;
+
+  @override
+  String toString() => 'ActionRejected: $reason';
 }
 
 class Forbidden extends FaException {
