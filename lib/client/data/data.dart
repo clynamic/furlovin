@@ -1,4 +1,5 @@
 export 'client.dart';
+export 'cooldown.dart';
 export 'error.dart';
 export 'host.dart';
 export 'images.dart';
