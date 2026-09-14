@@ -148,20 +148,42 @@ final Provider<Retention> submissionRetentionProvider = Provider<Retention>(
   (ref) => Retention(submissionRetention),
 );
 
-final FutureProviderFamily<SubmissionDocument, int> submissionProvider =
-    FutureProvider.autoDispose.family<SubmissionDocument, int>((ref, id) async {
-      final Retention retention = ref.read(submissionRetentionProvider);
-      final KeepAliveLink link = ref.keepAlive();
-      ref.onDispose(() => retention.release(id));
-      final SubmissionClient client = await ref.watch(
-        submissionClientProvider.future,
-      );
-      try {
-        final SubmissionDocument detail = await client.submission(id);
-        retention.hold(id, link);
-        return detail;
-      } on Object {
-        link.close();
-        rethrow;
-      }
-    });
+final AsyncNotifierProviderFamily<SubmissionDetail, SubmissionDocument, int>
+submissionProvider = AsyncNotifierProvider.autoDispose
+    .family<SubmissionDetail, SubmissionDocument, int>(SubmissionDetail.new);
+
+class SubmissionDetail extends AsyncNotifier<SubmissionDocument> {
+  SubmissionDetail(this.id);
+
+  final int id;
+
+  @override
+  Future<SubmissionDocument> build() async {
+    final Retention retention = ref.read(submissionRetentionProvider);
+    final KeepAliveLink link = ref.keepAlive();
+    ref.onDispose(() => retention.release(id));
+    final SubmissionClient client = await ref.watch(
+      submissionClientProvider.future,
+    );
+    try {
+      final SubmissionDocument detail = await client.submission(id);
+      retention.hold(id, link);
+      return detail;
+    } on Object {
+      link.close();
+      rethrow;
+    }
+  }
+
+  Future<void> favourite(String link) async {
+    final SubmissionClient client = await ref.read(
+      submissionClientProvider.future,
+    );
+    try {
+      state = AsyncData(await client.favourite(link));
+    } on ParseFailure {
+      ref.invalidateSelf();
+      await future;
+    }
+  }
+}

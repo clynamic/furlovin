@@ -73,8 +73,11 @@ class SubmissionClient {
         SubmissionDocument.fromOutcome(outcome, errors: errors),
   );
 
-  Future<void> favourite(String link) async {
-    logger.debug('Following {link}', {'link': link});
-    await client.get(link);
-  }
+  Future<SubmissionDocument> favourite(String link) => client.page(
+    rules,
+    SubmissionDocument.ruleType,
+    link,
+    (outcome, errors) =>
+        SubmissionDocument.fromOutcome(outcome, errors: errors),
+  );
 }
