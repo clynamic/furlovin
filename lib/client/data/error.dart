@@ -114,7 +114,7 @@ bool isChallenge(Response<Object?> response) {
   return data is String && _challengeMarkers.any(data.contains);
 }
 
-Duration? _retryAfter(Response<Object?> response) {
+Duration? retryAfterOf(Response<Object?> response) {
   final String? value = response.headers.value('retry-after');
   if (value == null) return null;
   final String trimmed = value.trim();
@@ -148,7 +148,9 @@ FaException? classify(Response<Object?> response) {
   }
 
   final int status = response.statusCode ?? 0;
-  if (status == 429 || status == 503) return RateLimited(_retryAfter(response));
+  if (status == 429 || status == 503) {
+    return RateLimited(retryAfterOf(response));
+  }
   if (status == 403) return const Forbidden();
   if (status >= 500) return ServerFailure(status);
 

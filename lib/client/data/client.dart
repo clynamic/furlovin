@@ -18,7 +18,7 @@ class SessionInterceptor extends Interceptor {
 }
 
 class FaClient {
-  FaClient({Session session = const Session()})
+  FaClient({Session session = const Session(), Cooldown? cooldown})
     : _session = SessionInterceptor(session) {
     dio =
         Dio(
@@ -30,7 +30,10 @@ class FaClient {
             ),
           )
           ..httpClientAdapter = NativeAdapter()
-          ..interceptors.add(_session);
+          ..interceptors.addAll([
+            CooldownInterceptor(cooldown ?? Cooldown()),
+            _session,
+          ]);
   }
 
   final Logger logger = Logger('FaClient');
@@ -57,6 +60,12 @@ class FaClient {
     try {
       response = await dio.get<String>(path);
     } on DioException catch (e) {
+      if (e.error case final FaException held) {
+        scope.warn('Held back as {failure}', {
+          'failure': held.runtimeType.toString(),
+        });
+        throw held;
+      }
       scope.warn('Request failed', {'type': e.type.name}, e);
       throw TransportFailure(e);
     }

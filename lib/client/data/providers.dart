@@ -7,12 +7,19 @@ import 'package:furlovin/client/client.dart';
 import 'package:furlovin/database/database.dart';
 import 'package:furlovin/identity/identity.dart';
 
+final Provider<Cooldown> cooldownProvider = Provider<Cooldown>(
+  (ref) => Cooldown(),
+);
+
 final FutureProvider<FaClient> clientProvider = FutureProvider<FaClient>((
   ref,
 ) async {
   final IdentityStore store = ref.watch(identityStoreProvider);
   final Session session = await ref.watch(sessionProvider.future);
-  final FaClient client = FaClient(session: session);
+  final FaClient client = FaClient(
+    session: session,
+    cooldown: ref.watch(cooldownProvider),
+  );
   final StreamSubscription<FaException> failures = client.failures.listen((
     failure,
   ) {
