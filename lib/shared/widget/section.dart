@@ -44,7 +44,7 @@ class SliverSection extends StatelessWidget {
                   inset.left,
                   Space.tight,
                   Space.tight,
-                  0,
+                  expanded ? 0 : Space.tight,
                 ),
               ),
             ),
