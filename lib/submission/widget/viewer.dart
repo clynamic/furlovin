@@ -69,8 +69,12 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
                       Navigator.of(context).maybePop();
                     }
                   },
-                  child: Hero(
+                  child: ContentHero(
                     tag: widget.tag,
+                    content: FittedContent(
+                      fit: BoxFit.contain,
+                      aspectRatio: _ratio,
+                    ),
                     child: ProgressiveImage(
                       rungs: widget.rungs,
                       headers: session.headersFor,

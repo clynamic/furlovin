@@ -1,6 +1,7 @@
 export 'claim.dart';
 export 'dismiss.dart';
 export 'failure.dart';
+export 'hero.dart';
 export 'image.dart';
 export 'overflow.dart';
 export 'retreat.dart';
