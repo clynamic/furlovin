@@ -14,6 +14,7 @@ abstract class BrowseDocument with _$BrowseDocument {
 
   const factory BrowseDocument({
     @Default(const []) List<SubmissionPreview> submissions,
+    String? banner,
     @Default(const {}) Map<String, ParseException> failed,
     DocumentErrors? errors,
   }) = _BrowseDocument;
@@ -30,6 +31,7 @@ abstract class BrowseDocument with _$BrowseDocument {
             in (outcome['submissions'] as List<Object?>?) ?? const [])
           if (item is ParseOutcome) ?SubmissionPreview.fromOutcome(item),
       ],
+      banner: outcome.get<String>('banner'),
       failed: outcome.failed,
       errors: errors,
     );

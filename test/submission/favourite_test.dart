@@ -2,8 +2,10 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/client/client.dart';
+import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/submission/submission.dart';
 
 import '../_support/documents.dart';
@@ -40,6 +42,7 @@ void main() {
     final FaClient client = FaClient()..dio.httpClientAdapter = adapter;
     final ProviderContainer container = ProviderContainer(
       overrides: [
+        sessionKeyProvider.overrideWithValue('anonymous'),
         submissionClientProvider.overrideWith(
           (ref) => SubmissionClient(client: client, rules: loadRules()),
         ),
@@ -82,4 +85,28 @@ void main() {
     expect(adapter.requested, ['/fav/1/', '/view/1/']);
     expect(container.read(submissionProvider(1)).hasValue, isTrue);
   });
+
+  test('a new session discards a loaded submission', () async {
+    final _Pages adapter = _Pages({'/view/1/': fixture('view')});
+    final FaClient client = FaClient()..dio.httpClientAdapter = adapter;
+    final ProviderContainer container = ProviderContainer(
+      overrides: [
+        sessionKeyProvider.overrideWith((ref) => ref.watch(_key)),
+        submissionClientProvider.overrideWith(
+          (ref) => SubmissionClient(client: client, rules: loadRules()),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    container.listen(submissionProvider(1), (previous, next) {});
+    await container.read(submissionProvider(1).future);
+
+    container.read(_key.notifier).state = 'member';
+    await container.pump();
+    await container.read(submissionProvider(1).future);
+
+    expect(adapter.requested, ['/view/1/', '/view/1/']);
+  });
 }
+
+final StateProvider<String?> _key = StateProvider<String?>((ref) => 'guest');

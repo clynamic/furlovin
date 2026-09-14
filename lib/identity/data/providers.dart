@@ -36,3 +36,14 @@ final Provider<bool> authenticatedProvider = Provider<bool>(
       .watch(sessionProvider)
       .maybeWhen(data: (e) => e.isAuthenticated, orElse: () => false),
 );
+
+final Provider<String?> sessionKeyProvider = Provider<String?>(
+  (ref) => ref.watch(sessionProvider).asData?.value.discriminator,
+);
+
+extension SessionScopedRef on Ref {
+  void discardOnSessionChange() =>
+      listen<String?>(sessionKeyProvider, (previous, next) {
+        if (previous != null && previous != next) invalidateSelf();
+      });
+}

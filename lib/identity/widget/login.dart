@@ -73,7 +73,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('Sign in to Fur Affinity'),
+      title: const Text('Log in to Fur Affinity'),
       bottom: settling
           ? const PreferredSize(
               preferredSize: Size.fromHeight(2),
