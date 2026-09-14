@@ -41,7 +41,11 @@ class SettingsPage extends ConsumerWidget {
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         padding:
-            Layout.pageOf(context) + const EdgeInsets.only(top: Space.page),
+            Layout.pageOf(context) +
+            EdgeInsets.only(
+              top: Space.page,
+              bottom: Space.page + MediaQuery.paddingOf(context).bottom,
+            ),
         children: [
           Text(
             'Account',
