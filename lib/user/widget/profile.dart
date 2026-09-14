@@ -448,6 +448,8 @@ class ProfileCounts extends StatelessWidget {
   );
 }
 
+const Map<String, Color> contactGrounds = {'discord': Color(0xFF5B64FA)};
+
 class ContactRow extends StatelessWidget {
   const ContactRow({super.key, required this.contact});
 
@@ -457,6 +459,9 @@ class ContactRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final String? link = contact.link;
+    final Color? ground = theme.brightness == Brightness.light
+        ? contactGrounds[contact.kind]
+        : null;
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
@@ -480,7 +485,16 @@ class ContactRow extends StatelessWidget {
                         size: 24,
                         color: theme.colorScheme.onSurfaceVariant,
                       )
-                    : FaImage(url: contact.icon!, fit: BoxFit.contain),
+                    : Container(
+                        padding: ground == null
+                            ? null
+                            : const EdgeInsets.all(Space.tight),
+                        decoration: BoxDecoration(
+                          color: ground,
+                          borderRadius: Corner.cards,
+                        ),
+                        child: FaImage(url: contact.icon!, fit: BoxFit.contain),
+                      ),
               ),
               Expanded(
                 child: Column(
