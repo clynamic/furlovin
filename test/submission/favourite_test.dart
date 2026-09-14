@@ -107,6 +107,30 @@ void main() {
 
     expect(adapter.requested, ['/view/1/', '/view/1/']);
   });
+
+  test('a notice page is read once, not retried', () async {
+    final _Pages adapter = _Pages({'/view/1/': fixture('alder71_mature')});
+    final FaClient client = FaClient()..dio.httpClientAdapter = adapter;
+    final ProviderContainer container = ProviderContainer(
+      retry: retryFailure,
+      overrides: [
+        sessionKeyProvider.overrideWithValue('anonymous'),
+        submissionClientProvider.overrideWith(
+          (ref) => SubmissionClient(client: client, rules: loadRules()),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    container.listen(submissionProvider(1), (previous, next) {});
+
+    await expectLater(
+      container.read(submissionProvider(1).future),
+      throwsA(isA<ContentFiltered>()),
+    );
+    await Future<void>.delayed(const Duration(seconds: 1));
+
+    expect(adapter.requested, ['/view/1/']);
+  });
 }
 
 final StateProvider<String?> _key = StateProvider<String?>((ref) => 'guest');

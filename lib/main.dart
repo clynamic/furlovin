@@ -1,6 +1,7 @@
 import 'package:app_links/app_links.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/app/app.dart';
+import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/logs/logs.dart';
 import 'package:furlovin/shared/shared.dart';
@@ -12,7 +13,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   setLogLevel(LogLevel.debug);
   Logs(printers: const [ConsoleLogPrinter()]).connect();
-  runApp(const ProviderScope(child: App()));
+  runApp(const ProviderScope(retry: retryFailure, child: App()));
 }
 
 class App extends ConsumerStatefulWidget {

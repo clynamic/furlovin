@@ -7,6 +7,7 @@ String describeFailure(Object error) => switch (error) {
   RateLimited() => 'Fur Affinity asked us to slow down.',
   Challenged() => 'Fur Affinity wants to check that you are a person.',
   AuthenticationRequired() => 'That needs you to be logged in.',
+  ContentFiltered() => 'That is rated Mature or Adult.',
   Gone(:final String reason) => reason,
   Forbidden() => 'Fur Affinity refused that.',
   RequestRejected(:final int status) =>
@@ -51,6 +52,13 @@ class AuthenticationRequired extends FaException {
 
   @override
   String toString() => 'AuthenticationRequired';
+}
+
+class ContentFiltered extends FaException {
+  const ContentFiltered();
+
+  @override
+  String toString() => 'ContentFiltered';
 }
 
 class Gone extends FaException {
@@ -122,6 +130,13 @@ Duration? _retryAfter(Response<Object?> response) {
   return wait.isNegative ? Duration.zero : wait;
 }
 
+const String _matureNotice = 'pageid-mature-content-error';
+
+final RegExp _logIn = RegExp(
+  r'please\s+(?:<[^>]+>\s*)?log in',
+  caseSensitive: false,
+);
+
 final RegExp _title = RegExp(
   r'<title>\s*System Error\s*</title>',
   caseSensitive: false,
@@ -157,9 +172,18 @@ FaException? classify(Response<Object?> response) {
     );
   }
 
-  if (data.contains('redirect-message') && data.contains('Please log in')) {
+  if (data.contains(_matureNotice)) return const ContentFiltered();
+
+  if (data.contains('redirect-message') && _logIn.hasMatch(data)) {
     return const AuthenticationRequired();
   }
 
   return status >= 400 ? RequestRejected(status) : null;
 }
+
+Duration? retryFailure(int count, Object error) => switch (error) {
+  TransportFailure() when count < 2 => Duration(
+    milliseconds: 400 * (count + 1),
+  ),
+  _ => null,
+};

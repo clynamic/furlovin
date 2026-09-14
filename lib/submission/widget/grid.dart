@@ -111,7 +111,13 @@ class SubmissionPagedGrid extends ConsumerWidget {
               if (state.status == PagingStatus.firstPageError)
                 SliverFillRemaining(
                   hasScrollBody: false,
-                  child: failureFor(state.error!, onRetry: controller.restart),
+                  child: failureFor(
+                    state.error!,
+                    onRetry: controller.restart,
+                    onLogin: ref.watch(authenticatedProvider)
+                        ? null
+                        : context.openLogin,
+                  ),
                 )
               else
                 SliverPadding(

@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
+import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/markup/markup.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/routing/routing.dart';
@@ -27,6 +28,7 @@ class UserPage extends ConsumerWidget {
         body: failureFor(
           error,
           onRetry: () => ref.invalidate(userProvider(name)),
+          onLogin: ref.watch(authenticatedProvider) ? null : context.openLogin,
         ),
       );
     }
