@@ -1,5 +1,5 @@
 schema: 1
-revision: 17
+revision: 18
 refs:
   viewLink:
     - op: select
@@ -941,6 +941,47 @@ types:
             - op: class
               prefix: font-
 
+  featuredSubmission:
+    feature: user
+    fields:
+      id:
+        presence: required
+        type: int
+        read:
+          - - op: attr
+              name: href
+            - op: regex
+              pattern: /view/(\d+)
+      link:
+        presence: required
+        read:
+          - - op: attr
+              name: href
+            - op: url
+      rating:
+        presence: required
+        type: SubmissionRating
+        read:
+          - - op: class
+              prefix: r-
+      thumbnail:
+        presence: required
+        read:
+          - - op: select
+              css: img
+            - op: attr
+              name: src
+            - op: url
+      title:
+        presence: expected
+        read:
+          - - op: closest
+              css: div.section-body
+            - op: select
+              css: div.userpage-featured-title h2 a
+            - op: text
+            - op: trim
+
   userDocument:
     feature: user
     page: true
@@ -973,6 +1014,12 @@ types:
         type: submissionPreview
         list: true
         at: ['#gallery-latest-favorites figure[id^="sid-"]']
+      featured:
+        type: featuredSubmission
+        at:
+          - >-
+            div.section-body:not(#gallery-preview):not(#favorite-preview) >
+            div.preview_img > a[href^="/view/"]
 
   browseDocument:
     feature: submission

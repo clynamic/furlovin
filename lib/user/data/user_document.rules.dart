@@ -7,6 +7,7 @@ import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/submission/data/submission_preview.rules.dart';
 import 'package:furlovin/user/data/contact.rules.dart';
 import 'package:furlovin/user/data/fact.rules.dart';
+import 'package:furlovin/user/data/featured_submission.rules.dart';
 import 'package:furlovin/user/data/shout.rules.dart';
 import 'package:furlovin/user/data/user.rules.dart';
 
@@ -21,6 +22,7 @@ abstract class UserDocument with _$UserDocument {
     @Default(const []) List<Contact> contacts,
     @Default(const []) List<Fact> facts,
     @Default(const []) List<SubmissionPreview> favorites,
+    FeaturedSubmission? featured,
     @Default(const []) List<SubmissionPreview> gallery,
     @Default(const []) List<Shout> shouts,
     @Default(const {}) Map<String, ParseException> failed,
@@ -55,6 +57,10 @@ abstract class UserDocument with _$UserDocument {
             in (outcome['favorites'] as List<Object?>?) ?? const [])
           if (item is ParseOutcome) ?SubmissionPreview.fromOutcome(item),
       ],
+      featured: switch (outcome['featured']) {
+        final ParseOutcome child => FeaturedSubmission.fromOutcome(child),
+        _ => null,
+      },
       gallery: [
         for (final Object? item
             in (outcome['gallery'] as List<Object?>?) ?? const [])

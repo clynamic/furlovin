@@ -76,6 +76,29 @@ void main() {
     );
   });
 
+  test('reads the featured submission when the user set one', () {
+    final FeaturedSubmission? featured = parse('user_full').featured;
+    expect(featured?.id, 50915418);
+    expect(featured?.link, 'https://www.furaffinity.net/view/58536854/');
+    expect(featured?.rating, SubmissionRating.general);
+    expect(
+      featured?.thumbnail,
+      'https://t.furaffinity.net/58536854@600-1791685538.jpg',
+    );
+    expect(
+      featured?.title,
+      '[FALLOW30 BRAMBLE66] Gorse26 Nettle87 Poplar40: Indigo58 Ginkgo59 Hazel60',
+    );
+  });
+
+  test('takes neither the newest upload nor favourite for a featured one', () {
+    for (final String name in ['user', 'user_linked_facts', 'user_dahlia69']) {
+      final ParseOutcome profile = outcome(name);
+      expect(UserDocument.fromOutcome(profile)!.featured, isNull, reason: name);
+      expect(profile.failed, isEmpty, reason: name);
+    }
+  });
+
   test('reads contacts, including one that is not a link', () {
     final List<Contact> contacts = parse('user_full').contacts;
     expect(contacts, hasLength(5));
