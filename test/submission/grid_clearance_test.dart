@@ -10,8 +10,7 @@ void main() {
   ) async {
     const double chrome = 96;
     final SubmissionPaging controller = SubmissionPaging(
-      getNextPageKey: (state) => null,
-      fetchPage: (key) async => const <SubmissionPreview>[],
+      (key) async => const <SubmissionPreview>[],
     );
     addTearDown(controller.dispose);
     controller.value = PagingState<int, SubmissionPreview>(

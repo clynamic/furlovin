@@ -10,10 +10,79 @@ import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
-typedef SubmissionPaging = PagingController<int, SubmissionPreview>;
+typedef PageLoader = Future<List<SubmissionPreview>> Function(int key);
 
-extension SubmissionPagingRestart on SubmissionPaging {
-  Future<void> restart() {
+typedef PageKeyReader = int Function(PagingState<int, SubmissionPreview> state);
+
+class SubmissionPaging extends PagingController<int, SubmissionPreview> {
+  factory SubmissionPaging(PageLoader load, {PageKeyReader? nextKey}) {
+    late final SubmissionPaging paging;
+    return paging = SubmissionPaging._(
+      load,
+      nextKey,
+      getNextPageKey: (state) => paging._next(state),
+      fetchPage: (key) => paging._page(key),
+    );
+  }
+
+  SubmissionPaging._(
+    this._load,
+    this._nextKey, {
+    required super.getNextPageKey,
+    required super.fetchPage,
+  });
+
+  final PageLoader _load;
+  final PageKeyReader? _nextKey;
+  bool _exhausted = false;
+
+  int? _next(PagingState<int, SubmissionPreview> state) {
+    if (state.keys?.isNotEmpty != true) _exhausted = false;
+    if (_exhausted) return null;
+    final int next = _nextKey?.call(state) ?? state.nextIntPageKey;
+    return state.keys?.lastOrNull == next ? null : next;
+  }
+
+  Future<List<SubmissionPreview>> _page(int key) async {
+    final List<SubmissionPreview> fetched = await _load(key);
+    _exhausted = fetched.isEmpty;
+    return _unseen(fetched, items ?? const []);
+  }
+
+  List<SubmissionPreview> _unseen(
+    List<SubmissionPreview> fetched,
+    List<SubmissionPreview> shown,
+  ) {
+    final Set<int> seen = {for (final SubmissionPreview item in shown) item.id};
+    return [
+      for (final SubmissionPreview item in fetched)
+        if (seen.add(item.id)) item,
+    ];
+  }
+
+  Future<void> restart() async {
+    final List<SubmissionPreview>? shown = items;
+    if (shown == null || shown.isEmpty || value.error != null) return _reset();
+    final Object current = operation = Object();
+    try {
+      final int first =
+          _nextKey?.call(PagingState<int, SubmissionPreview>()) ??
+          PagingState<int, SubmissionPreview>().nextIntPageKey;
+      final List<SubmissionPreview> fetched = await _load(first);
+      if (current != operation) return;
+      _exhausted = fetched.isEmpty;
+      value = PagingState<int, SubmissionPreview>(
+        pages: [_unseen(fetched, const [])],
+        keys: [first],
+      );
+    } on Exception {
+      return;
+    } finally {
+      if (current == operation) operation = null;
+    }
+  }
+
+  Future<void> _reset() {
     refresh();
     fetchNextPage();
     if (!value.isLoading) return Future<void>.value();
@@ -40,34 +109,15 @@ final FutureProvider<SubmissionClient> submissionClientProvider =
 SubmissionPaging submissionPaging(
   Ref ref,
   Future<List<SubmissionPreview>> Function(SubmissionClient, int) fetch, {
-  int Function(PagingState<int, SubmissionPreview> state)? nextKey,
+  PageKeyReader? nextKey,
 }) {
   ref.discardOnSessionChange();
-  late final SubmissionPaging controller;
-  bool exhausted = false;
-  controller = SubmissionPaging(
-    getNextPageKey: (state) {
-      if (state.keys?.isNotEmpty != true) exhausted = false;
-      if (exhausted) return null;
-      final int next = nextKey?.call(state) ?? state.nextIntPageKey;
-      return state.keys?.lastOrNull == next ? null : next;
-    },
-    fetchPage: (key) async {
-      final SubmissionClient client = await ref.read(
-        submissionClientProvider.future,
-      );
-      final List<SubmissionPreview> fetched = await fetch(client, key);
-      exhausted = fetched.isEmpty;
-      final Set<int> seen = {
-        for (final SubmissionPreview item in controller.items ?? const [])
-          item.id,
-      };
-      return [
-        for (final SubmissionPreview item in fetched)
-          if (seen.add(item.id)) item,
-      ];
-    },
-  );
+  final SubmissionPaging controller = SubmissionPaging((key) async {
+    final SubmissionClient client = await ref.read(
+      submissionClientProvider.future,
+    );
+    return fetch(client, key);
+  }, nextKey: nextKey);
   ref.onDispose(controller.dispose);
   controller.fetchNextPage();
   return controller;
@@ -83,7 +133,7 @@ SubmissionPaging retainedPaging(
   Ref ref,
   Object key,
   Future<List<SubmissionPreview>> Function(SubmissionClient, int) fetch, {
-  int Function(PagingState<int, SubmissionPreview> state)? nextKey,
+  PageKeyReader? nextKey,
 }) {
   final Retention retention = ref.read(listingRetentionProvider);
   ref.onDispose(() => retention.release(key));

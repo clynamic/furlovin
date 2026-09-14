@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/app/app.dart';
 import 'package:furlovin/identity/identity.dart';
@@ -56,10 +58,9 @@ const List<ShellDestination> shellDestinations = [
 int? _submissionAlerts(Viewer viewer) => viewer.submissionAlerts;
 
 class HomeShell extends ConsumerStatefulWidget {
-  const HomeShell({super.key, required this.shell, this.onRevisit});
+  const HomeShell({super.key, required this.shell});
 
   final StatefulNavigationShell shell;
-  final ValueChanged<int>? onRevisit;
 
   @override
   ConsumerState<HomeShell> createState() => _HomeShellState();
@@ -88,18 +89,21 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       widget.shell.goBranch(index, initialLocation: true);
       return;
     }
-    final ScrollController scroll = ref.read(branchScrollsProvider).of(index);
-    if (scroll.positions.length != 1) return;
-    final ScrollPosition listing = scroll.positions.first;
-    if (listing.pixels <= listing.minScrollExtent) {
-      widget.onRevisit?.call(index);
-      return;
+    final BranchScrolls branches = ref.read(branchScrollsProvider);
+    final ScrollController scroll = branches.of(index);
+    if (scroll.positions.length == 1) {
+      final ScrollPosition listing = scroll.positions.first;
+      if (listing.pixels > listing.minScrollExtent) {
+        unawaited(
+          listing.animateTo(
+            listing.minScrollExtent,
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeOutCubic,
+          ),
+        );
+      }
     }
-    listing.animateTo(
-      listing.minScrollExtent,
-      duration: const Duration(milliseconds: 320),
-      curve: Curves.easeOutCubic,
-    );
+    unawaited(branches.revisitOf(index).revisit());
   }
 
   @override

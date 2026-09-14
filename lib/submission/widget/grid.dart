@@ -86,6 +86,18 @@ class SubmissionPagedGrid extends ConsumerWidget {
   final SubmissionPaging controller;
   final Widget? header;
 
+  double _headerExtent(BuildContext context) =>
+      MediaQuery.paddingOf(context).top +
+      switch (header) {
+        SliverAppBar(
+          :final double? toolbarHeight,
+          :final PreferredSizeWidget? bottom,
+        ) =>
+          (toolbarHeight ?? kToolbarHeight) +
+              (bottom?.preferredSize.height ?? 0),
+        _ => 0,
+      };
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final Session session = ref
@@ -93,8 +105,9 @@ class SubmissionPagedGrid extends ConsumerWidget {
         .maybeWhen(data: (e) => e, orElse: () => const Session());
     final CacheManager cache = ref.watch(thumbnailCacheProvider);
 
-    return RefreshIndicator(
+    return RevisitRefresh(
       onRefresh: controller.restart,
+      edgeOffset: _headerExtent(context),
       child: PagingListener<int, SubmissionPreview>(
         controller: controller,
         builder: (context, state, fetchNextPage) {

@@ -5,6 +5,7 @@ export 'hero.dart';
 export 'image.dart';
 export 'overflow.dart';
 export 'retreat.dart';
+export 'revisit.dart';
 export 'scrim.dart';
 export 'scroll.dart';
 export 'section.dart';

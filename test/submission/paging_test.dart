@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -116,6 +117,33 @@ void main() {
     expect(controller.value.items, hasLength(2));
     expect(controller.value.hasNextPage, isTrue);
   });
+
+  test(
+    'restart keeps the listing on screen until the new page arrives',
+    () async {
+      final Completer<List<SubmissionPreview>> fresh = Completer();
+      int loads = 0;
+      final SubmissionPaging controller = SubmissionPaging(
+        (key) async => loads++ == 0 ? [_preview(1), _preview(2)] : fresh.future,
+      );
+      addTearDown(controller.dispose);
+      controller.fetchNextPage();
+      await settle(controller);
+
+      final Future<void> restarting = controller.restart();
+      await Future<void>.delayed(Duration.zero);
+      expect(controller.value.items?.map((e) => e.id), [1, 2]);
+      expect(controller.value.status, isNot(PagingStatus.loadingFirstPage));
+
+      controller.fetchNextPage();
+      expect(loads, 2);
+
+      fresh.complete([_preview(3), _preview(1)]);
+      await restarting;
+      expect(controller.value.items?.map((e) => e.id), [3, 1]);
+      expect(controller.value.keys, [1]);
+    },
+  );
 
   test('restart refetches after an empty first page', () async {
     pages = [];
