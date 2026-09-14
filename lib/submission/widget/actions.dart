@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/markup/markup.dart';
+import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:furlovin/theme/theme.dart';
@@ -84,89 +85,87 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
     final ThemeData theme = Theme.of(context);
     final bool authenticated = ref.watch(authenticatedProvider);
     final double gutter = Layout.gutterOf(context);
-    final bool wide = MediaQuery.sizeOf(context).width >= Layout.compact;
+    final Hand handedness = ref.watch(handProvider);
+    final List<Widget> toolbar = [
+      Material(
+        color: theme.colorScheme.surfaceContainerLowest,
+        elevation: floatingElevation(theme),
+        shadowColor: Colors.black,
+        borderRadius: Corner.toolbar,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Space.tight),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              PopupMenuButton<SubmissionAction>(
+                tooltip: 'More',
+                position: PopupMenuPosition.over,
+                useRootNavigator: true,
+                icon: Icon(
+                  Icons.more_horiz,
+                  color: theme.colorScheme.onSurface,
+                ),
+                onSelected: (action) => switch (action) {
+                  SubmissionAction.copy => _copy(context),
+                  SubmissionAction.browser => hand(link),
+                },
+                itemBuilder: (context) => [
+                  if (platformShares)
+                    const PopupMenuItem<SubmissionAction>(
+                      value: SubmissionAction.copy,
+                      child: ListTile(
+                        leading: Icon(Icons.link),
+                        title: Text('Copy link'),
+                      ),
+                    ),
+                  const PopupMenuItem<SubmissionAction>(
+                    value: SubmissionAction.browser,
+                    child: ListTile(
+                      leading: Icon(Icons.open_in_browser),
+                      title: Text('Open in browser'),
+                    ),
+                  ),
+                ],
+              ),
+              IconButton(
+                tooltip: platformShares ? 'Share' : 'Copy link',
+                onPressed: () => _share(context),
+                icon: Icon(platformShares ? Icons.share_outlined : Icons.link),
+              ),
+              const IconButton(
+                tooltip: 'Download',
+                onPressed: null,
+                icon: Icon(Icons.download_outlined),
+              ),
+            ].forHand(handedness),
+          ),
+        ),
+      ),
+      if (authenticated) ...[
+        const SizedBox(width: Space.snug),
+        FloatingActionButton(
+          heroTag: null,
+          tooltip: favourited ? 'Remove from favourites' : 'Favourite',
+          elevation: floatingElevation(theme),
+          backgroundColor: theme.colorScheme.surfaceContainerLowest,
+          foregroundColor: favourited
+              ? theme.colorScheme.primary
+              : theme.colorScheme.onSurfaceVariant,
+          onPressed: favouriteLink == null ? null : _toggle,
+          child: Icon(favourited ? Icons.favorite : Icons.favorite_border),
+        ),
+      ],
+    ];
     return SafeArea(
       top: false,
       child: Padding(
         padding: EdgeInsets.fromLTRB(gutter, 0, gutter, Space.snug),
         child: Row(
-          mainAxisAlignment: wide
-              ? MainAxisAlignment.end
-              : MainAxisAlignment.center,
-          children: [
-            Material(
-              color: theme.colorScheme.surfaceContainerLowest,
-              elevation: floatingElevation(theme),
-              shadowColor: Colors.black,
-              borderRadius: Corner.toolbar,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Space.tight),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    PopupMenuButton<SubmissionAction>(
-                      tooltip: 'More',
-                      position: PopupMenuPosition.over,
-                      useRootNavigator: true,
-                      icon: Icon(
-                        Icons.more_horiz,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                      onSelected: (action) => switch (action) {
-                        SubmissionAction.copy => _copy(context),
-                        SubmissionAction.browser => hand(link),
-                      },
-                      itemBuilder: (context) => [
-                        if (platformShares)
-                          const PopupMenuItem<SubmissionAction>(
-                            value: SubmissionAction.copy,
-                            child: ListTile(
-                              leading: Icon(Icons.link),
-                              title: Text('Copy link'),
-                            ),
-                          ),
-                        const PopupMenuItem<SubmissionAction>(
-                          value: SubmissionAction.browser,
-                          child: ListTile(
-                            leading: Icon(Icons.open_in_browser),
-                            title: Text('Open in browser'),
-                          ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      tooltip: platformShares ? 'Share' : 'Copy link',
-                      onPressed: () => _share(context),
-                      icon: Icon(
-                        platformShares ? Icons.share_outlined : Icons.link,
-                      ),
-                    ),
-                    const IconButton(
-                      tooltip: 'Download',
-                      onPressed: null,
-                      icon: Icon(Icons.download_outlined),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (authenticated) ...[
-              const SizedBox(width: Space.snug),
-              FloatingActionButton(
-                heroTag: null,
-                tooltip: favourited ? 'Remove from favourites' : 'Favourite',
-                elevation: floatingElevation(theme),
-                backgroundColor: theme.colorScheme.surfaceContainerLowest,
-                foregroundColor: favourited
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurfaceVariant,
-                onPressed: favouriteLink == null ? null : _toggle,
-                child: Icon(
-                  favourited ? Icons.favorite : Icons.favorite_border,
-                ),
-              ),
-            ],
-          ],
+          mainAxisAlignment: switch (handedness) {
+            Hand.left => MainAxisAlignment.start,
+            Hand.right => MainAxisAlignment.end,
+          },
+          children: toolbar.forHand(handedness),
         ),
       ),
     );
