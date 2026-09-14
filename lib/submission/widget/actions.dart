@@ -38,6 +38,7 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
   bool get favourited => submission?.favourited ?? false;
 
   Future<void> _toggle() async {
+    unawaited(HapticFeedback.lightImpact());
     try {
       await ref
           .read(submissionProvider(id).notifier)
