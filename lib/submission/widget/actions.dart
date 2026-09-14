@@ -8,6 +8,7 @@ import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/markup/markup.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
+import 'package:furlovin/theme/theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -95,7 +96,7 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
           children: [
             Material(
               color: theme.colorScheme.surfaceContainerLowest,
-              elevation: 3,
+              elevation: floatingElevation(theme),
               shadowColor: Colors.black,
               borderRadius: Corner.toolbar,
               child: Padding(
@@ -154,7 +155,8 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
               FloatingActionButton(
                 heroTag: null,
                 tooltip: favourited ? 'Remove from favourites' : 'Favourite',
-                backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                elevation: floatingElevation(theme),
+                backgroundColor: theme.colorScheme.surfaceContainerLowest,
                 foregroundColor: favourited
                     ? theme.colorScheme.primary
                     : theme.colorScheme.onSurfaceVariant,

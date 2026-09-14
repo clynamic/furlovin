@@ -46,10 +46,12 @@ class _AppState extends ConsumerState<App> {
           black: appearance.black,
         ),
         routerConfig: router,
-        builder: (context, child) => LinkListener(
-          links: AppLinks().uriLinkStream,
-          navigator: rootNavigator,
-          child: child!,
+        builder: (context, child) => ThemedSkeletons(
+          child: LinkListener(
+            links: AppLinks().uriLinkStream,
+            navigator: rootNavigator,
+            child: child!,
+          ),
         ),
       ),
     );

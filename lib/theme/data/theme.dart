@@ -62,6 +62,9 @@ extension RatingsTheme on ThemeData {
   Ratings get ratings => extension<Ratings>() ?? Ratings.light;
 }
 
+double floatingElevation(ThemeData theme) =>
+    theme.brightness == Brightness.light ? 2 : 3;
+
 const ButtonStyle buttonStyle = ButtonStyle(
   shape: WidgetStatePropertyAll<OutlinedBorder>(
     RoundedRectangleBorder(borderRadius: Corner.panels),
@@ -93,7 +96,7 @@ ThemeData _buildTheme(
     surface: switch ((isDark, isBlack)) {
       (_, true) => const Color(0xFF000000),
       (true, _) => const Color(0xFF1A1D22),
-      _ => const Color(0xFFFAF9F7),
+      _ => const Color(0xFFF3F1EE),
     },
     surfaceContainerLowest: switch ((isDark, isBlack)) {
       (_, true) => const Color(0xFF0F0F10),
@@ -103,12 +106,12 @@ ThemeData _buildTheme(
     surfaceContainer: switch ((isDark, isBlack)) {
       (_, true) => const Color(0xFF18191B),
       (true, _) => const Color(0xFF22262D),
-      _ => const Color(0xFFF1EFEC),
+      _ => const Color(0xFFEAE7E3),
     },
     surfaceContainerHighest: switch ((isDark, isBlack)) {
       (_, true) => const Color(0xFF232427),
       (true, _) => const Color(0xFF2C313A),
-      _ => const Color(0xFFE7E4E0),
+      _ => const Color(0xFFE0DCD7),
     },
   );
 
