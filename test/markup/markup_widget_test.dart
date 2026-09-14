@@ -200,4 +200,30 @@ void main() {
     expect(labels.join(' '), isNot(contains('they win')));
     semantics.dispose();
   });
+
+  testWidgets('a coloured link keeps its colour and is underlined', (
+    tester,
+  ) async {
+    await show(
+      tester,
+      '<span class="bbcode" style="color:#FF0000;">buy this: <a class="auto_link" href="/view/64721500/">the ych</a></span> <a href="/view/1/">plain</a>',
+      (href) {},
+    );
+    final ThemeData theme = Theme.of(tester.element(find.byType(Markup)));
+
+    final TextStyle? coloured = styleOf(tester, 'the ych');
+    expect(coloured?.color, isNot(theme.colorScheme.primary));
+    expect(coloured?.decoration, TextDecoration.underline);
+    expect(coloured?.decorationColor, coloured?.color);
+
+    final TextStyle? plain = styleOf(tester, 'plain');
+    expect(plain?.color, theme.colorScheme.primary);
+    expect(plain?.decoration, TextDecoration.underline);
+    expect(plain?.decorationColor, theme.colorScheme.primary);
+
+    expect(
+      styleOf(tester, 'buy this: ')?.decoration,
+      isNot(TextDecoration.underline),
+    );
+  });
 }

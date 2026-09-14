@@ -57,9 +57,17 @@ class _MarkupState extends State<Markup> {
     if (old.blocks != widget.blocks) _revealed.clear();
   }
 
-  TextStyle _styled(MarkupStyle markup, TextStyle base, Color ground) {
+  TextStyle _styled(
+    MarkupStyle markup,
+    TextStyle base,
+    Color ground, {
+    bool linked = false,
+  }) {
     final Color? colour = markup.color;
     final int? heading = markup.heading;
+    final Color? text = colour == null
+        ? base.color
+        : readableOn(colour, ground);
     return base.copyWith(
       fontSize: heading == null || base.fontSize == null
           ? null
@@ -67,10 +75,11 @@ class _MarkupState extends State<Markup> {
       fontWeight: markup.bold || heading != null ? FontWeight.w700 : null,
       fontStyle: markup.italic ? FontStyle.italic : null,
       decoration: TextDecoration.combine([
-        if (markup.underline) TextDecoration.underline,
+        if (markup.underline || linked) TextDecoration.underline,
         if (markup.strike) TextDecoration.lineThrough,
       ]),
-      color: colour == null ? null : readableOn(colour, ground),
+      color: text,
+      decorationColor: text,
     );
   }
 
@@ -82,10 +91,11 @@ class _MarkupState extends State<Markup> {
     VoidCallback? onTap,
     Color? veil,
     bool announce = false,
+    bool linked = false,
   }) {
     switch (span) {
       case MarkupText(:final String text, :final MarkupStyle style):
-        final TextStyle styled = _styled(style, base, ground);
+        final TextStyle styled = _styled(style, base, ground, linked: linked);
         return TextSpan(
           text: text,
           style: veil == null
@@ -137,6 +147,7 @@ class _MarkupState extends State<Markup> {
                 onTap: open,
                 veil: veil,
                 announce: announce && at == 0,
+                linked: true,
               ),
           ],
         );
