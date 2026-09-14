@@ -17,7 +17,8 @@ class InboxPage extends ConsumerWidget {
           icon: Icons.inbox_outlined,
           title: 'Not logged in',
           detail: 'Log in to see new submissions from people you watch.',
-          actionLabel: 'Log in',
+          actionLabel: 'Log in to Fur Affinity',
+          actionIcon: Icons.login,
           onAction: context.openLogin,
         ),
       );

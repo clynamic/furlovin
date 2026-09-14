@@ -102,9 +102,10 @@ class GuestPage extends ConsumerWidget {
                 const SizedBox(height: Space.large),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: FilledButton(
+                  child: FilledButton.icon(
                     onPressed: context.openLogin,
-                    child: const Text('Log in to Fur Affinity'),
+                    icon: const Icon(Icons.login),
+                    label: const Text('Log in to Fur Affinity'),
                   ),
                 ),
                 const SizedBox(height: Space.snug),

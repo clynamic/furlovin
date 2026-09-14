@@ -9,6 +9,7 @@ class FailureView extends StatelessWidget {
     this.detail,
     this.onRetry,
     this.actionLabel,
+    this.actionIcon,
     this.onAction,
   });
 
@@ -17,6 +18,7 @@ class FailureView extends StatelessWidget {
   final String? detail;
   final VoidCallback? onRetry;
   final String? actionLabel;
+  final IconData? actionIcon;
   final VoidCallback? onAction;
 
   @override
@@ -54,9 +56,10 @@ class FailureView extends StatelessWidget {
             ],
             if (onAction case final VoidCallback action) ...[
               const SizedBox(height: Space.small),
-              TextButton(
+              TextButton.icon(
                 onPressed: action,
-                child: Text(actionLabel ?? 'Continue'),
+                icon: actionIcon == null ? null : Icon(actionIcon),
+                label: Text(actionLabel ?? 'Continue'),
               ),
             ],
           ],
