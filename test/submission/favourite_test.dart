@@ -131,6 +131,30 @@ void main() {
 
     expect(adapter.requested, ['/view/1/']);
   });
+
+  test('a logged out inbox asks nothing of the site', () async {
+    final _Pages adapter = _Pages({});
+    final FaClient client = FaClient()..dio.httpClientAdapter = adapter;
+    final ProviderContainer container = ProviderContainer(
+      overrides: [
+        sessionProvider.overrideWith((ref) => Stream.value(const Session())),
+        submissionClientProvider.overrideWith(
+          (ref) => SubmissionClient(client: client, rules: loadRules()),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    container.listen(sessionProvider, (previous, next) {});
+    await container.read(sessionProvider.future);
+
+    final SubmissionPaging inbox = container.read(inboxProvider);
+    for (int turn = 0; turn < 100 && inbox.value.error == null; turn++) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
+
+    expect(inbox.value.error, isA<AuthenticationRequired>());
+    expect(adapter.requested, isEmpty);
+  });
 }
 
 final StateProvider<String?> _key = StateProvider<String?>((ref) => 'guest');
