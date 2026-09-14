@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/app/app.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/routing/routing.dart';
+import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/theme/theme.dart';
 import 'package:go_router/go_router.dart';
@@ -153,7 +154,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
               child: SafeArea(
                 top: false,
                 child: Align(
-                  alignment: wide ? Alignment.centerRight : Alignment.center,
+                  alignment: !wide
+                      ? Alignment.center
+                      : switch (ref.watch(handProvider)) {
+                          Hand.left => Alignment.centerLeft,
+                          Hand.right => Alignment.centerRight,
+                        },
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       Layout.gutterOf(context),

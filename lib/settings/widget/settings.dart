@@ -101,6 +101,15 @@ class SettingsPage extends ConsumerWidget {
           ),
           const SizedBox(height: Space.small),
           const TilesSettings(),
+          const SizedBox(height: Space.page),
+          Text(
+            'Toolbar',
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: Space.small),
+          const ToolbarSettings(),
         ],
       ),
     );
