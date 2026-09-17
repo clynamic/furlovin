@@ -6,7 +6,7 @@ void main() {
   List<Folder> folders(int count) => [
     for (int at = 0; at < count; at++)
       Folder(
-        user: 'fennel76',
+        user: 'fennel',
         id: at,
         slug: 'f$at',
         name: 'folder $at',
@@ -44,7 +44,7 @@ void main() {
     await pump(
       tester,
       1000,
-      const GallerySource.folder('fennel76', 11, 'f11'),
+      const GallerySource.folder('fennel', 11, 'f11'),
       folders(12),
     );
     expect(visible(tester, 'Main Gallery'), isTrue);
@@ -57,7 +57,7 @@ void main() {
   testWidgets('a row with room shows every folder without the dialog', (
     tester,
   ) async {
-    await pump(tester, 1400, const GallerySource.main('fennel76'), folders(3));
+    await pump(tester, 1400, const GallerySource.main('fennel'), folders(3));
     for (final Folder folder in folders(3)) {
       expect(visible(tester, folder.name), isTrue);
     }
@@ -70,7 +70,7 @@ void main() {
     await pump(
       tester,
       450,
-      const GallerySource.folder('fennel76', 11, 'f11'),
+      const GallerySource.folder('fennel', 11, 'f11'),
       folders(12),
     );
     expect(tester.takeException(), isNull);
@@ -85,7 +85,7 @@ void main() {
     await pump(
       tester,
       450,
-      const GallerySource.folder('fennel76', 11, 'f11'),
+      const GallerySource.folder('fennel', 11, 'f11'),
       const [],
     );
     expect(tester.takeException(), isNull);

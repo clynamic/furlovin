@@ -60,8 +60,8 @@ void main() {
   testWidgets('opens FA pages on top of the current branch', (tester) async {
     await pump(tester);
     expect(
-      await send(tester, 'https://www.furaffinity.net/gallery/fennel76/'),
-      '/browse/gallery/fennel76',
+      await send(tester, 'https://www.furaffinity.net/gallery/fennel/'),
+      '/browse/gallery/fennel',
     );
     expect(
       await send(tester, 'https://furaffinity.net/view/66339591/'),
@@ -74,9 +74,9 @@ void main() {
     expect(
       await send(
         tester,
-        'https://www.furaffinity.net/gallery/fennel76/folder/540995/Model-Releases/2/',
+        'https://www.furaffinity.net/gallery/fennel/folder/540995/Elder-Clover/2/',
       ),
-      '/browse/gallery/fennel76/folder/540995/Model-Releases',
+      '/browse/gallery/fennel/folder/540995/Elder-Clover',
     );
     expect(
       await send(

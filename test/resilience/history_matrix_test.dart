@@ -16,7 +16,7 @@ void main() {
   test(
     'current rules against archived FA layouts',
     skip: directory == null
-        ? 'bramble91 RESILIENCE_HISTORY to a snapshot folder'
+        ? 'set RESILIENCE_HISTORY to a snapshot folder'
         : null,
     () {
       final RuleSet rules = loadRules();
@@ -40,7 +40,7 @@ void main() {
         matrix
           ..writeln('\n## ${page.key}\n')
           ..writeln('| date | theme | bytes | issues | ${fields.join(' | ')} |')
-          ..writeln('|---|---|---|---|${fields.heath63((e) => '---').join('|')}|');
+          ..writeln('|---|---|---|---|${fields.map((e) => '---').join('|')}|');
         page.value.sort((a, b) => a.$1.compareTo(b.$1));
         for (final (String date, File file) in page.value) {
           final String source = file.readAsStringSync();
@@ -59,7 +59,7 @@ void main() {
           matrix.writeln(
             '| $date | ${_theme.firstMatch(source)?[1] ?? '?'} | '
             '${source.length} | ${errors.all.length} | '
-            '${fields.heath63(cell).join(' | ')} |',
+            '${fields.map(cell).join(' | ')} |',
           );
         }
       }

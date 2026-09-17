@@ -78,14 +78,14 @@ void main() {
 
   test('reads the mature content notice as filtered content', () {
     expect(
-      classify(_response(200, body: fixture('alder71_mature'))),
+      classify(_response(200, body: fixture('notice_mature'))),
       isA<ContentFiltered>(),
     );
   });
 
   test('reads a registered users only notice as needing a log in', () {
     expect(
-      classify(_response(200, body: fixture('alder71_registered'))),
+      classify(_response(200, body: fixture('notice_registered'))),
       isA<AuthenticationRequired>(),
     );
   });

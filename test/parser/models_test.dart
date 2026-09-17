@@ -66,7 +66,7 @@ void main() {
     const ParseOutcome outcome = ParseOutcome(
       values: {
         'id': 1,
-        'uploader': 'olive96',
+        'uploader': 'someone',
         'link': 'https://www.furaffinity.net/view/1/',
         'rating': 'general',
         'thumbnail': 'https://t.furaffinity.net/1@200-1.jpg',

@@ -15,14 +15,14 @@ void main() {
   test('an unreachable nested type is unreadable', () {
     final DocumentErrors errors = collect(
       const ParseOutcome(
-        failed: {'miniGallery': StepException('at', 'gorse71 at "x"')},
+        failed: {'miniGallery': StepException('at', 'nothing at "x"')},
       ),
     );
     expect(errors.all, const [
       FieldError(
         path: 'miniGallery',
         kind: FieldErrorKind.unreadable,
-        error: StepException('at', 'gorse71 at "x"'),
+        error: StepException('at', 'nothing at "x"'),
       ),
     ]);
   });

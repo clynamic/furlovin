@@ -20,9 +20,9 @@ void main() {
     final ParseOutcome outcome = child(page, 'submission');
     final Submission submission = Submission.fromOutcome(outcome)!;
     expect(outcome.failed, isEmpty);
-    expect(submission.id, 28151717);
-    expect(submission.uploader, 'fennel76');
-    expect(submission.title, 'Fennel66 Fallow29');
+    expect(submission.id, 20602645);
+    expect(submission.uploader, 'fennel');
+    expect(submission.title, 'Fennel1 Heath2');
   });
 
   test('the posted date is the submission, not a comment', () {
@@ -31,7 +31,7 @@ void main() {
     )!;
     expect(
       submission.posted,
-      DateTime.fromMillisecondsSinceEpoch(1532833035 * 1000, isUtc: true),
+      DateTime.fromMillisecondsSinceEpoch(1528214019 * 1000, isUtc: true),
     );
   });
 

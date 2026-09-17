@@ -30,54 +30,54 @@ void main() {
     setUpAll(
       () => folders = [
         for (final FolderRow row in rows('gallery_folders'))
-          ?row.within(const GallerySource.main('fennel76')),
+          ?row.within(const GallerySource.main('indigo')),
       ],
     );
 
     test('finds every folder, grouped or not', () {
       expect(folders, hasLength(14));
-      expect(folders.every((e) => e.user == 'fennel76'), isTrue);
+      expect(folders.every((e) => e.user == 'indigo'), isTrue);
     });
 
     test('reads a folder completely', () {
       expect(
         folders.first,
         const Folder(
-          user: 'fennel76',
-          id: 593014,
-          slug: 'Indigo86',
-          name: 'Indigo86',
-          count: 11,
-          group: 'Comics',
+          user: 'indigo',
+          id: 580876,
+          slug: 'Clover',
+          name: 'Clover',
+          count: 13,
+          group: 'Fennel',
         ),
       );
     });
 
     test('tells same named folders apart by group', () {
-      expect(folders.where((e) => e.name == 'Juniper17').map((e) => e.group), [
-        'Cedar46 Mallow53',
-        'Damson Damson2',
-        'The First Elder27',
+      expect(folders.where((e) => e.name == 'Hazel1').map((e) => e.group), [
+        'Heath Quince',
+        'Yarrow Damson',
+        'Elder Gorse Tansy32',
       ]);
     });
 
     test('leaves folders outside any heading without a group', () {
       final Folder loose = folders.last;
-      expect(loose.name, 'Heath66 Kelp85');
+      expect(loose.name, 'Elder1 Clover1');
       expect(loose.count, 67);
       expect(loose.group, isNull);
     });
 
     test('keeps a slug FA could not write', () {
-      expect(folders.singleWhere((e) => e.id == 1244065).slug, '-');
+      expect(folders.singleWhere((e) => e.id == 1518630).slug, '-');
     });
   });
 
   group('open folder', () {
     const GallerySource open = GallerySource.folder(
-      'fennel76',
+      'fennel',
       1255257,
-      'Juniper17',
+      'Characters',
     );
     late List<FolderRow> entries;
 
@@ -86,11 +86,11 @@ void main() {
     test('keeps the open folder in its place without a link', () {
       expect(entries, hasLength(14));
       final int at = entries.indexWhere((e) => e.id == null);
-      expect(entries[at].name, 'Juniper17');
-      expect(entries[at].group, 'Damson Damson2');
+      expect(entries[at].name, 'Hazel1');
+      expect(entries[at].group, 'Yarrow Damson');
       expect(entries[at].count, 9);
-      expect(entries[at - 1].group, 'Cedar46 Mallow53');
-      expect(entries[at + 1].group, 'The First Elder27');
+      expect(entries[at - 1].group, 'Heath Quince');
+      expect(entries[at + 1].group, 'Elder Gorse Tansy32');
     });
 
     test('takes the open folder identity from the request', () {
@@ -101,12 +101,12 @@ void main() {
       expect(
         folders.singleWhere(open.holds),
         const Folder(
-          user: 'fennel76',
+          user: 'fennel',
           id: 1255257,
-          slug: 'Juniper17',
-          name: 'Juniper17',
+          slug: 'Characters',
+          name: 'Hazel1',
           count: 9,
-          group: 'Abyss Alert',
+          group: 'Yarrow Damson',
         ),
       );
     });
@@ -117,7 +117,7 @@ void main() {
 
     test('a row without a link is dropped outside a folder page', () {
       expect(
-        entries.map((e) => e.within(const GallerySource.main('fennel76'))),
+        entries.map((e) => e.within(const GallerySource.main('fennel'))),
         contains(isNull),
       );
     });
@@ -126,7 +126,7 @@ void main() {
   test('collapses whitespace inside a folder name like a browser', () {
     final Document page = html.parse('''
       <div class="submission-folder">
-        <a href="/gallery/olive96/folder/7/wide/" title="3 submissions">
+        <a href="/gallery/someone/folder/7/wide/" title="3 submissions">
           <span>
             very
 
@@ -137,20 +137,26 @@ void main() {
     final Folder folder = Folder.fromOutcome(
       children(loose(page), 'folders').single,
     )!;
-    expect(folder.name, 'poplar110 wide name');
+    expect(folder.name, 'very wide name');
   });
 
   group('submission page', () {
     test('lists the folders a submission sits in, without groups', () {
       expect(submission('view_folders').folders, const [
         Folder(
-          user: 'birch92',
-          id: 1232817,
-          slug: 'cedar94',
-          name: 'cedar94',
-          count: 84,
+          user: 'quince',
+          id: 1728686,
+          slug: 'yarrow4',
+          name: 'yarrow4',
+          count: 89,
         ),
-        Folder(user: 'birch92', id: 1598395, slug: 'VERVAIN72', name: 'VERVAIN72', count: 9),
+        Folder(
+          user: 'quince',
+          id: 1253800,
+          slug: 'OLIVE1',
+          name: 'OLIVE1',
+          count: 9,
+        ),
       ]);
     });
 
@@ -158,8 +164,8 @@ void main() {
       final MiniGallery gallery = submission('view_comments').miniGallery!;
       final List<int> newer = gallery.newer.map((e) => e.id).toList();
       final List<int> older = gallery.older.map((e) => e.id).toList();
-      expect(newer, [28250384, 28235854, 28196107]);
-      expect(older, [28151556, 28139782, 28128819]);
+      expect(newer, [25397113, 25592827, 28056445]);
+      expect(older, [26248825, 23358717, 27492451]);
     });
 
     test('a first submission has only older neighbours', () {
@@ -179,14 +185,14 @@ void main() {
           base: Uri.parse(faOrigin),
         ),
       )!.miniGallery!;
-      expect(gallery.newer.map((e) => e.id), [28250384, 28235854, 28196107]);
-      expect(gallery.older.map((e) => e.id), [28151556, 28139782, 28128819]);
+      expect(gallery.newer.map((e) => e.id), [25397113, 25592827, 28056445]);
+      expect(gallery.older.map((e) => e.id), [26248825, 23358717, 27492451]);
     });
 
     test('names the listing the neighbours come from', () {
       final MiniGallery gallery = submission('view_comments').miniGallery!;
-      expect(gallery.link, 'https://www.furaffinity.net/gallery/fennel76/');
-      expect(gallery.count, 891);
+      expect(gallery.link, 'https://www.furaffinity.net/gallery/fennel/');
+      expect(gallery.count, 822);
       expect(gallery.name, isNotEmpty);
     });
   });

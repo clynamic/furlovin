@@ -165,15 +165,12 @@ void main() {
     expect((readTarget('/view/123/') as SubmissionTarget).id, 123);
     expect(
       (readTarget(
-        'https://www.furaffinity.net/user/olive33/',
+        'https://www.furaffinity.net/user/tansy/',
       ) as UserTarget).name,
-      'olive33',
+      'tansy',
     );
-    expect((readTarget('/gallery/olive33/') as GalleryTarget).name, 'olive33');
-    expect(
-      (readTarget('/gallery/olive33/3/') as GalleryTarget).name,
-      'olive33',
-    );
+    expect((readTarget('/gallery/tansy/') as GalleryTarget).name, 'tansy');
+    expect((readTarget('/gallery/tansy/3/') as GalleryTarget).name, 'tansy');
     expect(
       (readTarget('/favorites/elder54/') as FavoritesTarget).name,
       'elder54',
@@ -185,13 +182,13 @@ void main() {
       'elder54',
     );
     final FolderTarget folder = readTarget(
-      '/gallery/birch92/folder/1616500/ychs-open/2/',
+      '/gallery/poplar/folder/1616500/ychs-open/2/',
     ) as FolderTarget;
     expect(
       (folder.name, folder.id, folder.slug),
-      ('birch92', 1616500, 'ychs-open'),
+      ('poplar', 1616500, 'ychs-open'),
     );
-    expect((readTarget('/scraps/fennel76/') as ScrapsTarget).name, 'fennel76');
+    expect((readTarget('/scraps/fennel/') as ScrapsTarget).name, 'fennel');
     expect(readTarget('https://example.com/x'), isA<ElsewhereTarget>());
     expect(readTarget('/browse/2/'), isA<ElsewhereTarget>());
   });
@@ -199,12 +196,12 @@ void main() {
   test('unwraps the external link interstitial', () {
     const String wrapped =
         'https://www.furaffinity.net/externalurl/'
-        '?q=https%3A%2F%2Fbsky.app%2Fprofile%2Fbirch92.bsky.social';
+        '?q=https%3A%2F%2Fbsky.app%2Fprofile%2Fpoplar.bsky.social';
     final MarkupTarget target = readTarget(wrapped);
     expect(target, isA<ElsewhereTarget>());
     expect(
       (target as ElsewhereTarget).url,
-      'https://bsky.app/profile/birch92.bsky.social',
+      'https://bsky.app/profile/poplar.bsky.social',
     );
   });
 

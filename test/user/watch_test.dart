@@ -13,7 +13,7 @@ import 'package:html/parser.dart' as html;
 
 import '../_support/documents.dart';
 
-const String _loggedOut = 'href="/watch/ginkgo29-v0942/?key="';
+const String _loggedOut = 'href="/watch/fennel-v0578/?key="';
 
 String _profile(String href) =>
     fixture('user_full').replaceFirst(_loggedOut, 'href="$href"');
@@ -31,7 +31,7 @@ class _Site implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    if (options.method == 'YARROW80') {
+    if (options.method == 'POST') {
       final String body = options.data is Map
           ? Uri(queryParameters: (options.data as Map).cast<String, String>())
                 .query
@@ -66,11 +66,11 @@ void main() {
   test(
     'reads whether the viewer watches the user and the key to change it',
     () {
-      final User watching = read(_profile('/unwatch/ginkgo29-v0942/?key=abc123'));
+      final User watching = read(_profile('/unwatch/fennel-v0578/?key=abc123'));
       expect(watching.watched, isTrue);
       expect(watching.watchKey, 'abc123');
 
-      final User not = read(_profile('/watch/ginkgo29-v0942/?key=def456'));
+      final User not = read(_profile('/watch/fennel-v0578/?key=def456'));
       expect(not.watched, isFalse);
       expect(not.watchKey, 'def456');
     },
@@ -108,7 +108,7 @@ void main() {
     Future<void> host() async {
       answer = Completer<String>();
       site = _Site(
-        page: _profile('/watch/ginkgo29-v0942/?key=first'),
+        page: _profile('/watch/fennel-v0578/?key=first'),
         answer: () => answer.future,
       );
       final FaClient client = FaClient()..dio.httpClientAdapter = site;
@@ -121,24 +121,24 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
-      container.listen(userProvider('ginkgo29-v0942'), (previous, next) {});
-      await container.read(userProvider('ginkgo29-v0942').future);
+      container.listen(userProvider('fennel-v0578'), (previous, next) {});
+      await container.read(userProvider('fennel-v0578').future);
     }
 
-    User shown() => container.read(userProvider('ginkgo29-v0942')).value!.user;
+    User shown() => container.read(userProvider('fennel-v0578')).value!.user;
 
     test('shows the watch at once and keeps the answer', () async {
       await host();
       final int watchers = shown().watchedBy!;
 
       final Future<void> watching = container
-          .read(userProvider('ginkgo29-v0942').notifier)
+          .read(userProvider('fennel-v0578').notifier)
           .setWatched(true);
       expect(shown().watched, isTrue);
       expect(shown().watchedBy, watchers + 1);
 
       answer.complete(
-        '{"success":true,"is_watched":true,"new_nonce":"cedar90"}',
+        '{"success":true,"is_watched":true,"new_nonce":"second"}',
       );
       await watching;
 
@@ -157,7 +157,7 @@ void main() {
       final int watchers = shown().watchedBy!;
 
       final Future<void> watching = container
-          .read(userProvider('ginkgo29-v0942').notifier)
+          .read(userProvider('fennel-v0578').notifier)
           .setWatched(true);
       answer.complete('{"success":false,"error":"Invalid key"}');
 
