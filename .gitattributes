@@ -1,0 +1,5 @@
+test/_fixtures/** linguist-detectable=false
+
+android/** linguist-vendored
+ios/** linguist-vendored
+linux/** linguist-vendored
