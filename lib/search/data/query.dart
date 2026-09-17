@@ -116,14 +116,7 @@ const Set<SearchRating> everyRating = {
   SearchRating.adult,
 };
 
-const Set<SearchKind> everyKind = {
-  SearchKind.art,
-  SearchKind.music,
-  SearchKind.flash,
-  SearchKind.story,
-  SearchKind.photo,
-  SearchKind.poetry,
-};
+const Set<SearchKind> defaultKinds = {SearchKind.art};
 
 final RegExp _word = RegExp(r'[^\s()|"]+');
 final RegExp _key = RegExp(r'(\w+):(?=[^\s|)])');
@@ -352,9 +345,9 @@ Set<T> _namedSet<T extends Enum>(
 class SearchQuery {
   const SearchQuery({
     this.terms = const [],
-    this.sort = SearchSort.relevance,
+    this.sort = SearchSort.newest,
     this.ratings = everyRating,
-    this.kinds = everyKind,
+    this.kinds = defaultKinds,
     this.range = SearchRange.any,
     this.category,
     this.artType,
@@ -364,18 +357,21 @@ class SearchQuery {
   factory SearchQuery.parse(String text) =>
       SearchQuery(terms: parseTerms(text));
 
-  factory SearchQuery.fromLocation(
-    Map<String, String> parameters,
-  ) => SearchQuery(
-    terms: parseTerms(parameters['q'] ?? ''),
-    sort: _named(SearchSort.values, parameters['sort'], SearchSort.relevance),
-    ratings: _namedSet(SearchRating.values, parameters['rating'], everyRating),
-    kinds: _namedSet(SearchKind.values, parameters['type'], everyKind),
-    range: _named(SearchRange.values, parameters['range'], SearchRange.any),
-    category: int.tryParse(parameters['category'] ?? ''),
-    artType: int.tryParse(parameters['arttype'] ?? ''),
-    species: int.tryParse(parameters['species'] ?? ''),
-  );
+  factory SearchQuery.fromLocation(Map<String, String> parameters) =>
+      SearchQuery(
+        terms: parseTerms(parameters['q'] ?? ''),
+        sort: _named(SearchSort.values, parameters['sort'], SearchSort.newest),
+        ratings: _namedSet(
+          SearchRating.values,
+          parameters['rating'],
+          everyRating,
+        ),
+        kinds: _namedSet(SearchKind.values, parameters['type'], defaultKinds),
+        range: _named(SearchRange.values, parameters['range'], SearchRange.any),
+        category: int.tryParse(parameters['category'] ?? ''),
+        artType: int.tryParse(parameters['arttype'] ?? ''),
+        species: int.tryParse(parameters['species'] ?? ''),
+      );
 
   final List<SearchTerm> terms;
   final SearchSort sort;
@@ -428,10 +424,10 @@ class SearchQuery {
 
   Map<String, String> get location => {
     if (terms.isNotEmpty) 'q': text,
-    if (sort != SearchSort.relevance) 'sort': sort.name,
+    if (sort != SearchSort.newest) 'sort': sort.name,
     if (!setEquals(ratings, everyRating))
       'rating': ratings.map((e) => e.name).join(','),
-    if (!setEquals(kinds, everyKind))
+    if (!setEquals(kinds, defaultKinds))
       'type': kinds.map((e) => e.name).join(','),
     if (range != SearchRange.any) 'range': range.name,
     if (category case final int value) 'category': '$value',
