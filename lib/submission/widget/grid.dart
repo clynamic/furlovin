@@ -6,23 +6,40 @@ import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
+import 'package:furlovin/user/user.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 const int stripLimit = 10;
+const double browseBannerHeight = 190;
 
 class BrowsePage extends ConsumerWidget {
   const BrowsePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final ValueNotifier<String?> banner = ref.watch(siteBannerProvider);
     return SubmissionPagedGrid(
       controller: ref.watch(browseProvider),
-      header: const SliverAppBar(
-        title: Text('Browse'),
-        floating: true,
-        snap: true,
+      header: SliverAppBar(
+        expandedHeight: browseBannerHeight,
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        flexibleSpace: Stack(
+          children: [
+            Positioned.fill(
+              child: FlexibleSpaceBar(
+                background: ValueListenableBuilder<String?>(
+                  valueListenable: banner,
+                  builder: (context, url, _) => ProfileBanner(url: url),
+                ),
+              ),
+            ),
+            const Align(alignment: Alignment.bottomCenter, child: MarkPlate()),
+          ],
+        ),
       ),
     );
   }
