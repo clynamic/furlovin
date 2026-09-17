@@ -62,6 +62,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/icon/monochrome.png
     - assets/rules/
 
 flutter_launcher_icons:
