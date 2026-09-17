@@ -19,3 +19,19 @@ ParseOutcome child(ParseOutcome outcome, String field) =>
 
 List<ParseOutcome> children(ParseOutcome outcome, String field) =>
     ((outcome[field] as List?) ?? const []).cast<ParseOutcome>();
+
+const Map<String, String?> fixturePages = {
+  'browse': 'browseDocument',
+  'view': 'submissionDocument',
+  'view_comments': 'submissionDocument',
+  'view_folders': 'submissionDocument',
+  'user': 'userDocument',
+  'user_full': 'userDocument',
+  'user_dahlia69': 'userDocument',
+  'user_linked_facts': 'userDocument',
+  'gallery_folders': 'galleryDocument',
+  'folder_grouped': 'galleryDocument',
+  'favorites': 'favoritesDocument',
+  'alder71_mature': null,
+  'alder71_registered': null,
+};
