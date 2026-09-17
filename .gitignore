@@ -49,3 +49,5 @@ app.*.map.json
 
 # Puro environment binding, machine-local
 .puro.json
+
+test/_captures/
