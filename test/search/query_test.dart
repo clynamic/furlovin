@@ -18,12 +18,15 @@ void main() {
     });
 
     test('a field operator scopes every term after it', () {
-      expect(parseTerms('fennel114 @keywords ginkgo29 -fox @lower someone'), const [
-        SearchTerm(['fennel114']),
-        SearchTerm(['ginkgo29'], scope: TermScope.tags),
-        SearchTerm(['fox'], scope: TermScope.tags, excluded: true),
-        SearchTerm(['someone'], scope: TermScope.uploader),
-      ]);
+      expect(
+        parseTerms('fennel114 @keywords ginkgo29 -fox @lower someone'),
+        const [
+          SearchTerm(['fennel114']),
+          SearchTerm(['ginkgo29'], scope: TermScope.tags),
+          SearchTerm(['fox'], scope: TermScope.tags, excluded: true),
+          SearchTerm(['someone'], scope: TermScope.uploader),
+        ],
+      );
     });
 
     test('a field operator alone makes no terms', () {

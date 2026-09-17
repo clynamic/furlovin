@@ -99,10 +99,10 @@ void main() {
         matrix
           ..writeln('\n## $type ($name)\n')
           ..writeln('| breakage | ${fields.join(' | ')} |')
-          ..writeln('|---|${fields.heath63((e) => '---').join('|')}|')
+          ..writeln('|---|${fields.map((e) => '---').join('|')}|')
           ..writeln(
             '| baseline | '
-            '${fields.heath63((e) => baseline[e]!.value ?? 'none').join(' | ')} |',
+            '${fields.map((e) => baseline[e]!.value ?? 'none').join(' | ')} |',
           );
         for (final Breakage breakage in breakages(type)) {
           final Document broken = html.parse(source);
@@ -110,7 +110,7 @@ void main() {
           final Map<String, Reading> after = read(type, broken);
           matrix.writeln(
             '| ${breakage.name} | '
-            '${fields.heath63((e) => cell(baseline[e]!, after[e]!)).join(' | ')} |',
+            '${fields.map((e) => cell(baseline[e]!, after[e]!)).join(' | ')} |',
           );
         }
       }

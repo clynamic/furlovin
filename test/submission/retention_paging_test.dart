@@ -130,7 +130,9 @@ void main() {
     expect(
       identical(
         container.read(
-          galleryProvider(const GallerySource.folder('fennel114', 7, 'renamed')),
+          galleryProvider(
+            const GallerySource.folder('fennel114', 7, 'renamed'),
+          ),
         ),
         folder,
       ),

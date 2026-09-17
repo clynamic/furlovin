@@ -77,7 +77,7 @@ void main() {
       expect(favourite.failed, isEmpty);
       expect(favourite.submission.id, greaterThan(0));
     }
-    expect(favourites.last.id, 1732255726);
+    expect(favourites.last.id, 1670119474);
   });
 
   test('aspect ratio is usable before the image loads', () {

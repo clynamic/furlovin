@@ -25,9 +25,9 @@ void main() {
   });
 
   test('reads identity from the page', () {
-    expect(submission.id, 66339591);
-    expect(submission.title, 'New sorrel74!');
-    expect(submission.uploader, 'olive33');
+    expect(submission.id, 65735392);
+    expect(submission.title, 'Nettle1 indigo!');
+    expect(submission.uploader, 'tansy');
     expect(submission.rating, SubmissionRating.general);
     expect(submission.type, SubmissionType.image);
     expect(submission.extension, 'png');
@@ -43,7 +43,7 @@ void main() {
   test('reads the posted time as an instant', () {
     expect(submission.posted, isNotNull);
     expect(submission.posted!.isUtc, isTrue);
-    expect(submission.posted!.year, 2026);
+    expect(submission.posted, DateTime.utc(2005, 8, 17, 14, 37));
   });
 
   test('reads the stats as numbers', () {
@@ -59,7 +59,7 @@ void main() {
 
   test('reads tags as a list', () {
     expect(submission.tags.length, greaterThan(3));
-    expect(submission.tags, contains('cedar35'));
+    expect(submission.tags, contains('gorse'));
     expect(submission.tags, everyElement(isNot(contains(' '))));
   });
 
@@ -69,11 +69,11 @@ void main() {
   });
 
   test('reads the positional stats block', () {
-    expect(submission.category, 'Artwork (Tansy27)');
-    expect(submission.theme, 'General Sorrel39 Art');
-    expect(submission.species, 'Bramble28 (Mallow73)');
-    expect(submission.resolution, '1614 x 2283');
-    expect(submission.fileSize, '1.71 MB');
+    expect(submission.category, 'Yarrow3 (Bramble3)');
+    expect(submission.theme, 'Birch3 Clover3 Sorrel2');
+    expect(submission.species, 'Damson3 (Damson4)');
+    expect(submission.resolution, '1629 x 2877');
+    expect(submission.fileSize, '1.79 UMBER4');
   });
 
   group('favourited', () {
@@ -94,7 +94,7 @@ void main() {
     });
 
     test('neither link leaves it unknown rather than false', () {
-      expect(read('<span>gorse71</span>'), isNull);
+      expect(read('<span>nothing</span>'), isNull);
     });
   });
 }

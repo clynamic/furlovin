@@ -23,36 +23,36 @@ void main() {
     expect(profile.failed, isEmpty);
 
     final User user = User.fromOutcome(profile)!;
-    expect(user.name, 'olive33');
-    expect(user.displayName, 'Cedar33');
-    expect(user.symbol, 'Member');
-    expect(user.title, 'Sorrel39 Artist');
-    expect(user.avatar, 'https://a.furaffinity.net/1962965556/olive33.gif');
+    expect(user.name, 'tansy');
+    expect(user.displayName, 'Olive');
+    expect(user.symbol, 'Umber14');
+    expect(user.title, 'Vervain Bramble');
+    expect(user.avatar, 'https://a.furaffinity.net/1138392119/tansy.gif');
     expect(
       user.banner,
-      'https://d.furaffinity.net/art/olive33/1757611717/profile_banner.jpg',
+      'https://d.furaffinity.net/art/tansy/1157671227/profile_banner.jpg',
     );
-    expect(user.registered, DateTime.utc(2025, 7, 30, 8, 57, 43));
+    expect(user.registered, DateTime.utc(2026, 11, 27, 12, 22, 10));
     expect(user.profile, contains('bbcode_center'));
   });
 
   test('reads the counts, commas and all', () {
     final User user = parse('user_full').user;
-    expect(user.views, 371919);
-    expect(user.submissions, 320);
-    expect(user.favorites, 59487);
-    expect(user.commentsEarned, 4302);
-    expect(user.commentsMade, 1778);
-    expect(user.journals, 24);
-    expect(user.watchedBy, 10304);
-    expect(user.watching, 133);
+    expect(user.views, 350626);
+    expect(user.submissions, 327);
+    expect(user.favorites, 53105);
+    expect(user.commentsEarned, 4051);
+    expect(user.commentsMade, 1913);
+    expect(user.journals, 26);
+    expect(user.watchedBy, 10978);
+    expect(user.watching, 148);
   });
 
   test('reads the counts from the narrow layout', () {
-    final ParseOutcome profile = child(outcome('user_dahlia69'), 'user');
+    final ParseOutcome profile = child(outcome('user_narrow'), 'user');
     expect(profile.failed, isEmpty);
-    expect(profile['views'], 75185);
-    expect(profile['submissions'], 2396);
+    expect(profile['views'], 76528);
+    expect(profile['submissions'], 2254);
     expect(profile['journals'], 4);
   });
 
@@ -72,27 +72,27 @@ void main() {
     expect(profile['views'], isNull);
     expect(
       '${profile.failed['views']}',
-      startsWith('gorse71 matched: dahlia3 1: select'),
+      startsWith('nothing matched: alternative 1: select'),
     );
   });
 
   test('reads the featured submission when the user set one', () {
     final FeaturedSubmission? featured = parse('user_full').featured;
-    expect(featured?.id, 50915418);
-    expect(featured?.link, 'https://www.furaffinity.net/view/58536854/');
+    expect(featured?.id, 56392899);
+    expect(featured?.link, 'https://www.furaffinity.net/view/56392899/');
     expect(featured?.rating, SubmissionRating.general);
     expect(
       featured?.thumbnail,
-      'https://t.furaffinity.net/58536854@600-1791685538.jpg',
+      'https://t.furaffinity.net/56392899@600-1176446066.jpg',
     );
     expect(
       featured?.title,
-      '[FALLOW30 BRAMBLE66] Gorse26 Nettle87 Poplar40: Indigo58 Ginkgo59 Hazel60',
+      '[HEATH6 ALDER6] Sorrel6 Mallow6 Vervain6: Indigo6 Yarrow6 Birch6',
     );
   });
 
   test('takes neither the newest upload nor favourite for a featured one', () {
-    for (final String name in ['user', 'user_linked_facts', 'user_dahlia69']) {
+    for (final String name in ['user', 'user_linked_facts', 'user_narrow']) {
       final ParseOutcome profile = outcome(name);
       expect(UserDocument.fromOutcome(profile)!.featured, isNull, reason: name);
       expect(profile.failed, isEmpty, reason: name);
@@ -111,12 +111,12 @@ void main() {
     ]);
 
     final Contact youtube = contacts.first;
-    expect(youtube.label, 'Youtube');
-    expect(youtube.value, 'Fennel290942');
-    expect(youtube.link, 'https://youtube.com/Fennel290942');
+    expect(youtube.label, 'Bramble23');
+    expect(youtube.value, 'Elder230578');
+    expect(youtube.link, 'https://youtube.com/Elder230578');
 
     final Contact discord = contacts[2];
-    expect(discord.value, 'Juniper6 yarrow64 on ember71');
+    expect(discord.value, 'Willow23 quince1 indigo5 damson23');
     expect(discord.link, isNull);
   });
 
@@ -136,7 +136,7 @@ void main() {
       expect(shout.posted, isNotNull);
       expect(shout.body, isNotNull);
     }
-    expect(shouts.first.author, 'juniper55');
+    expect(shouts.first.author, 'tansy3223');
   });
 
   test('reads the gallery and favourite previews', () {
@@ -146,10 +146,10 @@ void main() {
     expect(gallery.every((e) => e.id > 0), isTrue);
     expect(
       gallery.first.title,
-      '\u2642\ufe0f Birch64\u0027s Gorse64 Ember46 Olive7 Olive67 2026 \u2642\ufe0f',
+      '\u2642\ufe0f Juniper7\u0027s Gorse7 Willow7 Cedar7 Elder7 2178 \u2642\ufe0f',
     );
     expect(gallery.every((e) => e.title != null), isTrue);
-    expect(gallery.every((e) => e.uploader == 'ginkgo29-v0942'), isTrue);
+    expect(gallery.every((e) => e.uploader == 'fennel-v0578'), isTrue);
     expect(page.favorites, hasLength(20));
   });
 
@@ -166,8 +166,8 @@ void main() {
     final Map<String, String> answers = {
       for (final Fact fact in facts) fact.label: fact.value,
     };
-    expect(answers['Ember Yarrow106'], isNotNull);
-    expect(answers['Ember Commissions'], isNotNull);
+    expect(answers['Dahlia21 Quince21'], isNotNull);
+    expect(answers['Dahlia21 Rowan21'], isNotNull);
     expect(facts.every((e) => e.value.isNotEmpty), isTrue);
     expect(facts.every((e) => !e.value.contains(e.label)), isTrue);
   });
@@ -179,8 +179,8 @@ void main() {
     final Map<String, String> answers = {
       for (final Fact fact in facts) fact.label: fact.value,
     };
-    expect(answers['Mallow17 Species'], 'Tansy51');
-    expect(answers['Favorite Birch6'], contains('/user/willow101'));
+    expect(answers['Clover14 Gorse14'], 'Elder14');
+    expect(answers['Hazel4 Kelp15'], contains('/user/tansy1'));
     expect(facts.every((e) => !e.value.contains(e.label)), isTrue);
     expect(facts.every((e) => !e.value.startsWith('<br')), isTrue);
   });
@@ -194,7 +194,7 @@ void main() {
     table.append(
       html
           .parseFragment(
-            '<div class="table-row profile-empty">This user has not rowan any nettle51 to their profile.</div>',
+            '<div class="table-row profile-empty">This user has not added any information to their profile.</div>',
           )
           .children
           .single,
@@ -207,8 +207,8 @@ void main() {
 
     expect(outcome.failed, isEmpty);
     expect(UserDocument.fromOutcome(outcome)!.facts.map((e) => e.label), [
-      'Ember Yarrow106',
-      'Ember Commissions',
+      'Dahlia14 Juniper3',
+      'Dahlia14 Juniper2',
     ]);
   });
 
@@ -216,9 +216,9 @@ void main() {
     final List<Fact> facts = parse('user_full').facts;
     final List<Fact> first = facts.takeWhile((e) => e.group == null).toList();
     expect(first.map((e) => e.label), [
-      'Ember Yarrow106',
-      'Ember Commissions',
+      'Dahlia21 Quince21',
+      'Dahlia21 Rowan21',
     ]);
-    expect(facts.skip(first.length).every((e) => e.group == 'small'), isTrue);
+    expect(facts.skip(first.length).every((e) => e.group == 'elder'), isTrue);
   });
 }

@@ -88,7 +88,7 @@ void main() {
           .read(submissionProvider(1))
           .value!
           .submission;
-      expect(settled.id, 63882441);
+      expect(settled.id, 65815591);
       expect(settled.favourited, isTrue);
     },
   );
@@ -132,7 +132,7 @@ void main() {
   });
 
   test('a notice page is read once, not retried', () async {
-    final _Pages adapter = _Pages({'/view/1/': fixture('alder71_mature')});
+    final _Pages adapter = _Pages({'/view/1/': fixture('notice_mature')});
     final FaClient client = FaClient()..dio.httpClientAdapter = adapter;
     final ProviderContainer container = ProviderContainer(
       retry: retryFailure,

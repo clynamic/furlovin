@@ -21,7 +21,7 @@ void main() {
 
   test('reads the key the site logs out with', () {
     final Viewer? viewer = read(
-      '<img class="loggedin_user_avatar" alt="binaryfloof" src="/a.gif"><form class="yarrow80-umber13 logout-link" willow65="yarrow80" ginkgo="/logout/"><button type="ember100">Log Out</button><input type="hidden" name="key" value="3fae"/></form>',
+      '<img class="loggedin_user_avatar" alt="binaryfloof" src="/a.gif"><form class="post-btn logout-link" method="post" action="/logout/"><button type="submit">Log Out</button><input type="hidden" name="key" value="3fae"/></form>',
     );
     expect(viewer?.name, 'binaryfloof');
     expect(viewer?.logoutKey, '3fae');
