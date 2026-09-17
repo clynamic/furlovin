@@ -113,14 +113,16 @@ void main() {
       expect(sent['page'], '2');
       expect(sent['perpage'], '$searchPageSize');
       expect(sent['mode'], 'extended');
-      expect(sent['order-by'], 'relevancy');
+      expect(sent['order-by'], 'date');
       expect(sent['order-direction'], 'desc');
       expect(sent['range'], 'all');
       for (final SearchRating rating in SearchRating.values) {
         expect(sent['rating-${rating.name}'], '1');
       }
+      expect(sent['type-${SearchKind.art.name}'], '1');
       for (final SearchKind kind in SearchKind.values) {
-        expect(sent['type-${kind.name}'], '1');
+        if (kind == SearchKind.art) continue;
+        expect(sent.containsKey('type-${kind.name}'), isFalse);
       }
     });
 
@@ -135,7 +137,6 @@ void main() {
     test('leaves out ratings and kinds that are switched off', () {
       final Map<String, String> sent = const SearchQuery(
         ratings: {SearchRating.general},
-        kinds: {SearchKind.art},
       ).parameters(page: 1);
       expect(sent.containsKey('rating-adult'), isFalse);
       expect(sent.containsKey('type-music'), isFalse);
@@ -164,7 +165,7 @@ void main() {
         terms: parseTerms('fennel114 -fox @keywords ginkgo29'),
         sort: SearchSort.oldest,
         ratings: const {SearchRating.general, SearchRating.mature},
-        kinds: const {SearchKind.art},
+        kinds: const {SearchKind.art, SearchKind.music},
         range: SearchRange.month,
         category: 2,
         artType: 7,
@@ -180,7 +181,7 @@ void main() {
         'rating': 'nonsense',
         'range': 'forever',
       });
-      expect(query.sort, SearchSort.relevance);
+      expect(query.sort, SearchSort.newest);
       expect(query.ratings, everyRating);
       expect(query.range, SearchRange.any);
     });
