@@ -23,8 +23,9 @@ class InboxPage extends ConsumerWidget {
         ),
       );
     }
-    return SubmissionPagedGrid(
-      controller: ref.watch(inboxProvider),
+    return SubmissionListingGrid(
+      listing: inboxListing,
+      arg: null,
       header: const SliverAppBar(
         title: Text('Inbox'),
         floating: true,

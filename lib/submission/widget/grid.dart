@@ -19,9 +19,10 @@ class BrowsePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ValueNotifier<String?> banner = ref.watch(siteBannerProvider);
-    return SubmissionPagedGrid(
-      controller: ref.watch(browseProvider),
+    final String? banner = ref.watch(siteBannerProvider);
+    return SubmissionListingGrid(
+      listing: browseListing,
+      arg: null,
       header: SliverAppBar(
         expandedHeight: browseBannerHeight,
         automaticallyImplyLeading: false,
@@ -30,12 +31,7 @@ class BrowsePage extends ConsumerWidget {
         flexibleSpace: Stack(
           children: [
             Positioned.fill(
-              child: FlexibleSpaceBar(
-                background: ValueListenableBuilder<String?>(
-                  valueListenable: banner,
-                  builder: (context, url, _) => ProfileBanner(url: url),
-                ),
-              ),
+              child: FlexibleSpaceBar(background: ProfileBanner(url: banner)),
             ),
             const Align(alignment: Alignment.bottomCenter, child: MarkPlate()),
           ],
@@ -52,28 +48,26 @@ class UserGalleryPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final GalleryListing listing = ref.watch(galleryProvider(source));
-    return SubmissionPagedGrid(
+    final List<Folder>? folders = ref.watch(galleryFoldersProvider(source));
+    return SubmissionListingGrid(
       key: ValueKey(source),
-      controller: listing.paging,
+      listing: galleryListing,
+      arg: source,
       header: SliverAppBar(
-        title: ValueListenableBuilder<List<Folder>?>(
-          valueListenable: listing.folders,
-          builder: (context, folders, child) => Text(switch (source.shelf) {
-            GalleryShelf.main => source.user,
-            GalleryShelf.scraps => "${source.user}'s scraps",
-            GalleryShelf.folder =>
-              folders?.where(source.holds).firstOrNull?.name ??
-                  source.slug!.replaceAll('-', ' '),
-          }),
-        ),
+        title: Text(switch (source.shelf) {
+          GalleryShelf.main => source.user,
+          GalleryShelf.scraps => "${source.user}'s scraps",
+          GalleryShelf.folder =>
+            folders?.where(source.holds).firstOrNull?.name ??
+                source.slug!.replaceAll('-', ' '),
+        }),
         floating: true,
         snap: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Align(
             alignment: AlignmentDirectional.centerStart,
-            child: GalleryShelves(source: source, folders: listing.folders),
+            child: GalleryShelves(source: source, folders: folders),
           ),
         ),
       ),
@@ -81,14 +75,15 @@ class UserGalleryPage extends ConsumerWidget {
   }
 }
 
-class UserFavoritesPage extends ConsumerWidget {
+class UserFavoritesPage extends StatelessWidget {
   const UserFavoritesPage({super.key, required this.name});
 
   final String name;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => SubmissionPagedGrid(
-    controller: ref.watch(favoritesProvider(name)),
+  Widget build(BuildContext context) => SubmissionListingGrid(
+    listing: favoritesListing,
+    arg: name,
     header: SliverAppBar(
       title: Text("$name's favourites"),
       floating: true,
@@ -97,10 +92,48 @@ class UserFavoritesPage extends ConsumerWidget {
   );
 }
 
-class SubmissionPagedGrid extends ConsumerWidget {
-  const SubmissionPagedGrid({super.key, required this.controller, this.header});
+class SubmissionListingGrid<A, P> extends ConsumerWidget {
+  const SubmissionListingGrid({
+    super.key,
+    required this.listing,
+    required this.arg,
+    this.header,
+  });
 
-  final SubmissionPaging controller;
+  final SubmissionListing<A, P> listing;
+  final A arg;
+  final Widget? header;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final SubmissionListingKey key = (listing, arg);
+    final PagingState<int, SubmissionPreview> state = ref.watch(
+      submissionListingProvider(key),
+    );
+    final SubmissionListingPagination pagination = ref.read(
+      submissionListingPaginationProvider(key).notifier,
+    );
+    return SubmissionPagedGrid(
+      state: state,
+      fetchNextPage: pagination.fetchNextPage,
+      onRefresh: pagination.restart,
+      header: header,
+    );
+  }
+}
+
+class SubmissionPagedGrid extends ConsumerWidget {
+  const SubmissionPagedGrid({
+    super.key,
+    required this.state,
+    required this.fetchNextPage,
+    required this.onRefresh,
+    this.header,
+  });
+
+  final PagingState<int, SubmissionPreview> state;
+  final VoidCallback fetchNextPage;
+  final Future<void> Function() onRefresh;
   final Widget? header;
 
   double _headerExtent(BuildContext context) =>
@@ -126,86 +159,80 @@ class SubmissionPagedGrid extends ConsumerWidget {
     return ColoredBox(
       color: Theme.of(context).colorScheme.surface,
       child: RevisitRefresh(
-        onRefresh: controller.restart,
+        onRefresh: onRefresh,
         edgeOffset: _headerExtent(context),
-        child: PagingListener<int, SubmissionPreview>(
-          controller: controller,
-          builder: (context, state, fetchNextPage) {
-            if (state.status == PagingStatus.loadingFirstPage) {
-              return SubmissionGrid.ghost(
+        child: state.status == PagingStatus.loadingFirstPage
+            ? SubmissionGrid.ghost(
                 ghost: const SubmissionPreviewGhost(),
                 session: session,
                 tiles: tiles,
                 header: header,
-              );
-            }
-            return CustomScrollView(
-              slivers: [
-                if (header case final Widget value) value,
-                if (state.status == PagingStatus.firstPageError)
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: failureFor(
-                      state.error!,
-                      onRetry: controller.restart,
-                      onLogin: ref.watch(authenticatedProvider)
-                          ? null
-                          : context.openLogin,
+              )
+            : CustomScrollView(
+                slivers: [
+                  if (header case final Widget value) value,
+                  if (state.status == PagingStatus.firstPageError)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: failureFor(
+                        state.error!,
+                        onRetry: onRefresh,
+                        onLogin: ref.watch(authenticatedProvider)
+                            ? null
+                            : context.openLogin,
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding:
+                          const EdgeInsets.all(Space.small) +
+                          EdgeInsets.only(
+                            bottom: MediaQuery.paddingOf(context).bottom,
+                          ),
+                      sliver:
+                          PagedSliverMasonryGrid<int, SubmissionPreview>.extent(
+                            state: state,
+                            fetchNextPage: fetchNextPage,
+                            maxCrossAxisExtent: tiles.extent,
+                            mainAxisSpacing: Space.small,
+                            crossAxisSpacing: Space.small,
+                            showNewPageProgressIndicatorAsGridChild: false,
+                            showNewPageErrorIndicatorAsGridChild: false,
+                            showNoMoreItemsIndicatorAsGridChild: false,
+                            builderDelegate:
+                                PagedChildBuilderDelegate<SubmissionPreview>(
+                                  itemBuilder: (context, submission, index) =>
+                                      SubmissionTile(
+                                        submission: submission,
+                                        session: session,
+                                        tiles: tiles,
+                                        cache: cache,
+                                      ),
+                                  noItemsFoundIndicatorBuilder: (context) =>
+                                      const FailureView(
+                                        icon: Icons.inbox_outlined,
+                                        title: 'Nothing here',
+                                        detail: 'The page held no submissions.',
+                                      ),
+                                  newPageProgressIndicatorBuilder: (context) =>
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: Space.medium,
+                                        ),
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ),
+                                  newPageErrorIndicatorBuilder: (context) =>
+                                      NewPageError(
+                                        error: state.error,
+                                        onRetry: fetchNextPage,
+                                      ),
+                                ),
+                          ),
                     ),
-                  )
-                else
-                  SliverPadding(
-                    padding:
-                        const EdgeInsets.all(Space.small) +
-                        EdgeInsets.only(
-                          bottom: MediaQuery.paddingOf(context).bottom,
-                        ),
-                    sliver:
-                        PagedSliverMasonryGrid<int, SubmissionPreview>.extent(
-                          state: state,
-                          fetchNextPage: fetchNextPage,
-                          maxCrossAxisExtent: tiles.extent,
-                          mainAxisSpacing: Space.small,
-                          crossAxisSpacing: Space.small,
-                          showNewPageProgressIndicatorAsGridChild: false,
-                          showNewPageErrorIndicatorAsGridChild: false,
-                          showNoMoreItemsIndicatorAsGridChild: false,
-                          builderDelegate:
-                              PagedChildBuilderDelegate<SubmissionPreview>(
-                                itemBuilder: (context, submission, index) =>
-                                    SubmissionTile(
-                                      submission: submission,
-                                      session: session,
-                                      tiles: tiles,
-                                      cache: cache,
-                                    ),
-                                noItemsFoundIndicatorBuilder: (context) =>
-                                    const FailureView(
-                                      icon: Icons.inbox_outlined,
-                                      title: 'Nothing here',
-                                      detail: 'The page held no submissions.',
-                                    ),
-                                newPageProgressIndicatorBuilder: (context) =>
-                                    const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: Space.medium,
-                                      ),
-                                      child: Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                    ),
-                                newPageErrorIndicatorBuilder: (context) =>
-                                    NewPageError(
-                                      error: state.error,
-                                      onRetry: fetchNextPage,
-                                    ),
-                              ),
-                        ),
-                  ),
-              ],
-            );
-          },
-        ),
+                ],
+              ),
       ),
     );
   }

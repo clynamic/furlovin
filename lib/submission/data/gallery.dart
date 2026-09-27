@@ -66,10 +66,3 @@ class GalleryPage {
   final List<SubmissionPreview> submissions;
   final List<Folder> folders;
 }
-
-class GalleryListing {
-  GalleryListing({required this.paging, required this.folders});
-
-  final SubmissionPaging paging;
-  final ValueNotifier<List<Folder>?> folders;
-}

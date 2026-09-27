@@ -60,54 +60,103 @@ void main() {
 
   test('a gallery beyond the retention window is let go', () async {
     final ProviderContainer container = host();
-    final List<GalleryListing> held = [
-      for (int i = 0; i <= listingRetention; i++)
-        container.read(galleryProvider(GallerySource.main('user$i'))),
-    ];
+    for (int i = 0; i <= submissionListingRetention; i++) {
+      container.read(
+        submissionListingProvider((
+          galleryListing,
+          GallerySource.main('user$i'),
+        )),
+      );
+    }
 
     await Future<void>.delayed(Duration.zero);
 
     expect(
-      identical(
-        container.read(galleryProvider(const GallerySource.main('user0'))),
-        held.first,
+      container.exists(
+        submissionListingProvider((
+          galleryListing,
+          const GallerySource.main('user0'),
+        )),
       ),
       isFalse,
       reason: 'the oldest gallery should have been evicted',
     );
     expect(
-      identical(
-        container.read(
-          galleryProvider(const GallerySource.main('user$listingRetention')),
-        ),
-        held.last,
+      container.exists(
+        submissionListingProvider((
+          galleryListing,
+          const GallerySource.main('user$submissionListingRetention'),
+        )),
       ),
       isTrue,
       reason: 'the newest gallery should still be held',
     );
   });
 
+  test('favourites beyond the retention window are let go', () async {
+    final ProviderContainer container = host();
+    for (int i = 0; i <= submissionListingRetention; i++) {
+      container.read(submissionListingProvider((favoritesListing, 'user$i')));
+    }
+
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      container.exists(submissionListingProvider((favoritesListing, 'user0'))),
+      isFalse,
+      reason: 'the oldest favourites should have been evicted',
+    );
+    expect(
+      container.exists(
+        submissionListingProvider((
+          favoritesListing,
+          'user$submissionListingRetention',
+        )),
+      ),
+      isTrue,
+      reason: 'the newest favourites should still be held',
+    );
+  });
+
   test('browse is never let go', () async {
     final ProviderContainer container = host();
-    final SubmissionPaging first = container.read(browseProvider);
-    for (int i = 0; i <= listingRetention * 2; i++) {
-      container.read(galleryProvider(GallerySource.main('other$i')));
+    container.read(submissionListingProvider((browseListing, null)));
+    for (int i = 0; i <= submissionListingRetention * 2; i++) {
+      container.read(
+        submissionListingProvider((
+          galleryListing,
+          GallerySource.main('other$i'),
+        )),
+      );
     }
     await Future<void>.delayed(Duration.zero);
-    expect(identical(container.read(browseProvider), first), isTrue);
+    expect(
+      container.exists(submissionListingProvider((browseListing, null))),
+      isTrue,
+    );
   });
 
   test('galleries and searches do not share retention keys', () async {
     final ProviderContainer container = host();
-    final GalleryListing gallery = container.read(
-      galleryProvider(const GallerySource.main('fennel114')),
+    container.read(
+      submissionListingProvider((
+        galleryListing,
+        const GallerySource.main('fennel114'),
+      )),
     );
-    container.read(searchProvider(SearchQuery.parse('fennel114')));
+    container.read(
+      submissionListingProvider((
+        searchListing,
+        SearchQuery.parse('fennel114'),
+      )),
+    );
     await Future<void>.delayed(Duration.zero);
     expect(
-      identical(
-        container.read(galleryProvider(const GallerySource.main('fennel114'))),
-        gallery,
+      container.exists(
+        submissionListingProvider((
+          galleryListing,
+          const GallerySource.main('fennel114'),
+        )),
       ),
       isTrue,
     );
@@ -115,26 +164,27 @@ void main() {
 
   test('a gallery, its scraps and its folders are separate listings', () async {
     final ProviderContainer container = host();
-    final GalleryListing main = container.read(
-      galleryProvider(const GallerySource.main('fennel114')),
-    );
-    final GalleryListing scraps = container.read(
-      galleryProvider(const GallerySource.scraps('fennel114')),
-    );
-    final GalleryListing folder = container.read(
-      galleryProvider(const GallerySource.folder('fennel114', 7, 'sketches')),
-    );
+    const List<GallerySource> shelves = [
+      GallerySource.main('fennel114'),
+      GallerySource.scraps('fennel114'),
+      GallerySource.folder('fennel114', 7, 'sketches'),
+    ];
+    for (final GallerySource shelf in shelves) {
+      container.read(submissionListingProvider((galleryListing, shelf)));
+    }
     await Future<void>.delayed(Duration.zero);
-    expect(identical(main, scraps), isFalse);
-    expect(identical(main, folder), isFalse);
+    for (final GallerySource shelf in shelves) {
+      expect(
+        container.exists(submissionListingProvider((galleryListing, shelf))),
+        isTrue,
+      );
+    }
     expect(
-      identical(
-        container.read(
-          galleryProvider(
-            const GallerySource.folder('fennel114', 7, 'renamed'),
-          ),
-        ),
-        folder,
+      container.exists(
+        submissionListingProvider((
+          galleryListing,
+          const GallerySource.folder('fennel114', 7, 'renamed'),
+        )),
       ),
       isTrue,
       reason: 'FA ignores the slug, so a renamed folder is the same listing',
