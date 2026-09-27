@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -20,23 +19,32 @@ class BranchScrolls {
   }
 }
 
-final Provider<BranchScrolls> branchScrollsProvider = Provider<BranchScrolls>((
-  ref,
-) {
-  final BranchScrolls scrolls = BranchScrolls();
-  ref.onDispose(scrolls.dispose);
-  return scrolls;
-});
+class BranchScrollScope extends InheritedWidget {
+  const BranchScrollScope({
+    super.key,
+    required this.scrolls,
+    required super.child,
+  });
 
-class BranchScroll extends ConsumerWidget {
+  final BranchScrolls scrolls;
+
+  static BranchScrolls of(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<BranchScrollScope>()!.scrolls;
+
+  @override
+  bool updateShouldNotify(BranchScrollScope oldWidget) =>
+      oldWidget.scrolls != scrolls;
+}
+
+class BranchScroll extends StatelessWidget {
   const BranchScroll({super.key, required this.branch, required this.child});
 
   final int branch;
   final Widget child;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final BranchScrolls scrolls = ref.watch(branchScrollsProvider);
+  Widget build(BuildContext context) {
+    final BranchScrolls scrolls = BranchScrollScope.of(context);
     return Revisit(
       controller: scrolls.revisitOf(branch),
       child: PrimaryScrollController(

@@ -70,10 +70,14 @@ class HomeShell extends ConsumerStatefulWidget {
 
 class _HomeShellState extends ConsumerState<HomeShell> {
   final RetreatController retreat = RetreatController();
+  final BottomClaim claim = BottomClaim();
+  final BranchScrolls branches = BranchScrolls();
 
   @override
   void dispose() {
     retreat.dispose();
+    claim.dispose();
+    branches.dispose();
     super.dispose();
   }
 
@@ -91,7 +95,6 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       widget.shell.goBranch(index, initialLocation: true);
       return;
     }
-    final BranchScrolls branches = ref.read(branchScrollsProvider);
     final ScrollController scroll = branches.of(index);
     if (scroll.positions.length == 1) {
       final ScrollPosition listing = scroll.positions.first;
@@ -110,7 +113,6 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
-    final BottomClaim claim = ref.watch(bottomClaimProvider);
     final MediaQueryData media = MediaQuery.of(context);
     final bool wide = media.size.width >= Layout.compact;
     return Stack(
@@ -127,7 +129,13 @@ class _HomeShellState extends ConsumerState<HomeShell> {
               child: ScrollRetreat(
                 controller: retreat,
                 claim: claim,
-                child: widget.shell,
+                child: BottomClaimScope(
+                  claim: claim,
+                  child: BranchScrollScope(
+                    scrolls: branches,
+                    child: widget.shell,
+                  ),
+                ),
               ),
             ),
           ),
