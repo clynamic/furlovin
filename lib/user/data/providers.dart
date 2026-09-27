@@ -42,6 +42,7 @@ class UserDetail extends AsyncNotifier<UserDocument> {
     try {
       final UserDocument detail = await client.user(name);
       retention.hold(name, link);
+      ref.refreshWhenStale(settled: () => _watch?.settled ?? true);
       _confirmed = detail;
       _watch = null;
       return detail;
