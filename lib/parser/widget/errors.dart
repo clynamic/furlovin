@@ -57,7 +57,7 @@ Future<void> showDocumentErrors(
   BuildContext context,
   DocumentErrors errors, {
   List<FieldError>? issues,
-  void Function(HiddenBoundaries hidden)? onHide,
+  void Function(BoundaryHiding hiding)? onHide,
   String Function(String key) label = spokenName,
 }) => showDialog<void>(
   context: context,
@@ -80,7 +80,7 @@ class DocumentErrorsDialog extends ConsumerWidget {
 
   final DocumentErrors errors;
   final List<FieldError>? issues;
-  final void Function(HiddenBoundaries hidden)? onHide;
+  final void Function(BoundaryHiding hiding)? onHide;
   final String Function(String key) label;
 
   @override
@@ -123,10 +123,10 @@ class DocumentErrorsDialog extends ConsumerWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (onHide case final void Function(HiddenBoundaries) hide)
+            if (onHide case final void Function(BoundaryHiding) hide)
               TextButton(
                 onPressed: () {
-                  hide(ref.read(hiddenBoundariesProvider));
+                  hide(ref.read(hiddenBoundariesProvider.notifier));
                   Navigator.of(context).pop();
                 },
                 child: const Text('Hide until restart'),
@@ -157,35 +157,30 @@ class DocumentErrorsButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final HiddenBoundaries hidden = ref.watch(hiddenBoundariesProvider);
-    return ListenableBuilder(
-      listenable: hidden,
-      builder: (context, _) {
-        final DocumentErrors? known = errors;
-        if (known == null) return const SizedBox.shrink();
-        final List<FieldError> issues = hidden.visible(known);
-        if (issues.isEmpty) return const SizedBox.shrink();
-        final ThemeData theme = Theme.of(context);
-        return IconButton(
-          tooltip: 'Some of this page could not be read',
-          onPressed: () => showDocumentErrors(
-            context,
-            known,
-            issues: issues,
-            onHide: (hidden) => hidden.hideAll(known, issues),
-            label: label,
-          ),
-          icon: Badge.count(
-            count: issues.length,
-            child: Icon(
-              Icons.report_problem_outlined,
-              color: onImage ? Colors.white : theme.colorScheme.error,
-              shadows: onImage
-                  ? const [Shadow(color: scrimShadow, blurRadius: 10)]
-                  : null,
-            ),
-          ),
-        );
-      },
+    final DocumentErrors? known = errors;
+    if (known == null) return const SizedBox.shrink();
+    final List<FieldError> issues = hidden.visible(known);
+    if (issues.isEmpty) return const SizedBox.shrink();
+    final ThemeData theme = Theme.of(context);
+    return IconButton(
+      tooltip: 'Some of this page could not be read',
+      onPressed: () => showDocumentErrors(
+        context,
+        known,
+        issues: issues,
+        onHide: (hiding) => hiding.hideAll(known, issues),
+        label: label,
+      ),
+      icon: Badge.count(
+        count: issues.length,
+        child: Icon(
+          Icons.report_problem_outlined,
+          color: onImage ? Colors.white : theme.colorScheme.error,
+          shadows: onImage
+              ? const [Shadow(color: scrimShadow, blurRadius: 10)]
+              : null,
+        ),
+      ),
     );
   }
 }

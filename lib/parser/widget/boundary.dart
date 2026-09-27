@@ -3,40 +3,55 @@ import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
 
-class HiddenBoundaries extends ChangeNotifier {
-  final Set<String> _names = {};
-  final Set<String> _paths = {};
+@immutable
+class HiddenBoundaries {
+  const HiddenBoundaries({this.names = const {}, this.paths = const {}});
 
-  bool hides(String name) => _names.contains(name);
+  final Set<String> names;
+  final Set<String> paths;
 
-  void hide(String name) {
-    if (_names.add(name)) notifyListeners();
-  }
+  bool hides(String name) => names.contains(name);
 
-  String _key(DocumentErrors errors, FieldError issue) =>
+  static String _key(DocumentErrors errors, FieldError issue) =>
       '${errors.type}:${issue.path}';
 
   bool covers(DocumentErrors errors, FieldError issue) =>
-      _paths.contains(_key(errors, issue));
+      paths.contains(_key(errors, issue));
 
   List<FieldError> visible(DocumentErrors errors) => [
     for (final FieldError issue in errors.all)
       if (!covers(errors, issue)) issue,
   ];
 
-  void hideAll(DocumentErrors errors, Iterable<FieldError> issues) {
-    final int before = _paths.length;
-    _paths.addAll([for (final FieldError issue in issues) _key(errors, issue)]);
-    if (_paths.length != before) notifyListeners();
+  HiddenBoundaries hide(String name) => hides(name)
+      ? this
+      : HiddenBoundaries(names: {...names, name}, paths: paths);
+
+  HiddenBoundaries hideAll(DocumentErrors errors, Iterable<FieldError> issues) {
+    final Set<String> more = {
+      ...paths,
+      for (final FieldError issue in issues) _key(errors, issue),
+    };
+    return more.length == paths.length
+        ? this
+        : HiddenBoundaries(names: names, paths: more);
   }
 }
 
-final Provider<HiddenBoundaries> hiddenBoundariesProvider =
-    Provider<HiddenBoundaries>((ref) {
-      final HiddenBoundaries hidden = HiddenBoundaries();
-      ref.onDispose(hidden.dispose);
-      return hidden;
-    });
+final NotifierProvider<BoundaryHiding, HiddenBoundaries>
+hiddenBoundariesProvider = NotifierProvider<BoundaryHiding, HiddenBoundaries>(
+  BoundaryHiding.new,
+);
+
+class BoundaryHiding extends Notifier<HiddenBoundaries> {
+  @override
+  HiddenBoundaries build() => const HiddenBoundaries();
+
+  void hide(String name) => state = state.hide(name);
+
+  void hideAll(DocumentErrors errors, Iterable<FieldError> issues) =>
+      state = state.hideAll(errors, issues);
+}
 
 @immutable
 class Breakage {
@@ -67,7 +82,7 @@ class Breakage {
     context,
     errors,
     issues: issues,
-    onHide: (hidden) => hidden.hide(name),
+    onHide: (hiding) => hiding.hide(name),
   );
 }
 
@@ -88,23 +103,18 @@ class ErrorBoundary extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final HiddenBoundaries hidden = ref.watch(hiddenBoundariesProvider);
-    return ListenableBuilder(
-      listenable: hidden,
-      builder: (context, _) {
-        final DocumentErrors? known = errors;
-        final List<FieldError> issues = known == null || hidden.hides(name)
-            ? const []
-            : [
-                for (final FieldError issue in hidden.visible(known))
-                  if (paths.any(issue.within)) issue,
-              ];
-        return builder(
-          context,
-          issues.isEmpty
-              ? null
-              : Breakage(name: name, errors: known!, issues: issues),
-        );
-      },
+    final DocumentErrors? known = errors;
+    final List<FieldError> issues = known == null || hidden.hides(name)
+        ? const []
+        : [
+            for (final FieldError issue in hidden.visible(known))
+              if (paths.any(issue.within)) issue,
+          ];
+    return builder(
+      context,
+      issues.isEmpty
+          ? null
+          : Breakage(name: name, errors: known!, issues: issues),
     );
   }
 }
