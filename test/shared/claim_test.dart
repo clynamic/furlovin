@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
@@ -41,12 +40,11 @@ void main() {
   testWidgets('a claiming page covers the bottom as far as it has arrived', (
     tester,
   ) async {
-    final ProviderContainer container = ProviderContainer();
-    addTearDown(container.dispose);
-    final BottomClaim claim = container.read(bottomClaimProvider);
+    final BottomClaim claim = BottomClaim();
+    addTearDown(claim.dispose);
     await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
+      BottomClaimScope(
+        claim: claim,
         child: const MaterialApp(home: Scaffold(body: Text('grid'))),
       ),
     );
@@ -74,12 +72,11 @@ void main() {
   testWidgets('a page pushed over a claiming page uncovers the bottom', (
     tester,
   ) async {
-    final ProviderContainer container = ProviderContainer();
-    addTearDown(container.dispose);
-    final BottomClaim claim = container.read(bottomClaimProvider);
+    final BottomClaim claim = BottomClaim();
+    addTearDown(claim.dispose);
     await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
+      BottomClaimScope(
+        claim: claim,
         child: const MaterialApp(home: _Claimant()),
       ),
     );
@@ -94,14 +91,14 @@ void main() {
   });
 }
 
-class _Claimant extends ConsumerStatefulWidget {
+class _Claimant extends StatefulWidget {
   const _Claimant();
 
   @override
-  ConsumerState<_Claimant> createState() => _ClaimantState();
+  State<_Claimant> createState() => _ClaimantState();
 }
 
-class _ClaimantState extends ConsumerState<_Claimant> with BottomClaimant {
+class _ClaimantState extends State<_Claimant> with BottomClaimant {
   @override
   Widget build(BuildContext context) => const Scaffold(body: Text('detail'));
 }

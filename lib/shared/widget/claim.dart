@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 class BottomClaim extends ChangeNotifier {
@@ -74,14 +73,25 @@ class ClaimedBottom extends StatelessWidget {
   }
 }
 
-final Provider<BottomClaim> bottomClaimProvider = Provider<BottomClaim>((ref) {
-  final BottomClaim claim = BottomClaim();
-  ref.onDispose(claim.dispose);
-  return claim;
-});
+class BottomClaimScope extends InheritedWidget {
+  const BottomClaimScope({
+    super.key,
+    required this.claim,
+    required super.child,
+  });
 
-mixin BottomClaimant<T extends ConsumerStatefulWidget> on ConsumerState<T> {
-  late final BottomClaim _bottom = ref.read(bottomClaimProvider);
+  final BottomClaim claim;
+
+  static BottomClaim? maybeOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<BottomClaimScope>()?.claim;
+
+  @override
+  bool updateShouldNotify(BottomClaimScope oldWidget) =>
+      oldWidget.claim != claim;
+}
+
+mixin BottomClaimant<T extends StatefulWidget> on State<T> {
+  BottomClaim? _bottom;
   ModalRoute<Object?>? _route;
 
   void _onMove() {
@@ -89,12 +99,13 @@ mixin BottomClaimant<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     if (route == null) return;
     final double shown = route.animation?.value ?? 1;
     final double covered = route.secondaryAnimation?.value ?? 0;
-    _bottom.cover(this, shown * (1 - covered));
+    _bottom?.cover(this, shown * (1 - covered));
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _bottom ??= BottomClaimScope.maybeOf(context);
     final ModalRoute<Object?>? now = ModalRoute.of(context);
     if (now == _route) return;
     _route?.animation?.removeListener(_onMove);
@@ -109,7 +120,7 @@ mixin BottomClaimant<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   void dispose() {
     _route?.animation?.removeListener(_onMove);
     _route?.secondaryAnimation?.removeListener(_onMove);
-    _bottom.cover(this, 0);
+    _bottom?.cover(this, 0);
     super.dispose();
   }
 }
