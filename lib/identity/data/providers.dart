@@ -41,13 +41,21 @@ final Provider<String?> sessionKeyProvider = Provider<String?>(
   (ref) => ref.watch(sessionProvider).asData?.value.discriminator,
 );
 
+final NotifierProvider<SettledSession, String?> settledSessionProvider =
+    NotifierProvider<SettledSession, String?>(SettledSession.new);
+
+class SettledSession extends Notifier<String?> {
+  @override
+  String? build() => ref.watch(sessionKeyProvider) ?? stateOrNull;
+}
+
 final NotifierProvider<SessionEpoch, int> sessionEpochProvider =
     NotifierProvider<SessionEpoch, int>(SessionEpoch.new);
 
 class SessionEpoch extends Notifier<int> {
   @override
   int build() {
-    ref.listen<String?>(sessionKeyProvider, (previous, next) {
+    ref.listen<String?>(settledSessionProvider, (previous, next) {
       if (previous != null && previous != next) state++;
     });
     return 0;
@@ -56,7 +64,7 @@ class SessionEpoch extends Notifier<int> {
 
 extension SessionScopedRef on Ref {
   void discardOnSessionChange() =>
-      listen<String?>(sessionKeyProvider, (previous, next) {
+      listen<String?>(settledSessionProvider, (previous, next) {
         if (previous != null && previous != next) invalidateSelf();
       });
 }
