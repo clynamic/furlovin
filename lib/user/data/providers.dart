@@ -35,7 +35,7 @@ class UserDetail extends AsyncNotifier<UserDocument> {
   @override
   Future<UserDocument> build() async {
     ref.discardOnSessionChange();
-    final Retention retention = ref.read(userRetentionProvider);
+    final Retention retention = ref.watch(userRetentionProvider);
     final KeepAliveLink link = ref.keepAlive();
     ref.onDispose(() => retention.release(name));
     final UserClient client = await ref.watch(userClientProvider.future);
