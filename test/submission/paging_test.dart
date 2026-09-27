@@ -209,6 +209,37 @@ void main() {
     expect(container.read(submissionListingProvider(key)).items, hasLength(1));
   });
 
+  test('a session blip keeps the listing', () async {
+    pages = [
+      [_preview(1)],
+    ];
+    final SubmissionListingKey key = numbered();
+    final ProviderContainer container = ProviderContainer(
+      overrides: [
+        sessionKeyProvider.overrideWith((ref) => ref.watch(_arriving)),
+        submissionClientProvider.overrideWith(
+          (ref) async => SubmissionClient(client: FaClient(), rules: rules),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    final _Arriving session = container.read(_arriving.notifier)..arrive();
+    container.listen(submissionListingProvider(key), (previous, next) {});
+    await settleListing(container, submissionListingProvider(key));
+
+    session.lose();
+    await Future<void>.delayed(Duration.zero);
+    session.arrive();
+    await settleListing(container, submissionListingProvider(key));
+    expect(requested, [1]);
+
+    session.lose();
+    await Future<void>.delayed(Duration.zero);
+    session.signIn();
+    await settleListing(container, submissionListingProvider(key));
+    expect(requested, [1, 1]);
+  });
+
   test('restart refetches after an empty first page', () async {
     pages = [];
     final SubmissionListingKey key = numbered();
@@ -546,4 +577,8 @@ class _Arriving extends Notifier<String?> {
   String? build() => null;
 
   void arrive() => state = 'guest';
+
+  void lose() => state = null;
+
+  void signIn() => state = 'member';
 }
