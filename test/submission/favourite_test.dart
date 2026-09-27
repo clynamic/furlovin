@@ -39,7 +39,7 @@ void main() {
   Future<(ProviderContainer, _Pages)> host(Map<String, String> pages) async {
     final _Pages adapter = _Pages(pages);
     final FaClient client = FaClient()..dio.httpClientAdapter = adapter;
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         sessionKeyProvider.overrideWithValue('anonymous'),
         submissionClientProvider.overrideWith(
@@ -47,7 +47,6 @@ void main() {
         ),
       ],
     );
-    addTearDown(container.dispose);
     container.listen(submissionProvider(1), (previous, next) {});
     await container.read(submissionProvider(1).future);
     adapter.requested.clear();
@@ -111,7 +110,7 @@ void main() {
   test('a new session discards a loaded submission', () async {
     final _Pages adapter = _Pages({'/view/1/': fixture('view')});
     final FaClient client = FaClient()..dio.httpClientAdapter = adapter;
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         sessionKeyProvider.overrideWith((ref) => ref.watch(_key)),
         submissionClientProvider.overrideWith(
@@ -119,7 +118,6 @@ void main() {
         ),
       ],
     );
-    addTearDown(container.dispose);
     container.listen(submissionProvider(1), (previous, next) {});
     await container.read(submissionProvider(1).future);
 
@@ -133,7 +131,7 @@ void main() {
   test('a notice page is read once, not retried', () async {
     final _Pages adapter = _Pages({'/view/1/': fixture('notice_mature')});
     final FaClient client = FaClient()..dio.httpClientAdapter = adapter;
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       retry: retryFailure,
       overrides: [
         sessionKeyProvider.overrideWithValue('anonymous'),
@@ -142,7 +140,6 @@ void main() {
         ),
       ],
     );
-    addTearDown(container.dispose);
     container.listen(submissionProvider(1), (previous, next) {});
 
     await expectLater(
@@ -157,7 +154,7 @@ void main() {
   test('a logged out inbox asks nothing of the site', () async {
     final _Pages adapter = _Pages({});
     final FaClient client = FaClient()..dio.httpClientAdapter = adapter;
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       retry: retryFailure,
       overrides: [
         sessionProvider.overrideWith((ref) => Stream.value(const Session())),
@@ -166,7 +163,6 @@ void main() {
         ),
       ],
     );
-    addTearDown(container.dispose);
     container.listen(sessionProvider, (previous, next) {});
     await container.read(sessionProvider.future);
 

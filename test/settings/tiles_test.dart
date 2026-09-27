@@ -4,12 +4,11 @@ import 'package:furlovin/settings/settings.dart';
 
 void main() {
   Future<Tiles> read(Map<String, String> preferences) async {
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         preferencesProvider.overrideWith((ref) => Stream.value(preferences)),
       ],
     );
-    addTearDown(container.dispose);
     container.listen(preferencesProvider, (previous, next) {});
     await container.read(preferencesProvider.future);
     return container.read(tilesProvider);

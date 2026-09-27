@@ -62,7 +62,7 @@ void main() {
       },
       rules: rules,
     );
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         sessionKeyProvider.overrideWithValue('anonymous'),
         submissionClientProvider.overrideWith((ref) async => client),
@@ -78,7 +78,6 @@ void main() {
         ),
       ],
     );
-    addTearDown(container.dispose);
     final ValueNotifier<bool> shown = ValueNotifier(true);
     addTearDown(shown.dispose);
 

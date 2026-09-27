@@ -5,12 +5,11 @@ import 'package:material_ui/material_ui.dart';
 
 void main() {
   Appearance read(Map<String, String> preferences) {
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         preferencesProvider.overrideWith((ref) => Stream.value(preferences)),
       ],
     );
-    addTearDown(container.dispose);
     container.listen(preferencesProvider, (previous, next) {});
     return container.read(appearanceProvider);
   }
@@ -29,7 +28,7 @@ void main() {
   });
 
   test('reads the stored choices, and ignores ones it does not know', () async {
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         preferencesProvider.overrideWith(
           (ref) =>
@@ -37,7 +36,6 @@ void main() {
         ),
       ],
     );
-    addTearDown(container.dispose);
     container.listen(preferencesProvider, (previous, next) {});
     await container.read(preferencesProvider.future);
 

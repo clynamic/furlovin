@@ -4,8 +4,7 @@ import 'package:furlovin/shared/shared.dart';
 
 void main() {
   test('drops the oldest once over capacity', () async {
-    final ProviderContainer container = ProviderContainer();
-    addTearDown(container.dispose);
+    final ProviderContainer container = ProviderContainer.test();
 
     final Retention retention = Retention(2);
     final List<int> disposed = [];
