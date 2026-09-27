@@ -135,7 +135,7 @@ SubmissionPaging retainedPaging(
   Future<List<SubmissionPreview>> Function(SubmissionClient, int) fetch, {
   PageKeyReader? nextKey,
 }) {
-  final Retention retention = ref.read(listingRetentionProvider);
+  final Retention retention = ref.watch(listingRetentionProvider);
   ref.onDispose(() => retention.release(key));
   retention.hold(key, ref.keepAlive());
   return submissionPaging(ref, fetch, nextKey: nextKey);
@@ -229,7 +229,7 @@ class SubmissionDetail extends AsyncNotifier<SubmissionDocument> {
   @override
   Future<SubmissionDocument> build() async {
     ref.discardOnSessionChange();
-    final Retention retention = ref.read(submissionRetentionProvider);
+    final Retention retention = ref.watch(submissionRetentionProvider);
     final KeepAliveLink link = ref.keepAlive();
     ref.onDispose(() => retention.release(id));
     final SubmissionClient client = await ref.watch(
