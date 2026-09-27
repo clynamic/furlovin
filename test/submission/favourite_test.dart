@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
@@ -124,7 +123,7 @@ void main() {
     container.listen(submissionProvider(1), (previous, next) {});
     await container.read(submissionProvider(1).future);
 
-    container.read(_key.notifier).state = 'member';
+    container.read(_key.notifier).signIn();
     await container.pump();
     await container.read(submissionProvider(1).future);
 
@@ -180,4 +179,13 @@ void main() {
   });
 }
 
-final StateProvider<String?> _key = StateProvider<String?>((ref) => 'guest');
+final NotifierProvider<_Key, String?> _key = NotifierProvider<_Key, String?>(
+  _Key.new,
+);
+
+class _Key extends Notifier<String?> {
+  @override
+  String? build() => 'guest';
+
+  void signIn() => state = 'member';
+}
