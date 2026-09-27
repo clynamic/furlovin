@@ -39,7 +39,7 @@ class GuestPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
-    final ValueNotifier<String?> banner = ref.watch(siteBannerProvider);
+    final String? banner = ref.watch(siteBannerProvider);
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -61,10 +61,7 @@ class GuestPage extends ConsumerWidget {
             backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
             flexibleSpace: FlexibleSpaceBar(
-              background: ValueListenableBuilder<String?>(
-                valueListenable: banner,
-                builder: (context, url, _) => ProfileBanner(url: url),
-              ),
+              background: ProfileBanner(url: banner),
             ),
           ),
           SliverPadding(

@@ -9,15 +9,12 @@ void main() {
     tester,
   ) async {
     const double chrome = 96;
-    final SubmissionPaging controller = SubmissionPaging(
-      (key) async => const <SubmissionPreview>[],
-    );
-    addTearDown(controller.dispose);
-    controller.value = PagingState<int, SubmissionPreview>(
-      pages: const [<SubmissionPreview>[]],
-      keys: const [1],
-      hasNextPage: false,
-    );
+    final PagingState<int, SubmissionPreview> state =
+        PagingState<int, SubmissionPreview>(
+          pages: const [<SubmissionPreview>[]],
+          keys: const [1],
+          hasNextPage: false,
+        );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -26,7 +23,11 @@ void main() {
             data: const MediaQueryData(
               padding: EdgeInsets.only(bottom: chrome),
             ),
-            child: SubmissionPagedGrid(controller: controller),
+            child: SubmissionPagedGrid(
+              state: state,
+              fetchNextPage: () {},
+              onRefresh: () async {},
+            ),
           ),
         ),
       ),

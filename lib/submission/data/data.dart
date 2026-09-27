@@ -9,6 +9,7 @@ export 'gallery.dart';
 export 'gallery_document.rules.dart';
 export 'ghost.dart';
 export 'inbox_document.rules.dart';
+export 'listing.dart';
 export 'mini_gallery.rules.dart';
 export 'providers.dart';
 export 'search_document.rules.dart';

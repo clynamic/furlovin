@@ -158,6 +158,7 @@ void main() {
     final _Pages adapter = _Pages({});
     final FaClient client = FaClient()..dio.httpClientAdapter = adapter;
     final ProviderContainer container = ProviderContainer(
+      retry: retryFailure,
       overrides: [
         sessionProvider.overrideWith((ref) => Stream.value(const Session())),
         submissionClientProvider.overrideWith(
@@ -169,12 +170,21 @@ void main() {
     container.listen(sessionProvider, (previous, next) {});
     await container.read(sessionProvider.future);
 
-    final SubmissionPaging inbox = container.read(inboxProvider);
-    for (int turn = 0; turn < 100 && inbox.value.error == null; turn++) {
+    final SubmissionListingKey inbox = (inboxListing, null);
+    container.listen(submissionListingProvider(inbox), (previous, next) {});
+    for (
+      int turn = 0;
+      turn < 100 &&
+          container.read(submissionListingProvider(inbox)).error == null;
+      turn++
+    ) {
       await Future<void>.delayed(const Duration(milliseconds: 10));
     }
 
-    expect(inbox.value.error, isA<AuthenticationRequired>());
+    expect(
+      container.read(submissionListingProvider(inbox)).error,
+      isA<AuthenticationRequired>(),
+    );
     expect(adapter.requested, isEmpty);
   });
 }

@@ -22,15 +22,12 @@ void main() {
   testWidgets('loading another page shows a spinner in the app theme', (
     tester,
   ) async {
-    final SubmissionPaging controller = SubmissionPaging(
-      (key) async => const <SubmissionPreview>[],
-    );
-    addTearDown(controller.dispose);
-    controller.value = PagingState<int, SubmissionPreview>(
-      pages: [const SubmissionPreviewGhost().list(2)],
-      keys: const [1],
-      isLoading: true,
-    );
+    final PagingState<int, SubmissionPreview> state =
+        PagingState<int, SubmissionPreview>(
+          pages: [const SubmissionPreviewGhost().list(2)],
+          keys: const [1],
+          isLoading: true,
+        );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -48,7 +45,11 @@ void main() {
         ],
         child: MaterialApp(
           theme: buildTheme(Brightness.light),
-          home: SubmissionPagedGrid(controller: controller),
+          home: SubmissionPagedGrid(
+            state: state,
+            fetchNextPage: () {},
+            onRefresh: () async {},
+          ),
         ),
       ),
     );

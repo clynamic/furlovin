@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
@@ -35,87 +34,83 @@ class GalleryShelves extends StatelessWidget {
   });
 
   final GallerySource source;
-  final ValueListenable<List<Folder>?> folders;
+  final List<Folder>? folders;
 
   @override
-  Widget build(BuildContext context) => ValueListenableBuilder<List<Folder>?>(
-    valueListenable: folders,
-    builder: (context, known, child) {
-      final ThemeData theme = Theme.of(context);
-      final List<Folder> all = known ?? const [];
-      final int open = all.indexWhere(source.holds);
-      void go(GallerySource next) {
-        if (next != source) context.openSource(next, replace: true);
-      }
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final List<Folder> all = folders ?? const [];
+    final int open = all.indexWhere(source.holds);
+    void go(GallerySource next) {
+      if (next != source) context.openSource(next, replace: true);
+    }
 
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(
-          Space.medium,
-          0,
-          Space.medium,
-          Space.small,
-        ),
-        child: PriorityRow(
-          spacing: Space.small,
-          pinned: {
-            switch (source.shelf) {
-              GalleryShelf.main => 0,
-              GalleryShelf.scraps => 1,
-              GalleryShelf.folder => open < 0 ? -1 : open + 2,
-            },
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        Space.medium,
+        0,
+        Space.medium,
+        Space.small,
+      ),
+      child: PriorityRow(
+        spacing: Space.small,
+        pinned: {
+          switch (source.shelf) {
+            GalleryShelf.main => 0,
+            GalleryShelf.scraps => 1,
+            GalleryShelf.folder => open < 0 ? -1 : open + 2,
           },
-          overflow: ActionChip(
-            avatar: const Icon(Icons.folder_outlined),
-            label: const Text('All folders'),
-            onPressed: () async {
-              final GallerySource? picked = await showDialog<GallerySource>(
-                context: context,
-                builder: (context) =>
-                    FolderPicker(source: source, folders: all),
-              );
-              if (picked != null) go(picked);
-            },
-          ),
-          children: [
-            ChoiceChip(
-              showCheckmark: false,
-              label: const Text('Main Gallery'),
-              selected: source.shelf == GalleryShelf.main,
-              onSelected: (value) => go(GallerySource.main(source.user)),
-            ),
-            ChoiceChip(
-              showCheckmark: false,
-              label: const Text('Scraps'),
-              selected: source.shelf == GalleryShelf.scraps,
-              onSelected: (value) => go(GallerySource.scraps(source.user)),
-            ),
-            for (final Folder folder in all)
-              ChoiceChip(
-                showCheckmark: false,
-                label: Text.rich(
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  TextSpan(
-                    text: folder.labelAmong(all),
-                    children: [
-                      if (folder.count case final int count)
-                        TextSpan(
-                          text: '  $count',
-                          style: TextStyle(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                selected: source.holds(folder),
-                onSelected: (value) => go(folder.source),
-              ),
-          ],
+        },
+        overflow: ActionChip(
+          avatar: const Icon(Icons.folder_outlined),
+          label: const Text('All folders'),
+          onPressed: () async {
+            final GallerySource? picked = await showDialog<GallerySource>(
+              context: context,
+              builder: (context) => FolderPicker(source: source, folders: all),
+            );
+            if (picked != null) go(picked);
+          },
         ),
-      );
-    },
-  );
+        children: [
+          ChoiceChip(
+            showCheckmark: false,
+            label: const Text('Main Gallery'),
+            selected: source.shelf == GalleryShelf.main,
+            onSelected: (value) => go(GallerySource.main(source.user)),
+          ),
+          ChoiceChip(
+            showCheckmark: false,
+            label: const Text('Scraps'),
+            selected: source.shelf == GalleryShelf.scraps,
+            onSelected: (value) => go(GallerySource.scraps(source.user)),
+          ),
+          for (final Folder folder in all)
+            ChoiceChip(
+              showCheckmark: false,
+              label: Text.rich(
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                TextSpan(
+                  text: folder.labelAmong(all),
+                  children: [
+                    if (folder.count case final int count)
+                      TextSpan(
+                        text: '  $count',
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              selected: source.holds(folder),
+              onSelected: (value) => go(folder.source),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class FolderPicker extends StatelessWidget {

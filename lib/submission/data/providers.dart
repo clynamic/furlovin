@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:furlovin/client/client.dart';
@@ -8,95 +7,6 @@ import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-
-typedef PageLoader = Future<List<SubmissionPreview>> Function(int key);
-
-typedef PageKeyReader = int Function(PagingState<int, SubmissionPreview> state);
-
-class SubmissionPaging extends PagingController<int, SubmissionPreview> {
-  factory SubmissionPaging(PageLoader load, {PageKeyReader? nextKey}) {
-    late final SubmissionPaging paging;
-    return paging = SubmissionPaging._(
-      load,
-      nextKey,
-      getNextPageKey: (state) => paging._next(state),
-      fetchPage: (key) => paging._page(key),
-    );
-  }
-
-  SubmissionPaging._(
-    this._load,
-    this._nextKey, {
-    required super.getNextPageKey,
-    required super.fetchPage,
-  });
-
-  final PageLoader _load;
-  final PageKeyReader? _nextKey;
-  bool _exhausted = false;
-
-  int? _next(PagingState<int, SubmissionPreview> state) {
-    if (state.keys?.isNotEmpty != true) _exhausted = false;
-    if (_exhausted) return null;
-    final int next = _nextKey?.call(state) ?? state.nextIntPageKey;
-    return state.keys?.lastOrNull == next ? null : next;
-  }
-
-  Future<List<SubmissionPreview>> _page(int key) async {
-    final List<SubmissionPreview> fetched = await _load(key);
-    _exhausted = fetched.isEmpty;
-    return _unseen(fetched, items ?? const []);
-  }
-
-  List<SubmissionPreview> _unseen(
-    List<SubmissionPreview> fetched,
-    List<SubmissionPreview> shown,
-  ) {
-    final Set<int> seen = {for (final SubmissionPreview item in shown) item.id};
-    return [
-      for (final SubmissionPreview item in fetched)
-        if (seen.add(item.id)) item,
-    ];
-  }
-
-  Future<void> restart() async {
-    final List<SubmissionPreview>? shown = items;
-    if (shown == null || shown.isEmpty || value.error != null) return _reset();
-    final Object current = operation = Object();
-    try {
-      final int first =
-          _nextKey?.call(PagingState<int, SubmissionPreview>()) ??
-          PagingState<int, SubmissionPreview>().nextIntPageKey;
-      final List<SubmissionPreview> fetched = await _load(first);
-      if (current != operation) return;
-      _exhausted = fetched.isEmpty;
-      value = PagingState<int, SubmissionPreview>(
-        pages: [_unseen(fetched, const [])],
-        keys: [first],
-      );
-    } on Exception {
-      return;
-    } finally {
-      if (current == operation) operation = null;
-    }
-  }
-
-  Future<void> _reset() {
-    refresh();
-    fetchNextPage();
-    if (!value.isLoading) return Future<void>.value();
-    final Completer<void> done = Completer<void>();
-    void settle() {
-      if (value.isLoading) return;
-      removeListener(settle);
-      done.complete();
-    }
-
-    addListener(settle);
-    return done.future;
-  }
-}
 
 final FutureProvider<SubmissionClient> submissionClientProvider =
     FutureProvider<SubmissionClient>(
@@ -106,107 +16,99 @@ final FutureProvider<SubmissionClient> submissionClientProvider =
       ),
     );
 
-SubmissionPaging submissionPaging(
-  Ref ref,
-  Future<List<SubmissionPreview>> Function(SubmissionClient, int) fetch, {
-  PageKeyReader? nextKey,
-}) {
-  ref.discardOnSessionChange();
-  final SubmissionPaging controller = SubmissionPaging((key) async {
-    final SubmissionClient client = await ref.read(
-      submissionClientProvider.future,
+const int submissionListingRetention = 4;
+
+final Provider<Retention> submissionListingRetentionProvider =
+    Provider<Retention>((ref) => Retention(submissionListingRetention));
+
+final Provider<Retention> pinnedSubmissionListingsProvider =
+    Provider<Retention>((ref) => Retention.unbounded());
+
+final SubmissionListing<void, BrowseDocument> browseListing = SubmissionListing(
+  name: 'browse',
+  pinned: true,
+  fetch: (client, _, page) => client.browse(page: page),
+  items: (page) => page.submissions,
+  next: (page, key) => page.submissions.isEmpty ? null : key + 1,
+);
+
+final Provider<String?> siteBannerProvider = Provider<String?>(
+  (ref) => switch (ref
+      .watch(
+        submissionListingPageProvider((
+          ref.watch(sessionEpochProvider),
+          (browseListing, null),
+          browseListing.first,
+        )),
+      )
+      .value) {
+    final BrowseDocument page => page.banner,
+    _ => null,
+  },
+);
+
+final SubmissionListing<void, List<SubmissionPreview>> inboxListing =
+    SubmissionListing(
+      name: 'inbox',
+      pinned: true,
+      needsLogin: true,
+      first: 0,
+      fetch: (client, _, after) => client.inbox(after: after),
+      items: (page) => page,
+      next: (page, after) => page.lastOrNull?.id,
     );
-    return fetch(client, key);
-  }, nextKey: nextKey);
-  ref.onDispose(controller.dispose);
-  controller.fetchNextPage();
-  return controller;
+
+final SubmissionListing<GallerySource, GalleryPage> galleryListing =
+    SubmissionListing(
+      name: 'gallery',
+      fetch: (client, source, page) => client.gallery(source, page: page),
+      items: (page) => page.submissions,
+      next: (page, key) => page.submissions.isEmpty ? null : key + 1,
+    );
+
+final NotifierProviderFamily<KnownFolders, List<Folder>?, String>
+knownFoldersProvider = NotifierProvider.autoDispose
+    .family<KnownFolders, List<Folder>?, String>(KnownFolders.new);
+
+class KnownFolders extends Notifier<List<Folder>?> {
+  KnownFolders(this.user);
+
+  final String user;
+
+  @override
+  List<Folder>? build() => null;
+
+  void remember(GalleryPage page) => state = page.folders;
 }
 
-const int listingRetention = 4;
-
-final Provider<Retention> listingRetentionProvider = Provider<Retention>(
-  (ref) => Retention(listingRetention),
-);
-
-SubmissionPaging retainedPaging(
-  Ref ref,
-  Object key,
-  Future<List<SubmissionPreview>> Function(SubmissionClient, int) fetch, {
-  PageKeyReader? nextKey,
-}) {
-  final Retention retention = ref.watch(listingRetentionProvider);
-  ref.onDispose(() => retention.release(key));
-  retention.hold(key, ref.keepAlive());
-  return submissionPaging(ref, fetch, nextKey: nextKey);
-}
-
-final Provider<ValueNotifier<String?>> siteBannerProvider =
-    Provider<ValueNotifier<String?>>((ref) {
-      final ValueNotifier<String?> banner = ValueNotifier(null);
-      ref.onDispose(banner.dispose);
-      return banner;
-    });
-
-final Provider<SubmissionPaging> browseProvider = Provider<SubmissionPaging>(
-  (ref) => submissionPaging(ref, (client, page) async {
-    final BrowseDocument fetched = await client.browse(page: page);
-    if (fetched.banner case final String banner) {
-      ref.read(siteBannerProvider).value = banner;
-    }
-    return fetched.submissions;
-  }),
-);
-
-final Provider<SubmissionPaging> inboxProvider = Provider<SubmissionPaging>(
-  (ref) => submissionPaging(ref, (client, after) async {
-    if (!ref.read(authenticatedProvider)) {
-      throw const AuthenticationRequired();
-    }
-    return client.inbox(after: after);
-  }, nextKey: (state) => state.items?.lastOrNull?.id ?? 0),
-);
-
-final ProviderFamily<ValueNotifier<List<Folder>?>, String>
-galleryFoldersProvider = Provider.autoDispose
-    .family<ValueNotifier<List<Folder>?>, String>((ref, user) {
-      final ValueNotifier<List<Folder>?> folders = ValueNotifier(null);
-      ref.onDispose(folders.dispose);
-      return folders;
-    });
-
-final ProviderFamily<GalleryListing, GallerySource> galleryProvider = Provider
-    .autoDispose
-    .family<GalleryListing, GallerySource>((ref, source) {
-      final ValueNotifier<List<Folder>?> folders = ref.watch(
-        galleryFoldersProvider(source.user),
+final ProviderFamily<List<Folder>?, GallerySource> galleryFoldersProvider =
+    Provider.autoDispose.family<List<Folder>?, GallerySource>((ref, source) {
+      final (int, SubmissionListingKey, int) head = (
+        ref.watch(sessionEpochProvider),
+        (galleryListing, source),
+        galleryListing.first,
       );
-      final SubmissionPaging paging = retainedPaging(ref, ('gallery', source), (
-        client,
-        page,
-      ) async {
-        final GalleryPage fetched = await client.gallery(source, page: page);
-        if (page == 1 && ref.mounted) folders.value = fetched.folders;
-        return fetched.submissions;
+      ref.listen(submissionListingPageProvider(head), (previous, next) {
+        if (next.value case final GalleryPage page) {
+          ref.read(knownFoldersProvider(source.user).notifier).remember(page);
+        }
       });
-      return GalleryListing(paging: paging, folders: folders);
+      return switch (ref.watch(submissionListingPageProvider(head)).value) {
+        final GalleryPage page => page.folders,
+        _ => ref.watch(knownFoldersProvider(source.user)),
+      };
     });
 
-final ProviderFamily<SubmissionPaging, String> favoritesProvider = Provider
-    .autoDispose
-    .family<SubmissionPaging, String>((ref, user) {
-      final Map<int, int> cursors = {};
-      return retainedPaging(ref, ('favorites', user), (client, after) async {
-        final List<Favorite> favorites = await client.favorites(
-          user,
-          after: after,
-        );
-        if (favorites.lastOrNull case final Favorite last) {
-          cursors[last.submission.id] = last.id;
-        }
-        return [for (final Favorite favorite in favorites) favorite.submission];
-      }, nextKey: (state) => cursors[state.items?.lastOrNull?.id] ?? 0);
-    });
+final SubmissionListing<String, List<Favorite>> favoritesListing =
+    SubmissionListing(
+      name: 'favorites',
+      first: 0,
+      fetch: (client, user, after) => client.favorites(user, after: after),
+      items: (page) => [
+        for (final Favorite favorite in page) favorite.submission,
+      ],
+      next: (page, after) => page.lastOrNull?.id,
+    );
 
 const int submissionRetention = 12;
 

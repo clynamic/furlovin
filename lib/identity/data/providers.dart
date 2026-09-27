@@ -41,6 +41,19 @@ final Provider<String?> sessionKeyProvider = Provider<String?>(
   (ref) => ref.watch(sessionProvider).asData?.value.discriminator,
 );
 
+final NotifierProvider<SessionEpoch, int> sessionEpochProvider =
+    NotifierProvider<SessionEpoch, int>(SessionEpoch.new);
+
+class SessionEpoch extends Notifier<int> {
+  @override
+  int build() {
+    ref.listen<String?>(sessionKeyProvider, (previous, next) {
+      if (previous != null && previous != next) state++;
+    });
+    return 0;
+  }
+}
+
 extension SessionScopedRef on Ref {
   void discardOnSessionChange() =>
       listen<String?>(sessionKeyProvider, (previous, next) {

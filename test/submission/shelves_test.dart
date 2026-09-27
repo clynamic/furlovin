@@ -26,10 +26,7 @@ void main() {
     return tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GalleryShelves(
-            source: source,
-            folders: ValueNotifier<List<Folder>?>(known),
-          ),
+          body: GalleryShelves(source: source, folders: known),
         ),
       ),
     );

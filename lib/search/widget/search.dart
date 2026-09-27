@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/search/search.dart';
 import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
@@ -18,14 +17,15 @@ class SearchPage extends StatelessWidget {
       : SearchResults(query: query);
 }
 
-class SearchResults extends ConsumerWidget {
+class SearchResults extends StatelessWidget {
   const SearchResults({super.key, required this.query});
 
   final SearchQuery query;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => SubmissionPagedGrid(
-    controller: ref.watch(searchProvider(query)),
+  Widget build(BuildContext context) => SubmissionListingGrid(
+    listing: searchListing,
+    arg: query,
     header: SliverAppBar(
       floating: true,
       snap: true,
