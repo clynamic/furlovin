@@ -38,6 +38,8 @@ class Optimistic<T> {
 
   bool get pending => _intent != null && _intent != confirmed;
 
+  bool get settled => !_busy;
+
   Future<void> want(T wanted, void Function() changed) async {
     _intent = wanted;
     _touched = _now();

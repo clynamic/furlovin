@@ -140,6 +140,7 @@ class SubmissionDetail extends AsyncNotifier<SubmissionDocument> {
     try {
       final SubmissionDocument detail = await client.submission(id);
       retention.hold(id, link);
+      ref.refreshWhenStale(settled: () => _favourite?.settled ?? true);
       _confirmed = detail;
       _favourite = null;
       return detail;

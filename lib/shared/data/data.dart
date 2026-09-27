@@ -6,4 +6,5 @@ export 'metrics.dart';
 export 'optimistic.dart';
 export 'package.dart';
 export 'retention.dart';
+export 'stale.dart';
 export 'when.dart';
