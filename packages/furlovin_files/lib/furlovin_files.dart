@@ -10,28 +10,28 @@ abstract final class AndroidFiles {
     required String source,
     required String name,
     required String mime,
-    required String folder,
+    required String directory,
   }) async => (await _channel.invokeMethod<String>('saveToMedia', {
     'source': source,
     'name': name,
     'mime': mime,
-    'folder': folder,
+    'directory': directory,
   }))!;
 
-  static Future<String?> pickFolder({String? initial}) =>
-      _channel.invokeMethod<String>('pickFolder', {'initial': initial});
+  static Future<String?> pickDirectory({String? initial}) =>
+      _channel.invokeMethod<String>('pickDirectory', {'initial': initial});
 
-  static Future<bool> canWrite(String folder) async =>
-      await _channel.invokeMethod<bool>('canWrite', {'folder': folder}) ??
+  static Future<bool> canWrite(String directory) async =>
+      await _channel.invokeMethod<bool>('canWrite', {'directory': directory}) ??
       false;
 
-  static Future<void> writeToFolder({
-    required String folder,
+  static Future<void> writeToDirectory({
+    required String directory,
     required String source,
     required String name,
     required String mime,
-  }) => _channel.invokeMethod<void>('writeToFolder', {
-    'folder': folder,
+  }) => _channel.invokeMethod<void>('writeToDirectory', {
+    'directory': directory,
     'source': source,
     'name': name,
     'mime': mime,

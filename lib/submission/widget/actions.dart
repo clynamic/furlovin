@@ -94,14 +94,14 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
   Future<void> _download(String file) async {
     final CacheManager artwork = ref.read(artworkCacheProvider);
     final PreferenceStore store = ref.read(preferenceStoreProvider);
-    final String? folder = ref.read(downloadFolderProvider);
+    final String? directory = ref.read(downloadDirectoryProvider);
     final String discriminator =
         ref.read(sessionProvider).asData?.value.discriminator ??
         const Session().discriminator;
     try {
       final DownloadTarget target = await Downloads.target(
-        chosen: folder,
-        onChosen: (value) => store.put(downloadFolderKey, value),
+        chosen: directory,
+        onChosen: (value) => store.put(downloadDirectoryKey, value),
       );
       if (!mounted) return;
       setState(() => _downloading = true);
@@ -128,7 +128,7 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final bool authenticated = ref.watch(authenticatedProvider);
-    ref.watch(downloadFolderProvider);
+    ref.watch(downloadDirectoryProvider);
     final String? file = submission?.file;
     final double gutter = Layout.gutterOf(context);
     final Hand handedness = ref.watch(handProvider);
