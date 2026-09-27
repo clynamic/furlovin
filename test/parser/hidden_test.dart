@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/parser/parser.dart';
 
@@ -9,10 +10,12 @@ void main() {
   );
 
   test('hiding a page keeps later breakage visible', () {
-    final HiddenBoundaries hidden = HiddenBoundaries();
     final DocumentErrors seen = DocumentErrors(type: 'submissionDocument')
       ..add(missing('submission.views'));
-    hidden.hideAll(seen, seen.all);
+    final HiddenBoundaries hidden = const HiddenBoundaries().hideAll(
+      seen,
+      seen.all,
+    );
 
     final DocumentErrors later = DocumentErrors(type: 'submissionDocument')
       ..add(missing('submission.views'))
@@ -21,13 +24,32 @@ void main() {
   });
 
   test('hiding a page leaves other page types alone', () {
-    final HiddenBoundaries hidden = HiddenBoundaries();
     final DocumentErrors submission = DocumentErrors(type: 'submissionDocument')
       ..add(missing('comments'));
-    hidden.hideAll(submission, submission.all);
+    final HiddenBoundaries hidden = const HiddenBoundaries().hideAll(
+      submission,
+      submission.all,
+    );
 
     final DocumentErrors journal = DocumentErrors(type: 'journalDocument')
       ..add(missing('comments'));
     expect(hidden.visible(journal), journal.all);
+  });
+
+  test('hiding a boundary notifies once', () {
+    final ProviderContainer container = ProviderContainer();
+    addTearDown(container.dispose);
+    final List<HiddenBoundaries> seen = [];
+    container.listen(
+      hiddenBoundariesProvider,
+      (previous, next) => seen.add(next),
+    );
+
+    container.read(hiddenBoundariesProvider.notifier)
+      ..hide('comments')
+      ..hide('comments');
+
+    expect(seen, hasLength(1));
+    expect(container.read(hiddenBoundariesProvider).hides('comments'), isTrue);
   });
 }
