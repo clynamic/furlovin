@@ -2,13 +2,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 
-const String downloadFolderKey = 'downloads.folder';
+const String downloadDirectoryKey = 'downloads.directory';
 
-final Provider<String?> downloadFolderProvider = Provider<String?>((ref) {
-  final String? folder = ref
+final Provider<String?> downloadDirectoryProvider = Provider<String?>((ref) {
+  final String? directory = ref
       .watch(preferencesProvider)
-      .value?[downloadFolderKey];
-  return folder == null || folder.isEmpty ? null : folder;
+      .value?[downloadDirectoryKey];
+  return directory == null || directory.isEmpty ? null : directory;
 });
 
 final FutureProvider<bool> sharesMediaProvider = FutureProvider<bool>(

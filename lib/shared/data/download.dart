@@ -7,7 +7,7 @@ import 'package:mime/mime.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-const String sharedMediaFolder = 'furlovin';
+const String sharedMediaDirectory = 'furlovin';
 
 const String androidPictures =
     'content://com.android.externalstorage.documents/tree/primary%3APictures';
@@ -32,15 +32,17 @@ class SharedMediaTarget extends DownloadTarget {
   const SharedMediaTarget();
 }
 
-class FolderTarget extends DownloadTarget {
-  const FolderTarget(this.folder);
+class DirectoryTarget extends DownloadTarget {
+  const DirectoryTarget(this.directory);
 
-  final String folder;
+  final String directory;
 }
 
-String folderLabel(String folder) {
-  if (!folder.startsWith('content://')) return folder;
-  final String tree = Uri.decodeComponent(Uri.parse(folder).pathSegments.last);
+String directoryLabel(String directory) {
+  if (!directory.startsWith('content://')) return directory;
+  final String tree = Uri.decodeComponent(
+    Uri.parse(directory).pathSegments.last,
+  );
   final int colon = tree.indexOf(':');
   final String volume = colon < 0 ? tree : tree.substring(0, colon);
   final String path = colon < 0 ? '' : tree.substring(colon + 1);
@@ -51,9 +53,9 @@ String folderLabel(String folder) {
 abstract final class Downloads {
   static bool get _android => defaultTargetPlatform == TargetPlatform.android;
 
-  static Future<String?> pickFolder({String? initial}) async {
+  static Future<String?> pickDirectory({String? initial}) async {
     if (_android) {
-      return AndroidFiles.pickFolder(initial: initial ?? androidPictures);
+      return AndroidFiles.pickDirectory(initial: initial ?? androidPictures);
     }
     return FilePicker.getDirectoryPath(
       dialogTitle: 'Choose a folder',
@@ -64,7 +66,7 @@ abstract final class Downloads {
   static Future<bool> sharesMedia() async =>
       _android && await AndroidFiles.sharesMedia();
 
-  static Future<String?> defaultFolder() async =>
+  static Future<String?> defaultDirectory() async =>
       _android ? null : (await getDownloadsDirectory())?.path;
 
   static Future<DownloadTarget> target({
@@ -73,16 +75,16 @@ abstract final class Downloads {
   }) async {
     if (chosen == null) {
       if (await sharesMedia()) return const SharedMediaTarget();
-      if (await defaultFolder() case final String fallback) {
-        return FolderTarget(fallback);
+      if (await defaultDirectory() case final String fallback) {
+        return DirectoryTarget(fallback);
       }
     } else if (!_android || await AndroidFiles.canWrite(chosen)) {
-      return FolderTarget(chosen);
+      return DirectoryTarget(chosen);
     }
-    final String? picked = await pickFolder(initial: chosen);
+    final String? picked = await pickDirectory(initial: chosen);
     if (picked == null) throw const DownloadCancelled();
     onChosen(picked);
-    return FolderTarget(picked);
+    return DirectoryTarget(picked);
   }
 
   static Future<String> write({
@@ -97,20 +99,20 @@ abstract final class Downloads {
           source: file.path,
           name: name,
           mime: mime,
-          folder: sharedMediaFolder,
+          directory: sharedMediaDirectory,
         );
-      case FolderTarget(:final String folder) when _android:
-        await AndroidFiles.writeToFolder(
-          folder: folder,
+      case DirectoryTarget(:final String directory) when _android:
+        await AndroidFiles.writeToDirectory(
+          directory: directory,
           source: file.path,
           name: name,
           mime: mime,
         );
-        return folderLabel(folder);
-      case FolderTarget(:final String folder):
-        await Directory(folder).create(recursive: true);
-        await file.copy(p.join(folder, name));
-        return folderLabel(folder);
+        return directoryLabel(directory);
+      case DirectoryTarget(:final String directory):
+        await Directory(directory).create(recursive: true);
+        await file.copy(p.join(directory, name));
+        return directoryLabel(directory);
     }
   }
 }

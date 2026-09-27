@@ -82,21 +82,21 @@ class FurlovinFilesPlugin :
                 val source = call.argument<String>("source")!!
                 val name = call.argument<String>("name")!!
                 val mime = call.argument<String>("mime")!!
-                val folder = call.argument<String>("folder")!!
-                work(result) { saveToMedia(File(source), name, mime, folder) }
+                val directory = call.argument<String>("directory")!!
+                work(result) { saveToMedia(File(source), name, mime, directory) }
             }
-            "pickFolder" -> pickFolder(call.argument<String>("initial"), result)
+            "pickDirectory" -> pickDirectory(call.argument<String>("initial"), result)
             "canWrite" -> {
-                val folder = call.argument<String>("folder")!!
-                work(result) { canWrite(Uri.parse(folder)) }
+                val directory = call.argument<String>("directory")!!
+                work(result) { canWrite(Uri.parse(directory)) }
             }
-            "writeToFolder" -> {
-                val folder = call.argument<String>("folder")!!
+            "writeToDirectory" -> {
+                val directory = call.argument<String>("directory")!!
                 val source = call.argument<String>("source")!!
                 val name = call.argument<String>("name")!!
                 val mime = call.argument<String>("mime")!!
                 work(result) {
-                    writeToFolder(Uri.parse(folder), File(source), name, mime)
+                    writeToDirectory(Uri.parse(directory), File(source), name, mime)
                     null
                 }
             }
@@ -116,7 +116,7 @@ class FurlovinFilesPlugin :
     }
 
     @TargetApi(Build.VERSION_CODES.Q)
-    private fun saveToMedia(source: File, name: String, mime: String, folder: String): String {
+    private fun saveToMedia(source: File, name: String, mime: String, directory: String): String {
         val volume = MediaStore.VOLUME_EXTERNAL_PRIMARY
         val (collection: Uri, root: String) = when {
             mime.startsWith("image/") ->
@@ -128,7 +128,7 @@ class FurlovinFilesPlugin :
             else ->
                 MediaStore.Downloads.getContentUri(volume) to Environment.DIRECTORY_DOWNLOADS
         }
-        val path = "$root/$folder"
+        val path = "$root/$directory"
         val resolver = context.contentResolver
         val existing = findMedia(resolver, collection, "$path/", name)
         val values = ContentValues().apply {
@@ -167,7 +167,7 @@ class FurlovinFilesPlugin :
         return null
     }
 
-    private fun pickFolder(initial: String?, result: MethodChannel.Result) {
+    private fun pickDirectory(initial: String?, result: MethodChannel.Result) {
         val host: Activity = activity?.activity
             ?: return result.error("no_activity", "No activity to pick a folder from", null)
         if (picking != null) {
@@ -197,37 +197,37 @@ class FurlovinFilesPlugin :
         if (requestCode != PICK_FOLDER) return false
         val result = picking ?: return true
         picking = null
-        val folder = data?.data
-        if (resultCode != Activity.RESULT_OK || folder == null) {
+        val directory = data?.data
+        if (resultCode != Activity.RESULT_OK || directory == null) {
             result.success(null)
             return true
         }
         val access = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
         try {
             val resolver = context.contentResolver
-            resolver.takePersistableUriPermission(folder, access)
+            resolver.takePersistableUriPermission(directory, access)
             for (grant in resolver.persistedUriPermissions) {
-                if (grant.uri != folder) {
+                if (grant.uri != directory) {
                     runCatching { resolver.releasePersistableUriPermission(grant.uri, access) }
                 }
             }
-            result.success(folder.toString())
+            result.success(directory.toString())
         } catch (error: SecurityException) {
             result.error("no_access", "The picked folder cannot be kept", null)
         }
         return true
     }
 
-    private fun canWrite(folder: Uri): Boolean {
+    private fun canWrite(directory: Uri): Boolean {
         val resolver = context.contentResolver
         val granted = resolver.persistedUriPermissions.any {
-            it.uri == folder && it.isWritePermission
+            it.uri == directory && it.isWritePermission
         }
         if (!granted) return false
         return runCatching {
             val root = DocumentsContract.buildDocumentUriUsingTree(
-                folder,
-                DocumentsContract.getTreeDocumentId(folder),
+                directory,
+                DocumentsContract.getTreeDocumentId(directory),
             )
             val columns = arrayOf(DocumentsContract.Document.COLUMN_MIME_TYPE)
             resolver.query(root, columns, null, null, null)?.use { cursor ->
@@ -237,17 +237,17 @@ class FurlovinFilesPlugin :
         }.getOrDefault(false)
     }
 
-    private fun writeToFolder(folder: Uri, source: File, name: String, mime: String) {
+    private fun writeToDirectory(directory: Uri, source: File, name: String, mime: String) {
         val resolver = context.contentResolver
         val parent = DocumentsContract.buildDocumentUriUsingTree(
-            folder,
-            DocumentsContract.getTreeDocumentId(folder),
+            directory,
+            DocumentsContract.getTreeDocumentId(directory),
         )
         val partial = DocumentsContract.createDocument(resolver, parent, mime, partialName(name))
             ?: throw IllegalStateException("The folder refused $name")
         try {
             copy(resolver, source, partial)
-            findChild(resolver, folder, name)?.let {
+            findChild(resolver, directory, name)?.let {
                 DocumentsContract.deleteDocument(resolver, it)
             }
             DocumentsContract.renameDocument(resolver, partial, name)
@@ -258,10 +258,10 @@ class FurlovinFilesPlugin :
         }
     }
 
-    private fun findChild(resolver: ContentResolver, folder: Uri, name: String): Uri? {
+    private fun findChild(resolver: ContentResolver, directory: Uri, name: String): Uri? {
         val children = DocumentsContract.buildChildDocumentsUriUsingTree(
-            folder,
-            DocumentsContract.getTreeDocumentId(folder),
+            directory,
+            DocumentsContract.getTreeDocumentId(directory),
         )
         val columns = arrayOf(
             DocumentsContract.Document.COLUMN_DOCUMENT_ID,
@@ -272,7 +272,7 @@ class FurlovinFilesPlugin :
             while (cursor.moveToNext()) {
                 if (cursor.getString(2) == DocumentsContract.Document.MIME_TYPE_DIR) continue
                 if (cursor.getString(1).equals(name, ignoreCase = true)) {
-                    return DocumentsContract.buildDocumentUriUsingTree(folder, cursor.getString(0))
+                    return DocumentsContract.buildDocumentUriUsingTree(directory, cursor.getString(0))
                 }
             }
         }

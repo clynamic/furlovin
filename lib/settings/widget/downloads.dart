@@ -7,16 +7,16 @@ import 'package:material_ui/material_ui.dart';
 class DownloadSettings extends ConsumerWidget {
   const DownloadSettings({super.key});
 
-  Future<void> _change(WidgetRef ref, String? folder) async {
+  Future<void> _change(WidgetRef ref, String? directory) async {
     final PreferenceStore store = ref.read(preferenceStoreProvider);
-    final String? picked = await Downloads.pickFolder(initial: folder);
-    if (picked != null) await store.put(downloadFolderKey, picked);
+    final String? picked = await Downloads.pickDirectory(initial: directory);
+    if (picked != null) await store.put(downloadDirectoryKey, picked);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
-    final String? folder = ref.watch(downloadFolderProvider);
+    final String? directory = ref.watch(downloadDirectoryProvider);
     final bool shares = ref.watch(sharesMediaProvider).value ?? false;
     final PreferenceStore store = ref.read(preferenceStoreProvider);
     return Card(
@@ -29,10 +29,10 @@ class DownloadSettings extends ConsumerWidget {
               color: theme.colorScheme.onSurfaceVariant,
             ),
             title: const Text('Save to'),
-            subtitle: Text(switch (folder) {
-              final String value => folderLabel(value),
+            subtitle: Text(switch (directory) {
+              final String value => directoryLabel(value),
               null when shares =>
-                'Pictures, Music or Download, in a $sharedMediaFolder folder',
+                'Pictures, Music or Download, in a $sharedMediaDirectory folder',
               null when defaultTargetPlatform == TargetPlatform.android =>
                 'Asked on your first download',
               null => 'Your downloads folder',
@@ -49,13 +49,13 @@ class DownloadSettings extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               spacing: Space.small,
               children: [
-                if (folder != null)
+                if (directory != null)
                   TextButton(
-                    onPressed: () => store.put(downloadFolderKey, ''),
+                    onPressed: () => store.put(downloadDirectoryKey, ''),
                     child: const Text('Use default'),
                   ),
                 TextButton(
-                  onPressed: () => _change(ref, folder),
+                  onPressed: () => _change(ref, directory),
                   child: const Text('Choose a folder'),
                 ),
               ],
