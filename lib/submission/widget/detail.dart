@@ -59,7 +59,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
     final CacheManager artwork = ref.watch(artworkCacheProvider);
 
     final Object? failure = switch (detail) {
-      AsyncError(:final Object error) => error,
+      AsyncError(:final Object error) when !detail.hasValue => error,
       _ => null,
     };
     final VoidCallback? onLogin = ref.watch(authenticatedProvider)
@@ -77,11 +77,11 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
       );
     }
 
-    final Submission? loaded = detail.asData?.value.submission;
+    final Submission? loaded = detail.value?.submission;
     final bool pending = loaded == null && failure == null;
-    final DocumentErrors? errors = detail.asData?.value.errors;
+    final DocumentErrors? errors = detail.value?.errors;
     final List<CommentRow> comments = threadComments(
-      detail.asData?.value.comments ?? const [],
+      detail.value?.comments ?? const [],
     );
     final SubmissionFacade facade = SubmissionFacade(
       submission: loaded,
@@ -213,8 +213,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                             name: 'submission.miniGallery',
                             paths: const ['miniGallery'],
                             builder: (context, broken) => switch (detail
-                                .asData
-                                ?.value) {
+                                .value) {
                               SubmissionDocument(
                                 miniGallery: MiniGallery(
                                       :final List<SubmissionPreview> newer,
@@ -315,7 +314,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                             name: 'submission.folders',
                             paths: const ['folders'],
                             builder: (context, broken) =>
-                                switch (detail.asData?.value.folders) {
+                                switch (detail.value?.folders) {
                                   final List<Folder> folders
                                       when folders.isNotEmpty =>
                                     PersistentSliverSection(

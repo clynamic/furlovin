@@ -22,7 +22,7 @@ class UserPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<UserDocument> detail = ref.watch(userProvider(name));
 
-    if (detail case AsyncError(:final Object error)) {
+    if (detail case AsyncError(:final Object error) when !detail.hasValue) {
       return Scaffold(
         appBar: AppBar(title: Text(name)),
         body: failureFor(

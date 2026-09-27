@@ -73,7 +73,7 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
       context,
       extent: ref.watch(tilesProvider).extent,
       preview: widget.preview,
-      loaded: ref.watch(submissionProvider(widget.id)).asData?.value.submission,
+      loaded: ref.watch(submissionProvider(widget.id)).value?.submission,
       thumbnails: ref.watch(thumbnailCacheProvider),
       artwork: ref.watch(artworkCacheProvider),
     );
