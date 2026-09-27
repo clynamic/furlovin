@@ -37,8 +37,7 @@ void main() {
   });
 
   test('hiding a boundary notifies once', () {
-    final ProviderContainer container = ProviderContainer();
-    addTearDown(container.dispose);
+    final ProviderContainer container = ProviderContainer.test();
     final List<HiddenBoundaries> seen = [];
     container.listen(
       hiddenBoundariesProvider,

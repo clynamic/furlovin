@@ -43,7 +43,7 @@ void main() {
   });
 
   ProviderContainer host() {
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         sessionKeyProvider.overrideWithValue('anonymous'),
         submissionClientProvider.overrideWith(
@@ -54,7 +54,6 @@ void main() {
         ),
       ],
     );
-    addTearDown(container.dispose);
     return container;
   }
 

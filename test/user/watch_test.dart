@@ -112,7 +112,7 @@ void main() {
         answer: () => answer.future,
       );
       final FaClient client = FaClient()..dio.httpClientAdapter = site;
-      container = ProviderContainer(
+      container = ProviderContainer.test(
         overrides: [
           sessionKeyProvider.overrideWithValue('member'),
           userClientProvider.overrideWith(
@@ -120,7 +120,6 @@ void main() {
           ),
         ],
       );
-      addTearDown(container.dispose);
       container.listen(userProvider('fennel-v0578'), (previous, next) {});
       await container.read(userProvider('fennel-v0578').future);
     }

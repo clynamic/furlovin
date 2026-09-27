@@ -73,7 +73,7 @@ void main() {
   });
 
   ProviderContainer host() {
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         sessionKeyProvider.overrideWithValue('anonymous'),
         submissionClientProvider.overrideWith(
@@ -81,7 +81,6 @@ void main() {
         ),
       ],
     );
-    addTearDown(container.dispose);
     return container;
   }
 
@@ -192,7 +191,7 @@ void main() {
       [_preview(1)],
     ];
     final SubmissionListingKey key = numbered();
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         sessionKeyProvider.overrideWith((ref) => ref.watch(_arriving)),
         submissionClientProvider.overrideWith(
@@ -200,7 +199,6 @@ void main() {
         ),
       ],
     );
-    addTearDown(container.dispose);
     container.listen(submissionListingProvider(key), (previous, next) {});
     container.read(_arriving.notifier).arrive();
     await settleListing(container, submissionListingProvider(key));
@@ -214,7 +212,7 @@ void main() {
       [_preview(1)],
     ];
     final SubmissionListingKey key = numbered();
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         sessionKeyProvider.overrideWith((ref) => ref.watch(_arriving)),
         submissionClientProvider.overrideWith(
@@ -222,7 +220,6 @@ void main() {
         ),
       ],
     );
-    addTearDown(container.dispose);
     final _Arriving session = container.read(_arriving.notifier)..arrive();
     container.listen(submissionListingProvider(key), (previous, next) {});
     await settleListing(container, submissionListingProvider(key));
@@ -259,13 +256,12 @@ void main() {
   });
 
   ProviderContainer favouritesHost(_FavouritesClient client) {
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         sessionKeyProvider.overrideWithValue('anonymous'),
         submissionClientProvider.overrideWith((ref) async => client),
       ],
     );
-    addTearDown(container.dispose);
     return container;
   }
 
@@ -414,13 +410,12 @@ void main() {
       },
       rules: rules,
     );
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         sessionKeyProvider.overrideWith((ref) => ref.watch(_session)),
         submissionClientProvider.overrideWith((ref) async => client),
       ],
     );
-    addTearDown(container.dispose);
     expect((await settleFavourites(container)).items?.map((e) => e.id), [1]);
 
     container.read(_session.notifier).signIn();
@@ -472,13 +467,12 @@ void main() {
   test('a gallery shares its sidebar folders from the first page', () async {
     const GallerySource source = GallerySource.folder('someone', 7, 'sketches');
     final _GalleryClient client = _GalleryClient(rules: rules);
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         sessionKeyProvider.overrideWithValue('anonymous'),
         submissionClientProvider.overrideWith((ref) async => client),
       ],
     );
-    addTearDown(container.dispose);
     container.listen(galleryFoldersProvider(source), (previous, next) {});
     container.listen(
       submissionListingProvider((galleryListing, source)),
@@ -516,13 +510,12 @@ void main() {
     final _GalleryClient client = _GalleryClient(rules: rules);
     final Completer<GalleryPage> held = Completer();
     client.hold['/scraps/someone/1/'] = held;
-    final ProviderContainer container = ProviderContainer(
+    final ProviderContainer container = ProviderContainer.test(
       overrides: [
         sessionKeyProvider.overrideWithValue('anonymous'),
         submissionClientProvider.overrideWith((ref) async => client),
       ],
     );
-    addTearDown(container.dispose);
     container.listen(galleryFoldersProvider(main), (previous, next) {});
     container.listen(
       submissionListingProvider((galleryListing, main)),
