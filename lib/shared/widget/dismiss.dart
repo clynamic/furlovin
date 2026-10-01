@@ -198,7 +198,7 @@ class DismissController implements Listenable {
   }
 
   bool release(double velocity) {
-    if (!route.dragging.value) return false;
+    if (!route.dismissible || !route.dragging.value) return false;
     if (exceeds(velocity)) return true;
     route.driver.forward();
     return false;

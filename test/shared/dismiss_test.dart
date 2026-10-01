@@ -114,6 +114,53 @@ void main() {
     expect(top.offset, closeTo(-40, 0.001));
   });
 
+  testWidgets('a fling outliving the release pops one route', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        onGenerateRoute: (settings) =>
+            DismissRoute<void>(builder: probe((e) {}), settings: settings),
+      ),
+    );
+    final NavigatorState navigator = tester.state(find.byType(Navigator));
+    final DismissRoute<void> middle = DismissRoute<void>(
+      builder: probe((e) {}),
+    );
+    navigator.push(middle);
+    await tester.pumpAndSettle();
+    navigator.push(
+      DismissRoute<void>(
+        builder: (context) => ScrollToDismiss(
+          controller: DismissController(DismissRoute.of(context)),
+          onDismiss: () => Navigator.of(context).maybePop(),
+          child: ListView.builder(
+            itemCount: 50,
+            itemBuilder: (context, index) => const SizedBox(height: 100),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final TestGesture finger = await tester.startGesture(
+      const Offset(400, 200),
+    );
+    Duration at = Duration.zero;
+    for (int step = 0; step < 10; step++) {
+      at += const Duration(milliseconds: 16);
+      await finger.moveBy(const Offset(0, 30), timeStamp: at);
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    for (int step = 0; step < 3; step++) {
+      at += const Duration(milliseconds: 16);
+      await finger.moveBy(const Offset(0, -1), timeStamp: at);
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await finger.up(timeStamp: at);
+    await tester.pumpAndSettle();
+
+    expect(middle.isCurrent, isTrue);
+  });
+
   testWidgets('a page updated under the same key shows its new child', (
     tester,
   ) async {
