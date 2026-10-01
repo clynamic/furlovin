@@ -161,6 +161,52 @@ void main() {
     expect(middle.isCurrent, isTrue);
   });
 
+  testWidgets(
+    'a drag back up gives back the pull',
+    (tester) async {
+      late DismissController top;
+      await tester.pumpWidget(
+        MaterialApp(
+          onGenerateRoute: (settings) =>
+              DismissRoute<void>(builder: probe((e) {}), settings: settings),
+        ),
+      );
+      final NavigatorState navigator = tester.state(find.byType(Navigator));
+      navigator.push(
+        DismissRoute<void>(
+          builder: (context) {
+            top = DismissController(DismissRoute.of(context));
+            return ScrollToDismiss(
+              controller: top,
+              onDismiss: () => Navigator.of(context).maybePop(),
+              child: ListView.builder(
+                itemCount: 50,
+                itemBuilder: (context, index) => const SizedBox(height: 100),
+              ),
+            );
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final TestGesture finger = await tester.startGesture(
+        const Offset(400, 200),
+      );
+      for (int step = 0; step < 10; step++) {
+        await finger.moveBy(const Offset(0, 30));
+        await tester.pump();
+      }
+      final double pulled = top.offset;
+      for (int step = 0; step < 3; step++) {
+        await finger.moveBy(const Offset(0, -20));
+        await tester.pump();
+      }
+
+      expect(top.offset, closeTo(pulled - 60, 0.001));
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+  );
+
   testWidgets('a page updated under the same key shows its new child', (
     tester,
   ) async {

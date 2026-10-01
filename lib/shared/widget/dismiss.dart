@@ -302,7 +302,9 @@ class DismissScrollPhysics extends ScrollPhysics {
     if (offset < 0 && controller.offset > 0) {
       final double taken = math.min(controller.offset, -offset);
       controller.push(-taken);
-      return super.applyPhysicsToUserOffset(position, offset + taken);
+      final double rest = offset + taken;
+      if (rest == 0) return 0;
+      return super.applyPhysicsToUserOffset(position, rest);
     }
     return super.applyPhysicsToUserOffset(position, offset);
   }
