@@ -5,9 +5,26 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:material_ui/material_ui.dart';
 
 class SubmissionPager extends ConsumerStatefulWidget {
-  const SubmissionPager({super.key, required this.origin});
+  const SubmissionPager({
+    super.key,
+    required this.origin,
+    this.fullscreen = false,
+    this.onSettled,
+  });
 
   final SubmissionOrigin origin;
+  final bool fullscreen;
+  final ValueChanged<SubmissionPreview>? onSettled;
+
+  static Route<void> viewerRoute({
+    required SubmissionOrigin origin,
+    ValueChanged<SubmissionPreview>? onSettled,
+  }) => DismissRoute<void>(
+    barrier: Colors.black,
+    transition: DismissTransition.fade,
+    builder: (context) =>
+        SubmissionPager(origin: origin, fullscreen: true, onSettled: onSettled),
+  );
 
   @override
   ConsumerState<SubmissionPager> createState() => _SubmissionPagerState();
@@ -18,19 +35,75 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
   late int settled = current.id;
   bool trailing = false;
   PageController? pages;
+  GalleryPanController? pan;
 
   @override
   void dispose() {
-    pages?.dispose();
+    _drop();
     super.dispose();
   }
 
   void _drop() {
     final PageController? stale = pages;
-    if (stale == null) return;
+    final GalleryPanController? loose = pan;
     pages = null;
-    WidgetsBinding.instance.addPostFrameCallback((_) => stale.dispose());
+    pan = null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      stale?.dispose();
+      loose?.locked.dispose();
+    });
   }
+
+  void _settle(SubmissionPreview item) {
+    settled = item.id;
+    if (widget.onSettled case final ValueChanged<SubmissionPreview> report) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => report(item));
+    }
+  }
+
+  void _show(SubmissionPreview item) {
+    if (!mounted) return;
+    final List<SubmissionPreview> items =
+        ref.read(submissionListingProvider(widget.origin.listing)).items ??
+        const [];
+    final int index = items.indexWhere((e) => e.id == item.id);
+    setState(() {
+      current = item;
+      settled = item.id;
+      trailing = false;
+    });
+    final PageController? pages = this.pages;
+    if (index < 0 || pages == null || !pages.hasClients) return;
+    pages.jumpToPage(index);
+  }
+
+  void _openViewer(SubmissionPreview item) => Navigator.of(context).push(
+    SubmissionPager.viewerRoute(
+      origin: SubmissionOrigin(listing: widget.origin.listing, preview: item),
+      onSettled: _show,
+    ),
+  );
+
+  Widget _page(
+    SubmissionPreview item, {
+    bool settled = true,
+    GalleryPanController? pan,
+    VoidCallback? onTapImage,
+  }) => widget.fullscreen
+      ? SubmissionViewer(
+          id: item.id,
+          preview: item,
+          tag: submissionHeroTag(item.id),
+          aspectRatio: SubmissionFacade(preview: item).naturalAspectRatio,
+          settled: settled,
+          pan: pan,
+        )
+      : SubmissionPage(
+          id: item.id,
+          preview: item,
+          settled: settled,
+          onTapImage: onTapImage,
+        );
 
   void _follow(PageController pages, int index) {
     if (!pages.hasClients) return;
@@ -50,7 +123,7 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
     if (notification.metrics case PageMetrics(:final double page)) {
       final int index = page.round();
       if (index < items.length && items[index].id != settled) {
-        setState(() => settled = items[index].id);
+        setState(() => _settle(items[index]));
       }
     }
     return false;
@@ -67,64 +140,72 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
       final int at = resting.page!.round();
       if (at < items.length) {
         current = items[at];
-        settled = current.id;
         trailing = false;
+        _settle(current);
       }
     }
     final int index = items.indexWhere((e) => e.id == current.id);
 
     if (index < 0) {
       _drop();
-      return SubmissionPage(id: current.id, preview: current);
+      return _page(current);
     }
 
     final PageController pages = this.pages ??= PageController(
       initialPage: index,
     );
+    final GalleryPanController? pan = widget.fullscreen
+        ? this.pan ??= GalleryPanController(pages)
+        : null;
     if (!trailing) _follow(pages, index);
 
-    return NotificationListener<ScrollEndNotification>(
-      onNotification: (notification) => _onScrollEnd(notification, items),
-      child: PagedPageView<int, SubmissionPreview>(
-        state: state,
-        fetchNextPage: ref
-            .read(
-              submissionListingPaginationProvider(widget.origin.listing)
-                  .notifier,
-            )
-            .fetchNextPage,
-        pageController: pages,
-        onPageChanged: (index) {
-          trailing = index >= items.length;
-          if (!trailing) current = items[index];
-        },
-        builderDelegate: PagedChildBuilderDelegate<SubmissionPreview>(
-          itemBuilder: (context, item, index) => _PagerPage(
-            key: ValueKey(item.id),
-            child: SubmissionPage(
-              id: item.id,
-              preview: item,
-              settled: item.id == settled,
-            ),
+    final VoidCallback fetchNextPage = ref
+        .read(
+          submissionListingPaginationProvider(widget.origin.listing).notifier,
+        )
+        .fetchNextPage;
+
+    Widget view(bool locked) => PagedPageView<int, SubmissionPreview>(
+      physics: locked ? const NeverScrollableScrollPhysics() : null,
+      state: state,
+      fetchNextPage: fetchNextPage,
+      pageController: pages,
+      onPageChanged: (index) {
+        trailing = index >= items.length;
+        if (!trailing) current = items[index];
+      },
+      builderDelegate: PagedChildBuilderDelegate<SubmissionPreview>(
+        itemBuilder: (context, item, index) => _PagerPage(
+          key: ValueKey(item.id),
+          child: _page(
+            item,
+            settled: item.id == settled,
+            pan: pan,
+            onTapImage: () => _openViewer(item),
           ),
-          newPageProgressIndicatorBuilder: (context) => const _PagerEnd(
-            child: Center(child: CircularProgressIndicator()),
-          ),
-          newPageErrorIndicatorBuilder: (context) => _PagerEnd(
-            child: Center(
-              child: NewPageError(
-                error: state.error,
-                onRetry: ref
-                    .read(
-                      submissionListingPaginationProvider(widget.origin.listing)
-                          .notifier,
-                    )
-                    .fetchNextPage,
-              ),
-            ),
+        ),
+        newPageProgressIndicatorBuilder: (context) => _PagerEnd(
+          fullscreen: widget.fullscreen,
+          child: const Center(child: CircularProgressIndicator()),
+        ),
+        newPageErrorIndicatorBuilder: (context) => _PagerEnd(
+          fullscreen: widget.fullscreen,
+          child: Center(
+            child: NewPageError(error: state.error, onRetry: fetchNextPage),
           ),
         ),
       ),
+    );
+
+    return NotificationListener<ScrollEndNotification>(
+      onNotification: (notification) => _onScrollEnd(notification, items),
+      child: switch (pan) {
+        final GalleryPanController pan => ValueListenableBuilder<bool>(
+          valueListenable: pan.locked,
+          builder: (context, locked, child) => view(locked),
+        ),
+        null => view(false),
+      },
     );
   }
 }
@@ -153,14 +234,17 @@ class _PagerPageState extends State<_PagerPage> {
 }
 
 class _PagerEnd extends StatelessWidget {
-  const _PagerEnd({required this.child});
+  const _PagerEnd({required this.fullscreen, required this.child});
 
+  final bool fullscreen;
   final Widget child;
 
   @override
   Widget build(BuildContext context) => DismissFade(
     child: ColoredBox(
-      color: Theme.of(context).colorScheme.surface,
+      color: fullscreen
+          ? Colors.transparent
+          : Theme.of(context).colorScheme.surface,
       child: child,
     ),
   );

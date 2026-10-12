@@ -26,11 +26,13 @@ class SubmissionPage extends ConsumerStatefulWidget {
     required this.id,
     this.preview,
     this.settled = true,
+    this.onTapImage,
   });
 
   final int id;
   final SubmissionPreview? preview;
   final bool settled;
+  final VoidCallback? onTapImage;
 
   @override
   ConsumerState<SubmissionPage> createState() => _SubmissionPageState();
@@ -129,13 +131,14 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                         background: GestureDetector(
                           onTap: preview == null && loaded == null
                               ? null
-                              : () => openViewer(
-                                  context,
-                                  id: id,
-                                  preview: preview,
-                                  tag: submissionHeroTag(id),
-                                  aspectRatio: facade.naturalAspectRatio,
-                                ),
+                              : widget.onTapImage ??
+                                    () => openViewer(
+                                      context,
+                                      id: id,
+                                      preview: preview,
+                                      tag: submissionHeroTag(id),
+                                      aspectRatio: facade.naturalAspectRatio,
+                                    ),
                           child: SubmissionHeader(
                             rungs: submissionRungs(
                               context,
