@@ -17,12 +17,14 @@ List<RouteBase> _reachable() => [
     path: 'view/:id',
     pageBuilder: (context, state) => DismissPage<void>(
       key: state.pageKey,
-      child: SubmissionPage(
-        id: int.parse(state.pathParameters['id']!),
-        preview: state.extra is SubmissionPreview
-            ? state.extra! as SubmissionPreview
-            : null,
-      ),
+      child: switch (state.extra) {
+        final SubmissionOrigin origin => SubmissionPager(origin: origin),
+        final SubmissionPreview preview => SubmissionPage(
+          id: int.parse(state.pathParameters['id']!),
+          preview: preview,
+        ),
+        _ => SubmissionPage(id: int.parse(state.pathParameters['id']!)),
+      },
     ),
   ),
   GoRoute(

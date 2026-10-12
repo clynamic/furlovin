@@ -114,6 +114,7 @@ class SubmissionListingGrid<A, P> extends ConsumerWidget {
       submissionListingPaginationProvider(key).notifier,
     );
     return SubmissionPagedGrid(
+      listing: key,
       state: state,
       fetchNextPage: pagination.fetchNextPage,
       onRefresh: pagination.restart,
@@ -128,12 +129,14 @@ class SubmissionPagedGrid extends ConsumerWidget {
     required this.state,
     required this.fetchNextPage,
     required this.onRefresh,
+    this.listing,
     this.header,
   });
 
   final PagingState<int, SubmissionPreview> state;
   final VoidCallback fetchNextPage;
   final Future<void> Function() onRefresh;
+  final SubmissionListingKey? listing;
   final Widget? header;
 
   double _headerExtent(BuildContext context) =>
@@ -207,6 +210,17 @@ class SubmissionPagedGrid extends ConsumerWidget {
                                         session: session,
                                         tiles: tiles,
                                         cache: cache,
+                                        onTap: switch (listing) {
+                                          final SubmissionListingKey listing =>
+                                            () => context.openSubmission(
+                                              submission.id,
+                                              extra: SubmissionOrigin(
+                                                listing: listing,
+                                                preview: submission,
+                                              ),
+                                            ),
+                                          null => null,
+                                        },
                                       ),
                                   noItemsFoundIndicatorBuilder: (context) =>
                                       const FailureView(
@@ -427,7 +441,7 @@ class _SubmissionStripState extends ConsumerState<SubmissionStrip> {
                           ? null
                           : () => context.openSubmission(
                               submission.id,
-                              preview: submission,
+                              extra: submission,
                             ),
                       child: SubmissionThumbnail(
                         submission: submission,

@@ -21,10 +21,16 @@ const double headerLandscapeCeiling = 0.8;
 const double headerLandscapeFloor = 400;
 
 class SubmissionPage extends ConsumerStatefulWidget {
-  const SubmissionPage({super.key, required this.id, this.preview});
+  const SubmissionPage({
+    super.key,
+    required this.id,
+    this.preview,
+    this.settled = true,
+  });
 
   final int id;
   final SubmissionPreview? preview;
+  final bool settled;
 
   @override
   ConsumerState<SubmissionPage> createState() => _SubmissionPageState();
@@ -46,9 +52,10 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<SubmissionDocument> detail = ref.watch(
-      submissionProvider(id),
-    );
+    final AsyncValue<SubmissionDocument> detail =
+        widget.settled || ref.exists(submissionProvider(id))
+        ? ref.watch(submissionProvider(id))
+        : const AsyncLoading();
     final Session session = ref
         .watch(sessionProvider)
         .maybeWhen(data: (e) => e, orElse: () => const Session());

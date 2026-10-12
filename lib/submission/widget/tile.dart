@@ -52,7 +52,7 @@ class SubmissionTile extends StatelessWidget {
       child: InkWell(
         onTap:
             onTap ??
-            () => context.openSubmission(submission.id, preview: submission),
+            () => context.openSubmission(submission.id, extra: submission),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

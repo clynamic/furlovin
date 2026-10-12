@@ -41,6 +41,13 @@ typedef SubmissionListingKey = (
   Object? arg,
 );
 
+class SubmissionOrigin {
+  const SubmissionOrigin({required this.listing, required this.preview});
+
+  final SubmissionListingKey listing;
+  final SubmissionPreview preview;
+}
+
 final FutureProviderFamily<Object?, (int, SubmissionListingKey, int)>
 submissionListingPageProvider = FutureProvider.autoDispose
     .family<Object?, (int, SubmissionListingKey, int)>((ref, key) async {

@@ -3,6 +3,7 @@ export 'detail.dart';
 export 'folders.dart';
 export 'grid.dart';
 export 'inbox.dart';
+export 'pager.dart';
 export 'rating.dart';
 export 'tile.dart';
 export 'viewer.dart';
