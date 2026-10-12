@@ -99,6 +99,8 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
                     onTap: () => Navigator.of(context).maybePop(),
                     onSpare: _onSpare,
                     onSpareEnd: _onSpareEnd,
+                    onSpareCancel: () =>
+                        DismissController.maybeOf(context)?.settle(),
                     child: ContentHero(
                       tag: widget.tag,
                       content: FittedContent(
