@@ -12,6 +12,8 @@ import 'package:furlovin/submission/submission.dart';
 import 'package:furlovin/theme/theme.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../_support/gestures.dart';
+
 class _Silent implements FileService {
   @override
   int concurrentFetches = 1;
@@ -233,6 +235,103 @@ void main() {
 
     expect(shown(tester), 3);
     expect(client.viewed, [1, 2, 3]);
+
+    await close(tester);
+  });
+
+  int behind(WidgetTester tester) => tester
+      .widgetList<SubmissionPage>(
+        find.byType(SubmissionPage, skipOffstage: false),
+      )
+      .single
+      .id;
+
+  int viewing(WidgetTester tester) => tester
+      .widgetList<SubmissionViewer>(find.byType(SubmissionViewer))
+      .single
+      .id;
+
+  Future<void> openFullscreen(WidgetTester tester) async {
+    await tester.tapAt(const Offset(400, 150));
+    await settle(tester);
+  }
+
+  testWidgets('tapping the image opens fullscreen on that submission', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      (after) async =>
+          after == 0 ? [_favorite(1), _favorite(2), _favorite(3)] : const [],
+      open: 2,
+    );
+
+    await openFullscreen(tester);
+
+    expect(viewing(tester), 2);
+
+    await close(tester);
+  });
+
+  testWidgets('a swipe in fullscreen moves the details beneath along', (
+    tester,
+  ) async {
+    final _Client client = await pump(
+      tester,
+      (after) async =>
+          after == 0 ? [_favorite(1), _favorite(2), _favorite(3)] : const [],
+    );
+    await openFullscreen(tester);
+
+    await swipe(tester, -600);
+
+    expect(viewing(tester), 2);
+    expect(behind(tester), 2);
+    expect(client.viewed, [1, 2]);
+
+    await close(tester);
+  });
+
+  testWidgets('a peek in fullscreen leaves the details beneath alone', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      (after) async =>
+          after == 0 ? [_favorite(1), _favorite(2), _favorite(3)] : const [],
+    );
+    await openFullscreen(tester);
+
+    final TestGesture finger = await tester.startGesture(
+      const Offset(600, 300),
+    );
+    await finger.moveBy(const Offset(-100, 0));
+    await tester.pump();
+    await finger.moveBy(const Offset(-100, 0));
+    await tester.pump();
+    await finger.up();
+    await settle(tester);
+
+    expect(viewing(tester), 1);
+    expect(behind(tester), 1);
+
+    await close(tester);
+  });
+
+  testWidgets('a zoomed image in fullscreen keeps a swipe to itself', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      (after) async =>
+          after == 0 ? [_favorite(1), _favorite(2), _favorite(3)] : const [],
+    );
+    await openFullscreen(tester);
+
+    await doubleTap(tester, const Offset(400, 300));
+    await swipe(tester, -300);
+
+    expect(viewing(tester), 1);
 
     await close(tester);
   });
