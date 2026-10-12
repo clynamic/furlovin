@@ -159,7 +159,7 @@ class SubmissionPagedGrid extends ConsumerWidget {
     final CacheManager cache = ref.watch(thumbnailCacheProvider);
     final Tiles tiles = ref.watch(tilesProvider);
 
-    return ColoredBox(
+    final Widget grid = ColoredBox(
       color: Theme.of(context).colorScheme.surface,
       child: RevisitRefresh(
         onRefresh: onRefresh,
@@ -205,22 +205,25 @@ class SubmissionPagedGrid extends ConsumerWidget {
                             builderDelegate:
                                 PagedChildBuilderDelegate<SubmissionPreview>(
                                   itemBuilder: (context, submission, index) =>
-                                      SubmissionTile(
-                                        submission: submission,
-                                        session: session,
-                                        tiles: tiles,
-                                        cache: cache,
-                                        onTap: switch (listing) {
-                                          final SubmissionListingKey listing =>
-                                            () => context.openSubmission(
-                                              submission.id,
-                                              extra: SubmissionOrigin(
-                                                listing: listing,
-                                                preview: submission,
+                                      SubmissionFollowProbe(
+                                        child: SubmissionTile(
+                                          submission: submission,
+                                          session: session,
+                                          tiles: tiles,
+                                          cache: cache,
+                                          onTap: switch (listing) {
+                                            final SubmissionListingKey
+                                            listing =>
+                                              () => context.openSubmission(
+                                                submission.id,
+                                                extra: SubmissionOrigin(
+                                                  listing: listing,
+                                                  preview: submission,
+                                                ),
                                               ),
-                                            ),
-                                          null => null,
-                                        },
+                                            null => null,
+                                          },
+                                        ),
                                       ),
                                   noItemsFoundIndicatorBuilder: (context) =>
                                       const FailureView(
@@ -249,6 +252,16 @@ class SubmissionPagedGrid extends ConsumerWidget {
               ),
       ),
     );
+
+    return switch (listing) {
+      final SubmissionListingKey listing => SubmissionGridFollow(
+        listing: listing,
+        items: state.items ?? const [],
+        spacing: Space.small,
+        child: grid,
+      ),
+      null => grid,
+    };
   }
 }
 

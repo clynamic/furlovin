@@ -1,6 +1,7 @@
 export 'actions.dart';
 export 'detail.dart';
 export 'folders.dart';
+export 'follow.dart';
 export 'grid.dart';
 export 'inbox.dart';
 export 'pager.dart';

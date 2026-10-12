@@ -12,6 +12,23 @@ const double fallbackAspectRatio = 1;
 const double minAspectRatio = 0.5;
 const double maxAspectRatio = 2;
 
+double? naturalTileAspectRatio(SubmissionPreview submission) {
+  final double? width = submission.thumbnailWidth;
+  final double? height = submission.thumbnailHeight;
+  if (width == null || height == null || height == 0) return null;
+  return width / height;
+}
+
+double tileAspectRatio(SubmissionPreview submission, Tiles tiles) =>
+    switch (tiles.shape) {
+      TileShape.natural =>
+        (naturalTileAspectRatio(submission) ?? fallbackAspectRatio).clamp(
+          minAspectRatio,
+          maxAspectRatio,
+        ),
+      TileShape.even => evenTileAspectRatio,
+    };
+
 class SubmissionTile extends StatelessWidget {
   const SubmissionTile({
     super.key,
@@ -28,20 +45,9 @@ class SubmissionTile extends StatelessWidget {
   final CacheManager? cache;
   final VoidCallback? onTap;
 
-  double? get naturalAspectRatio {
-    final double? width = submission.thumbnailWidth;
-    final double? height = submission.thumbnailHeight;
-    if (width == null || height == null || height == 0) return null;
-    return width / height;
-  }
+  double? get naturalAspectRatio => naturalTileAspectRatio(submission);
 
-  double get aspectRatio => switch (tiles.shape) {
-    TileShape.natural => (naturalAspectRatio ?? fallbackAspectRatio).clamp(
-      minAspectRatio,
-      maxAspectRatio,
-    ),
-    TileShape.even => evenTileAspectRatio,
-  };
+  double get aspectRatio => tileAspectRatio(submission, tiles);
 
   @override
   Widget build(BuildContext context) {
