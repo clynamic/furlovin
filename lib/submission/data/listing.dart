@@ -66,6 +66,29 @@ submissionListingPageProvider = FutureProvider.autoDispose
     });
 
 final NotifierProviderFamily<
+  SubmissionListingFollow,
+  int?,
+  SubmissionListingKey
+>
+submissionListingFollowProvider = NotifierProvider.autoDispose
+    .family<SubmissionListingFollow, int?, SubmissionListingKey>(
+      SubmissionListingFollow.new,
+    );
+
+class SubmissionListingFollow extends Notifier<int?> {
+  SubmissionListingFollow(this.key);
+
+  final SubmissionListingKey key;
+
+  @override
+  int? build() => null;
+
+  int? get target => state;
+
+  set target(int? id) => state = id;
+}
+
+final NotifierProviderFamily<
   SubmissionListingPagination,
   List<int>,
   SubmissionListingKey

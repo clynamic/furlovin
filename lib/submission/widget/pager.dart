@@ -56,9 +56,18 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
 
   void _settle(SubmissionPreview item) {
     settled = item.id;
-    if (widget.onSettled case final ValueChanged<SubmissionPreview> report) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => report(item));
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      widget.onSettled?.call(item);
+      if (!widget.fullscreen) _follow(item);
+    });
+  }
+
+  void _follow(SubmissionPreview item) {
+    final SubmissionListingFollow follow = ref.read(
+      submissionListingFollowProvider(widget.origin.listing).notifier,
+    );
+    follow.target = item.id;
   }
 
   void _show(SubmissionPreview item) {
@@ -72,6 +81,7 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
       settled = item.id;
       trailing = false;
     });
+    _follow(item);
     final PageController? pages = this.pages;
     if (index < 0 || pages == null || !pages.hasClients) return;
     pages.jumpToPage(index);
@@ -105,7 +115,7 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
           onTapImage: onTapImage,
         );
 
-  void _follow(PageController pages, int index) {
+  void _track(PageController pages, int index) {
     if (!pages.hasClients) return;
     final ScrollPosition position = pages.position;
     if (position.isScrollingNotifier.value) return;
@@ -157,7 +167,7 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
     final GalleryPanController? pan = widget.fullscreen
         ? this.pan ??= GalleryPanController(pages)
         : null;
-    if (!trailing) _follow(pages, index);
+    if (!trailing) _track(pages, index);
 
     final VoidCallback fetchNextPage = ref
         .read(
