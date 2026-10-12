@@ -31,8 +31,8 @@ extension AppRouting on BuildContext {
     return browsePath;
   }
 
-  void openSubmission(int id, {Object? preview}) =>
-      GoRouter.of(this).push('$branch$submissionPath/$id', extra: preview);
+  void openSubmission(int id, {Object? extra}) =>
+      GoRouter.of(this).push('$branch$submissionPath/$id', extra: extra);
 
   void openUser(String name) =>
       GoRouter.of(this).push('$branch$userPath/$name');

@@ -736,7 +736,7 @@ class FeaturedSubmissionCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       margin: EdgeInsets.zero,
       child: InkWell(
-        onTap: () => context.openSubmission(featured.id, preview: preview),
+        onTap: () => context.openSubmission(featured.id, extra: preview),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
