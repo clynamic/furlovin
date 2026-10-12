@@ -42,9 +42,6 @@ class SubmissionViewer extends ConsumerStatefulWidget {
 
 class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
     with BottomClaimant {
-  late final DismissController dismiss = DismissController(
-    DismissRoute.of(context),
-  );
   final ZoomController zoom = ZoomController();
   final ImageLoadController load = ImageLoadController();
   late double? _ratio = widget.aspectRatio;
@@ -55,6 +52,16 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() {});
     });
+  }
+
+  void _onSpare(Offset spare) =>
+      DismissController.maybeOf(context)?.push(spare.dy);
+
+  void _onSpareEnd(Velocity velocity) {
+    final DismissController? dismiss = DismissController.maybeOf(context);
+    if (dismiss != null && dismiss.release(velocity.pixelsPerSecond.dy)) {
+      Navigator.of(context).maybePop();
+    }
   }
 
   @override
@@ -84,30 +91,27 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
         body: Stack(
           children: [
             Positioned.fill(
-              child: DismissTransform(
-                controller: dismiss,
-                child: Zoomable(
-                  controller: zoom,
-                  aspectRatio: _ratio,
-                  onTap: () => Navigator.of(context).maybePop(),
-                  onSpare: (spare) => dismiss.push(spare.dy),
-                  onSpareEnd: (velocity) {
-                    if (dismiss.release(velocity.pixelsPerSecond.dy)) {
-                      Navigator.of(context).maybePop();
-                    }
-                  },
-                  child: ContentHero(
-                    tag: widget.tag,
-                    content: FittedContent(
-                      fit: BoxFit.contain,
-                      aspectRatio: _ratio,
-                    ),
-                    child: ProgressiveImage(
-                      rungs: rungs,
-                      headers: session.headersFor,
-                      discriminator: session.discriminator,
-                      onRatio: _onRatio,
-                      load: load,
+              child: DismissPointers(
+                child: DismissTransform(
+                  child: Zoomable(
+                    controller: zoom,
+                    aspectRatio: _ratio,
+                    onTap: () => Navigator.of(context).maybePop(),
+                    onSpare: _onSpare,
+                    onSpareEnd: _onSpareEnd,
+                    child: ContentHero(
+                      tag: widget.tag,
+                      content: FittedContent(
+                        fit: BoxFit.contain,
+                        aspectRatio: _ratio,
+                      ),
+                      child: ProgressiveImage(
+                        rungs: rungs,
+                        headers: session.headersFor,
+                        discriminator: session.discriminator,
+                        onRatio: _onRatio,
+                        load: load,
+                      ),
                     ),
                   ),
                 ),
@@ -115,7 +119,6 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
             ),
             Positioned.fill(
               child: DismissFade(
-                controller: dismiss,
                 child: ImageLoadOverlay(
                   load: load,
                   moves: zoom.transformation,
@@ -130,7 +133,6 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
               ),
             ),
             DismissFade(
-              controller: dismiss,
               child: SafeArea(
                 child: Align(
                   alignment: Alignment.topLeft,

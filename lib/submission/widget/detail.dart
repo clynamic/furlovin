@@ -32,9 +32,6 @@ class SubmissionPage extends ConsumerStatefulWidget {
 
 class _SubmissionPageState extends ConsumerState<SubmissionPage>
     with BottomClaimant {
-  late final DismissController dismiss = DismissController(
-    DismissRoute.of(context),
-  );
   final ImageLoadController imageLoad = ImageLoadController();
 
   int get id => widget.id;
@@ -90,15 +87,12 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
 
     return ClaimedBottom(
       child: ScrollToDismiss(
-        controller: dismiss,
-        onDismiss: () => Navigator.of(context).maybePop(),
         child: Scaffold(
           backgroundColor: Colors.transparent,
           body: Stack(
             children: [
               Positioned.fill(
                 child: DismissFade(
-                  controller: dismiss,
                   child: ColoredBox(
                     color: Theme.of(context).colorScheme.surface,
                   ),
@@ -113,13 +107,9 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                         constraints,
                         facade.aspectRatio,
                       ),
-                      leading: DismissFade(
-                        controller: dismiss,
-                        child: const ScrimBackButton(),
-                      ),
+                      leading: const DismissFade(child: ScrimBackButton()),
                       actions: [
                         DismissFade(
-                          controller: dismiss,
                           child: DocumentErrorsButton(
                             errors: errors,
                             onImage: true,
@@ -150,7 +140,6 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                             ),
                             session: session,
                             tag: submissionHeroTag(id),
-                            dismiss: dismiss,
                             aspectRatio: facade.naturalAspectRatio,
                             load: imageLoad,
                           ),
@@ -158,7 +147,6 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                       ),
                     ),
                     DismissSliverFade(
-                      controller: dismiss,
                       sliver: SliverMainAxisGroup(
                         slivers: [
                           SliverPadding(
@@ -406,7 +394,6 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                 right: 0,
                 bottom: 0,
                 child: DismissFade(
-                  controller: dismiss,
                   child: SubmissionActions(id: id, submission: loaded),
                 ),
               ),
@@ -513,7 +500,6 @@ class SubmissionHeader extends StatelessWidget {
     required this.rungs,
     required this.session,
     required this.tag,
-    required this.dismiss,
     this.aspectRatio,
     this.load,
   });
@@ -521,7 +507,6 @@ class SubmissionHeader extends StatelessWidget {
   final List<ImageRung> rungs;
   final Session session;
   final Object tag;
-  final DismissController dismiss;
   final double? aspectRatio;
   final ImageLoadController? load;
 
@@ -530,7 +515,6 @@ class SubmissionHeader extends StatelessWidget {
     fit: StackFit.expand,
     children: [
       DismissFade(
-        controller: dismiss,
         child: ColoredBox(
           color: Theme.of(context).colorScheme.surfaceContainer,
         ),
@@ -546,13 +530,11 @@ class SubmissionHeader extends StatelessWidget {
           load: load,
         ),
       ),
-      DismissFade(
-        controller: dismiss,
-        child: const Align(alignment: Alignment.topCenter, child: TopScrim()),
+      const DismissFade(
+        child: Align(alignment: Alignment.topCenter, child: TopScrim()),
       ),
       if (load case final ImageLoadController known)
         DismissFade(
-          controller: dismiss,
           child: ImageLoadOverlay(
             load: known,
             locate: (size) =>

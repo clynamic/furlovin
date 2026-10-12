@@ -21,7 +21,7 @@ void main() {
       barrier: Colors.black,
       transition: DismissTransition.fade,
       builder: (context) {
-        top = DismissController(DismissRoute.of(context));
+        top = DismissController.maybeOf(context)!;
         return const Scaffold(
           backgroundColor: Colors.transparent,
           body: Center(child: Text('above')),
