@@ -10,13 +10,18 @@ const double dismissMinScale = 0.72;
 const double dismissFadeRate = 2;
 const Duration dismissDuration = Duration(milliseconds: 300);
 const Duration dismissFadeDuration = Duration(milliseconds: 220);
+const Color dismissBarrier = Color(0x8A000000);
+final SpringDescription dismissSpring = SpringDescription.withDampingRatio(
+  mass: 1,
+  stiffness: 150,
+);
 
 enum DismissTransition { platform, fade }
 
 class DismissRoute<T> extends PageRoute<T> {
   DismissRoute({
     required this.builder,
-    this.barrier = const Color(0x8A000000),
+    this.barrier = dismissBarrier,
     this.transition = DismissTransition.platform,
     super.settings,
   });
@@ -25,37 +30,54 @@ class DismissRoute<T> extends PageRoute<T> {
   final Color barrier;
   final DismissTransition transition;
 
-  final ValueNotifier<bool> dragging = ValueNotifier<bool>(false);
+  late final AnimationController drag;
   double direction = 1;
+  bool settling = false;
+  bool blocked = false;
+  double released = 0;
 
   AnimationController get driver => controller!;
 
+  double momentum(double velocity) => direction * velocity / dismissTravel;
+
   bool get dismissible => isActive && !isFirst;
 
-  double get dragOffset =>
-      dragging.value ? direction * (1 - driver.value) * dismissTravel : 0;
+  bool get dragging => drag.value > 0;
+
+  double get dragOffset => direction * drag.value * dismissTravel;
 
   double get dragProgress => (dragOffset.abs() / dismissReach).clamp(0, 1);
-
-  static DismissRoute<dynamic> of(BuildContext context) {
-    final ModalRoute<dynamic>? route = ModalRoute.of(context);
-    if (route is! DismissRoute<dynamic>) {
-      throw FlutterError(
-        'DismissRoute.of() was called with a context that is not inside a '
-        'DismissRoute.',
-      );
-    }
-    return route;
-  }
 
   @override
   void install() {
     super.install();
-    driver.addStatusListener(_onStatus);
+    drag = AnimationController(vsync: navigator!, duration: dismissDuration)
+      ..addStatusListener(_onDrag)
+      ..addListener(_onDragValue);
   }
 
-  void _onStatus(AnimationStatus status) {
-    if (status == AnimationStatus.completed) dragging.value = false;
+  void _onDrag(AnimationStatus status) {
+    if (status == AnimationStatus.dismissed) settling = false;
+  }
+
+  bool _revealing = false;
+
+  void _onDragValue() {
+    if (dragging == _revealing || overlayEntries.isEmpty) return;
+    _revealing = dragging;
+    overlayEntries.first.opaque = !dragging && driver.isCompleted;
+  }
+
+  @override
+  bool didPop(T? result) {
+    final bool popped = super.didPop(result);
+    if (dragging) {
+      drag.fling(
+        velocity: math.max(0.001, momentum(released)),
+        springDescription: dismissSpring,
+      );
+    }
+    return popped;
   }
 
   @override
@@ -90,44 +112,45 @@ class DismissRoute<T> extends PageRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        ListenableBuilder(
-          listenable: Listenable.merge([animation, dragging]),
-          builder: (context, child) => IgnorePointer(
+    return ListenableBuilder(
+      listenable: Listenable.merge([animation, drag]),
+      builder: (context, child) => Stack(
+        fit: StackFit.expand,
+        children: [
+          IgnorePointer(
             child: ColoredBox(
               color: barrier.withValues(alpha: barrier.a * _scrim(animation)),
             ),
           ),
-        ),
-        if (dragging.value)
-          child
-        else
-          switch (transition) {
-            DismissTransition.fade => FadeTransition(
-              opacity: animation,
-              child: child,
-            ),
-            DismissTransition.platform =>
-              Theme.of(context).pageTransitionsTheme.buildTransitions<T>(
-                this,
-                context,
-                animation,
-                kAlwaysDismissedAnimation,
-                child,
+          if (dragging)
+            child!
+          else
+            switch (transition) {
+              DismissTransition.fade => FadeTransition(
+                opacity: animation,
+                child: child,
               ),
-          },
-      ],
+              DismissTransition.platform =>
+                Theme.of(context).pageTransitionsTheme.buildTransitions<T>(
+                  this,
+                  context,
+                  animation,
+                  kAlwaysDismissedAnimation,
+                  child!,
+                ),
+            },
+        ],
+      ),
+      child: child,
     );
   }
 
   double _scrim(Animation<double> animation) =>
-      dragging.value ? 1 - dragProgress : animation.value;
+      dragging ? 1 - dragProgress : animation.value;
 
   @override
   void dispose() {
-    dragging.dispose();
+    drag.dispose();
     super.dispose();
   }
 }
@@ -135,7 +158,7 @@ class DismissRoute<T> extends PageRoute<T> {
 class DismissPage<T> extends Page<T> {
   const DismissPage({
     required this.child,
-    this.barrier = const Color(0x8A000000),
+    this.barrier = dismissBarrier,
     this.transition = DismissTransition.platform,
     super.key,
     super.name,
@@ -161,15 +184,19 @@ class DismissController implements Listenable {
 
   final DismissRoute<dynamic> route;
 
-  double get offset => route.dragging.value
-      ? route.direction * (1 - route.driver.value) * dismissTravel
-      : 0;
+  static DismissController? maybeOf(BuildContext context) {
+    final ModalRoute<dynamic>? route = ModalRoute.of(context);
+    if (route is! DismissRoute<dynamic>) return null;
+    return DismissController(route);
+  }
 
-  double get progress => (offset.abs() / dismissReach).clamp(0, 1);
+  double get offset => route.dragOffset;
+
+  double get progress => route.dragProgress;
 
   double get scale => 1 - (1 - dismissMinScale) * progress;
 
-  bool get isDragging => offset != 0;
+  bool get isDragging => route.dragging;
 
   double opacity(double rate) => (1 - progress * rate).clamp(0, 1);
 
@@ -180,103 +207,130 @@ class DismissController implements Listenable {
     return velocity.sign == reached.sign && velocity.abs() > dismissVelocity;
   }
 
-  void settle() {
-    if (!route.dragging.value) return;
-    route.driver.forward();
+  void settle([double velocity = 0]) {
+    if (!route.dismissible || !route.dragging) return;
+    route.settling = true;
+    route.drag.fling(velocity: math.min(-0.001, route.momentum(velocity)));
   }
 
   void push(double delta) {
-    if (!route.dismissible) return;
-    if (!route.dragging.value || route.driver.value == 1) {
-      route.direction = delta.isNegative ? -1 : 1;
-      route.dragging.value = true;
-    }
+    if (!route.dismissible || route.blocked) return;
+    if (!route.dragging && !route.driver.isCompleted) return;
+    route.settling = false;
+    route.released = 0;
+    if (!route.dragging) route.direction = delta.isNegative ? -1 : 1;
     final double next =
-        route.driver.value - delta * route.direction / dismissTravel;
-    route.driver.value = next.clamp(0, 1);
-    if (route.driver.value == 1) route.dragging.value = false;
+        route.drag.value + delta * route.direction / dismissTravel;
+    route.drag.value = next.clamp(0, 1);
   }
 
   bool release(double velocity) {
-    if (!route.dismissible || !route.dragging.value) return false;
-    if (exceeds(velocity)) return true;
-    route.driver.forward();
+    if (!route.dismissible || !route.dragging || route.settling) return false;
+    if (exceeds(velocity)) {
+      route.released = velocity;
+      return true;
+    }
+    settle(velocity);
     return false;
   }
 
   @override
-  void addListener(VoidCallback listener) => route.driver.addListener(listener);
+  void addListener(VoidCallback listener) => route.drag.addListener(listener);
 
   @override
   void removeListener(VoidCallback listener) =>
-      route.driver.removeListener(listener);
+      route.drag.removeListener(listener);
 }
 
 class DismissFade extends StatelessWidget {
   const DismissFade({
     super.key,
-    required this.controller,
     required this.child,
     this.rate = dismissFadeRate,
   });
 
-  final DismissController controller;
   final Widget child;
   final double rate;
 
   @override
-  Widget build(BuildContext context) => ListenableBuilder(
-    listenable: controller,
-    builder: (context, child) => IgnorePointer(
-      ignoring: controller.isDragging,
-      child: Opacity(opacity: controller.opacity(rate), child: child),
-    ),
-    child: child,
-  );
+  Widget build(BuildContext context) {
+    final DismissController? controller = DismissController.maybeOf(context);
+    if (controller == null) return child;
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, child) => IgnorePointer(
+        ignoring: controller.isDragging,
+        child: Opacity(opacity: controller.opacity(rate), child: child),
+      ),
+      child: child,
+    );
+  }
 }
 
 class DismissSliverFade extends StatelessWidget {
   const DismissSliverFade({
     super.key,
-    required this.controller,
     required this.sliver,
     this.rate = dismissFadeRate,
   });
 
-  final DismissController controller;
   final Widget sliver;
   final double rate;
 
   @override
-  Widget build(BuildContext context) => ListenableBuilder(
-    listenable: controller,
-    builder: (context, child) => SliverIgnorePointer(
-      ignoring: controller.isDragging,
-      sliver: SliverOpacity(opacity: controller.opacity(rate), sliver: child!),
-    ),
-    child: sliver,
-  );
+  Widget build(BuildContext context) {
+    final DismissController? controller = DismissController.maybeOf(context);
+    if (controller == null) return sliver;
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, child) => SliverIgnorePointer(
+        ignoring: controller.isDragging,
+        sliver: SliverOpacity(opacity: controller.opacity(rate), sliver: child),
+      ),
+      child: sliver,
+    );
+  }
 }
 
 class DismissTransform extends StatelessWidget {
-  const DismissTransform({
-    super.key,
-    required this.controller,
-    required this.child,
-  });
+  const DismissTransform({super.key, required this.child});
 
-  final DismissController controller;
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => ListenableBuilder(
-    listenable: controller,
-    builder: (context, child) => Transform.translate(
-      offset: Offset(0, controller.offset),
-      child: Transform.scale(scale: controller.scale, child: child),
-    ),
-    child: child,
-  );
+  Widget build(BuildContext context) {
+    final DismissController? controller = DismissController.maybeOf(context);
+    if (controller == null) return child;
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, child) => Transform.translate(
+        offset: Offset(0, controller.offset),
+        child: Transform.scale(scale: controller.scale, child: child),
+      ),
+      child: child,
+    );
+  }
+}
+
+class DismissPointers extends StatelessWidget {
+  const DismissPointers({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final DismissController? controller = DismissController.maybeOf(context);
+    if (controller == null) return child;
+    return Listener(
+      onPointerDown: (event) {
+        final Rect free = MediaQuery.systemGestureInsetsOf(context)
+            .deflateRect(Offset.zero & MediaQuery.sizeOf(context));
+        controller.route.blocked = !free.contains(event.position);
+      },
+      onPointerCancel: (event) => controller.settle(),
+      child: child,
+    );
+  }
 }
 
 class DismissScrollPhysics extends ScrollPhysics {
@@ -289,6 +343,15 @@ class DismissScrollPhysics extends ScrollPhysics {
     controller: controller,
     parent: buildParent(ancestor),
   );
+
+  @override
+  Simulation? createBallisticSimulation(
+    ScrollMetrics position,
+    double velocity,
+  ) {
+    if (controller.isDragging) return null;
+    return super.createBallisticSimulation(position, velocity);
+  }
 
   @override
   double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
@@ -311,15 +374,8 @@ class DismissScrollPhysics extends ScrollPhysics {
 }
 
 class ScrollToDismiss extends StatefulWidget {
-  const ScrollToDismiss({
-    super.key,
-    required this.controller,
-    required this.onDismiss,
-    required this.child,
-  });
+  const ScrollToDismiss({super.key, required this.child});
 
-  final DismissController controller;
-  final VoidCallback onDismiss;
   final Widget child;
 
   @override
@@ -327,11 +383,13 @@ class ScrollToDismiss extends StatefulWidget {
 }
 
 class _ScrollToDismissState extends State<ScrollToDismiss> {
+  DismissController? _controller;
+  ScrollBehavior? _behavior;
   bool _dragging = false;
 
   void _release(double velocity) {
     _dragging = false;
-    if (widget.controller.release(velocity)) widget.onDismiss();
+    if (_controller!.release(velocity)) Navigator.of(context).maybePop();
   }
 
   bool _onNotification(ScrollNotification notification) {
@@ -347,7 +405,7 @@ class _ScrollToDismissState extends State<ScrollToDismiss> {
       case ScrollEndNotification(:final DragEndDetails? dragDetails):
         _release(dragDetails?.velocity.pixelsPerSecond.dy ?? 0);
       case ScrollStartNotification(:final DragStartDetails? dragDetails):
-        if (!_dragging) widget.controller.settle();
+        if (!_dragging) _controller!.settle();
         _dragging = dragDetails != null;
       default:
         break;
@@ -355,38 +413,58 @@ class _ScrollToDismissState extends State<ScrollToDismiss> {
     return false;
   }
 
-  ScrollBehavior? _behavior;
-
-  void _rebuildBehavior() {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final DismissController? controller = DismissController.maybeOf(context);
+    _controller = controller;
+    if (controller == null) {
+      _behavior = null;
+      return;
+    }
     final ScrollBehavior behavior = ScrollConfiguration.of(context);
     _behavior = behavior.copyWith(
-      physics: DismissScrollPhysics(controller: widget.controller)
+      physics: DismissScrollPhysics(controller: controller)
           .applyTo(behavior.getScrollPhysics(context)),
     );
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _rebuildBehavior();
+  Widget build(BuildContext context) {
+    final ScrollBehavior? behavior = _behavior;
+    if (behavior == null) return widget.child;
+    return DismissPointers(
+      child: NotificationListener<ScrollNotification>(
+        onNotification: _onNotification,
+        child: ScrollConfiguration(
+          behavior: behavior,
+          child: DismissTransform(child: widget.child),
+        ),
+      ),
+    );
   }
+}
 
-  @override
-  void didUpdateWidget(ScrollToDismiss old) {
-    super.didUpdateWidget(old);
-    if (old.controller != widget.controller) _rebuildBehavior();
-  }
+class DragToDismiss extends StatelessWidget {
+  const DragToDismiss({super.key, required this.child});
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return NotificationListener<ScrollNotification>(
-      onNotification: _onNotification,
-      child: ScrollConfiguration(
-        behavior: _behavior!,
-        child: DismissTransform(
-          controller: widget.controller,
-          child: widget.child,
-        ),
+    final DismissController? controller = DismissController.maybeOf(context);
+    if (controller == null) return child;
+    return DismissPointers(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onVerticalDragUpdate: (details) => controller.push(details.delta.dy),
+        onVerticalDragEnd: (details) {
+          if (controller.release(details.velocity.pixelsPerSecond.dy)) {
+            Navigator.of(context).maybePop();
+          }
+        },
+        onVerticalDragCancel: controller.settle,
+        child: DismissTransform(child: child),
       ),
     );
   }
