@@ -34,6 +34,11 @@ class Cooldown {
     _until = until;
     _cause = cause;
   }
+
+  void release() {
+    _until = null;
+    _cause = null;
+  }
 }
 
 class CooldownInterceptor extends Interceptor {

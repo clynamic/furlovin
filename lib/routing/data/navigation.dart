@@ -14,9 +14,11 @@ const String folderSegment = 'folder';
 const String favoritesPath = '/favorites';
 const String searchPath = '/search';
 const String loginPath = '/login';
+const String challengePath = '/challenge';
 const String settingsPath = '/settings';
 const String searchTextKey = 'q';
 const String searchEditKey = 'edit';
+const String challengeUrlKey = 'url';
 
 extension AppRouting on BuildContext {
   String get branch {
@@ -61,6 +63,13 @@ extension AppRouting on BuildContext {
       GoRouter.of(this).push('$branch$favoritesPath/$name');
 
   void openLogin() => GoRouter.of(this).push(loginPath);
+
+  Future<bool?> openChallenge(String url) => GoRouter.of(this).push<bool>(
+    Uri(
+      path: challengePath,
+      queryParameters: {challengeUrlKey: url},
+    ).toString(),
+  );
 
   void openSettings() => GoRouter.of(this).push(settingsPath);
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/database/database.dart';
@@ -8,12 +10,37 @@ final Provider<IdentityStore> identityStoreProvider = Provider<IdentityStore>(
   (ref) => IdentityStore(ref.watch(databaseProvider)),
 );
 
-final StreamProvider<Session> sessionProvider = StreamProvider<Session>(
-  (ref) => ref
-      .watch(identityStoreProvider)
-      .watch()
-      .map((session) => session ?? const Session()),
-);
+final StreamProvider<Session> sessionProvider = StreamProvider<Session>((ref) {
+  final StreamController<Session> sessions = StreamController<Session>();
+  Session? identity;
+  Clearance? clearance;
+  void emit() {
+    if ((identity, clearance) case (
+      final Session session,
+      final Clearance value,
+    )) {
+      sessions.add(session.withClearance(value));
+    }
+  }
+
+  final List<StreamSubscription<Object?>> subscriptions = [
+    ref.watch(identityStoreProvider).watch().listen((value) {
+      identity = value ?? const Session();
+      emit();
+    }, onError: sessions.addError),
+    ref.watch(clearanceStoreProvider).watch().listen((value) {
+      clearance = value ?? const Clearance();
+      emit();
+    }, onError: sessions.addError),
+  ];
+  ref.onDispose(() {
+    for (final StreamSubscription<Object?> subscription in subscriptions) {
+      subscription.cancel();
+    }
+    sessions.close();
+  });
+  return sessions.stream;
+});
 
 final FutureProvider<ViewerClient> viewerClientProvider =
     FutureProvider<ViewerClient>(

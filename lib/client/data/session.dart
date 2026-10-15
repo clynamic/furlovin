@@ -3,14 +3,22 @@ import 'package:meta/meta.dart';
 
 @immutable
 class Session {
-  const Session({this.cookies = const {}, this.userAgent});
+  const Session({
+    this.cookies = const {},
+    this.userAgent,
+    this.clearance = const Clearance(),
+  });
 
   static const List<String> required = ['a', 'b'];
 
-  static const List<String> withheld = ['sz'];
+  static const List<String> withheld = ['sz', ...Clearance.names];
 
   final Map<String, String> cookies;
   final String? userAgent;
+  final Clearance clearance;
+
+  Session withClearance(Clearance value) =>
+      Session(cookies: cookies, userAgent: userAgent, clearance: value);
 
   bool get isAuthenticated =>
       required.every((name) => (cookies[name] ?? '').isNotEmpty);
@@ -22,6 +30,8 @@ class Session {
     final List<String> sent = [
       for (final MapEntry<String, String> cookie in cookies.entries)
         if (!withheld.contains(cookie.key)) '${cookie.key}=${cookie.value}',
+      for (final MapEntry<String, String> cookie in clearance.cookies.entries)
+        '${cookie.key}=${cookie.value}',
     ];
     return sent.isEmpty ? null : sent.join('; ');
   }
@@ -37,7 +47,8 @@ class Session {
     if (target == null || !isFaHost(target.host)) return const {};
     return {
       if (cookieHeader case final String value) 'cookie': value,
-      if (userAgent case final String value) 'user-agent': value,
+      if (clearance.userAgent ?? userAgent case final String value)
+        'user-agent': value,
     };
   }
 }

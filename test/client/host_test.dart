@@ -60,5 +60,29 @@ void main() {
       );
       expect(const Session(cookies: {'sz': '412x915'}).cookieHeader, isNull);
     });
+
+    test('sends the clearance with the user agent that earned it', () {
+      const Session session = Session(
+        cookies: {'a': 'x', 'b': 'y', 'cf_clearance': 'stale'},
+        userAgent: 'login',
+        clearance: Clearance(
+          cookies: {'cf_clearance': 'fresh'},
+          userAgent: 'solver',
+        ),
+      );
+      expect(session.headersFor('https://t.furaffinity.net/1@200-1.jpg'), {
+        'cookie': 'a=x; b=y; cf_clearance=fresh',
+        'user-agent': 'solver',
+      });
+    });
+
+    test('stays anonymous with only a clearance', () {
+      const Session session = Session(
+        clearance: Clearance(cookies: {'cf_clearance': 'fresh'}),
+      );
+      expect(session.isAuthenticated, isFalse);
+      expect(session.discriminator, const Session().discriminator);
+      expect(session.cookieHeader, 'cf_clearance=fresh');
+    });
   });
 }

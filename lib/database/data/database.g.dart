@@ -1105,12 +1105,312 @@ class CacheEntriesCompanion extends UpdateCompanion<CacheEntry> {
   }
 }
 
+class $ClearancesTable extends Clearances
+    with TableInfo<$ClearancesTable, ClearanceRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ClearancesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _cookiesMeta = const VerificationMeta(
+    'cookies',
+  );
+  @override
+  late final GeneratedColumn<String> cookies = GeneratedColumn<String>(
+    'cookies',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _userAgentMeta = const VerificationMeta(
+    'userAgent',
+  );
+  @override
+  late final GeneratedColumn<String> userAgent = GeneratedColumn<String>(
+    'user_agent',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, cookies, userAgent, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'clearances';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ClearanceRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('cookies')) {
+      context.handle(
+        _cookiesMeta,
+        cookies.isAcceptableOrUnknown(data['cookies']!, _cookiesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cookiesMeta);
+    }
+    if (data.containsKey('user_agent')) {
+      context.handle(
+        _userAgentMeta,
+        userAgent.isAcceptableOrUnknown(data['user_agent']!, _userAgentMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ClearanceRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ClearanceRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      cookies: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cookies'],
+      )!,
+      userAgent: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_agent'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ClearancesTable createAlias(String alias) {
+    return $ClearancesTable(attachedDatabase, alias);
+  }
+}
+
+class ClearanceRow extends DataClass implements Insertable<ClearanceRow> {
+  final int id;
+  final String cookies;
+  final String? userAgent;
+  final DateTime updatedAt;
+  const ClearanceRow({
+    required this.id,
+    required this.cookies,
+    this.userAgent,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['cookies'] = Variable<String>(cookies);
+    if (!nullToAbsent || userAgent != null) {
+      map['user_agent'] = Variable<String>(userAgent);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  ClearancesCompanion toCompanion(bool nullToAbsent) {
+    return ClearancesCompanion(
+      id: Value(id),
+      cookies: Value(cookies),
+      userAgent: userAgent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userAgent),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ClearanceRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ClearanceRow(
+      id: serializer.fromJson<int>(json['id']),
+      cookies: serializer.fromJson<String>(json['cookies']),
+      userAgent: serializer.fromJson<String?>(json['userAgent']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'cookies': serializer.toJson<String>(cookies),
+      'userAgent': serializer.toJson<String?>(userAgent),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  ClearanceRow copyWith({
+    int? id,
+    String? cookies,
+    Value<String?> userAgent = const Value.absent(),
+    DateTime? updatedAt,
+  }) => ClearanceRow(
+    id: id ?? this.id,
+    cookies: cookies ?? this.cookies,
+    userAgent: userAgent.present ? userAgent.value : this.userAgent,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  ClearanceRow copyWithCompanion(ClearancesCompanion data) {
+    return ClearanceRow(
+      id: data.id.present ? data.id.value : this.id,
+      cookies: data.cookies.present ? data.cookies.value : this.cookies,
+      userAgent: data.userAgent.present ? data.userAgent.value : this.userAgent,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ClearanceRow(')
+          ..write('id: $id, ')
+          ..write('cookies: $cookies, ')
+          ..write('userAgent: $userAgent, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, cookies, userAgent, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ClearanceRow &&
+          other.id == this.id &&
+          other.cookies == this.cookies &&
+          other.userAgent == this.userAgent &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ClearancesCompanion extends UpdateCompanion<ClearanceRow> {
+  final Value<int> id;
+  final Value<String> cookies;
+  final Value<String?> userAgent;
+  final Value<DateTime> updatedAt;
+  const ClearancesCompanion({
+    this.id = const Value.absent(),
+    this.cookies = const Value.absent(),
+    this.userAgent = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  ClearancesCompanion.insert({
+    this.id = const Value.absent(),
+    required String cookies,
+    this.userAgent = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : cookies = Value(cookies);
+  static Insertable<ClearanceRow> custom({
+    Expression<int>? id,
+    Expression<String>? cookies,
+    Expression<String>? userAgent,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (cookies != null) 'cookies': cookies,
+      if (userAgent != null) 'user_agent': userAgent,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  ClearancesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? cookies,
+    Value<String?>? userAgent,
+    Value<DateTime>? updatedAt,
+  }) {
+    return ClearancesCompanion(
+      id: id ?? this.id,
+      cookies: cookies ?? this.cookies,
+      userAgent: userAgent ?? this.userAgent,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (cookies.present) {
+      map['cookies'] = Variable<String>(cookies.value);
+    }
+    if (userAgent.present) {
+      map['user_agent'] = Variable<String>(userAgent.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ClearancesCompanion(')
+          ..write('id: $id, ')
+          ..write('cookies: $cookies, ')
+          ..write('userAgent: $userAgent, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $IdentitiesTable identities = $IdentitiesTable(this);
   late final $PreferencesTable preferences = $PreferencesTable(this);
   late final $CacheEntriesTable cacheEntries = $CacheEntriesTable(this);
+  late final $ClearancesTable clearances = $ClearancesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1119,6 +1419,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     identities,
     preferences,
     cacheEntries,
+    clearances,
   ];
 }
 
@@ -1743,6 +2044,188 @@ typedef $$CacheEntriesTableProcessedTableManager =
       CacheEntry,
       PrefetchHooks Function()
     >;
+typedef $$ClearancesTableCreateCompanionBuilder = ClearancesCompanion Function({
+  Value<int> id,
+  required String cookies,
+  Value<String?> userAgent,
+  Value<DateTime> updatedAt,
+});
+typedef $$ClearancesTableUpdateCompanionBuilder = ClearancesCompanion Function({
+  Value<int> id,
+  Value<String> cookies,
+  Value<String?> userAgent,
+  Value<DateTime> updatedAt,
+});
+
+class $$ClearancesTableFilterComposer
+    extends Composer<_$AppDatabase, $ClearancesTable> {
+  $$ClearancesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cookies => $composableBuilder(
+    column: $table.cookies,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userAgent => $composableBuilder(
+    column: $table.userAgent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ClearancesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ClearancesTable> {
+  $$ClearancesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cookies => $composableBuilder(
+    column: $table.cookies,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get userAgent => $composableBuilder(
+    column: $table.userAgent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ClearancesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ClearancesTable> {
+  $$ClearancesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get cookies =>
+      $composableBuilder(column: $table.cookies, builder: (column) => column);
+
+  GeneratedColumn<String> get userAgent =>
+      $composableBuilder(column: $table.userAgent, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ClearancesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ClearancesTable,
+          ClearanceRow,
+          $$ClearancesTableFilterComposer,
+          $$ClearancesTableOrderingComposer,
+          $$ClearancesTableAnnotationComposer,
+          $$ClearancesTableCreateCompanionBuilder,
+          $$ClearancesTableUpdateCompanionBuilder,
+          (
+            ClearanceRow,
+            BaseReferences<_$AppDatabase, $ClearancesTable, ClearanceRow>,
+          ),
+          ClearanceRow,
+          PrefetchHooks Function()
+        > {
+  $$ClearancesTableTableManager(_$AppDatabase db, $ClearancesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ClearancesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ClearancesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ClearancesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> cookies = const Value.absent(),
+                Value<String?> userAgent = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ClearancesCompanion(
+                id: id,
+                cookies: cookies,
+                userAgent: userAgent,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String cookies,
+                Value<String?> userAgent = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ClearancesCompanion.insert(
+                id: id,
+                cookies: cookies,
+                userAgent: userAgent,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ClearancesTable, ClearanceRow>(table),
+                  BaseReferences<_$AppDatabase, $ClearancesTable, ClearanceRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ClearancesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ClearancesTable,
+      ClearanceRow,
+      $$ClearancesTableFilterComposer,
+      $$ClearancesTableOrderingComposer,
+      $$ClearancesTableAnnotationComposer,
+      $$ClearancesTableCreateCompanionBuilder,
+      $$ClearancesTableUpdateCompanionBuilder,
+      (
+        ClearanceRow,
+        BaseReferences<_$AppDatabase, $ClearancesTable, ClearanceRow>,
+      ),
+      ClearanceRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1753,4 +2236,6 @@ class $AppDatabaseManager {
       $$PreferencesTableTableManager(_db, _db.preferences);
   $$CacheEntriesTableTableManager get cacheEntries =>
       $$CacheEntriesTableTableManager(_db, _db.cacheEntries);
+  $$ClearancesTableTableManager get clearances =>
+      $$ClearancesTableTableManager(_db, _db.clearances);
 }

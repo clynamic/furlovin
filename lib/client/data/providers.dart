@@ -11,6 +11,11 @@ final Provider<Cooldown> cooldownProvider = Provider<Cooldown>(
   (ref) => Cooldown(),
 );
 
+final Provider<ClearanceStore> clearanceStoreProvider =
+    Provider<ClearanceStore>(
+      (ref) => ClearanceStore(ref.watch(databaseProvider)),
+    );
+
 final FutureProvider<FaClient> clientProvider = FutureProvider<FaClient>((
   ref,
 ) async {
