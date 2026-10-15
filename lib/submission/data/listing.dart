@@ -83,9 +83,9 @@ class SubmissionListingFollow extends Notifier<int?> {
   @override
   int? build() => null;
 
-  int? get target => state;
+  void follow(SubmissionPreview item) => state = item.id;
 
-  set target(int? id) => state = id;
+  void settle() => state = null;
 }
 
 final NotifierProviderFamily<

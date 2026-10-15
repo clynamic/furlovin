@@ -67,7 +67,7 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
     final SubmissionListingFollow follow = ref.read(
       submissionListingFollowProvider(widget.origin.listing).notifier,
     );
-    follow.target = item.id;
+    follow.follow(item);
   }
 
   void _show(SubmissionPreview item) {
