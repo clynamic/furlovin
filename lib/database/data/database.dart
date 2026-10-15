@@ -6,13 +6,13 @@ import 'package:furlovin/settings/data/table.dart';
 
 part 'database.g.dart';
 
-@DriftDatabase(tables: [Identities, Preferences, CacheEntries])
+@DriftDatabase(tables: [Identities, Preferences, CacheEntries, Clearances])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
     : super(executor ?? driftDatabase(name: 'furlovin'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -20,6 +20,7 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: (m, from, to) async {
       if (from < 2) await m.createTable(preferences);
       if (from < 3) await m.createTable(cacheEntries);
+      if (from < 4) await m.createTable(clearances);
     },
   );
 }

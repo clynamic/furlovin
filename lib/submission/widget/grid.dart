@@ -183,6 +183,7 @@ class SubmissionPagedGrid extends ConsumerWidget {
                         onLogin: ref.watch(authenticatedProvider)
                             ? null
                             : context.openLogin,
+                        onVerify: context.openChallenge,
                       ),
                     )
                   else

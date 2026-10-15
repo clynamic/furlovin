@@ -24,3 +24,14 @@ class CacheEntries extends Table {
     {store, cacheKey},
   ];
 }
+
+@DataClassName('ClearanceRow')
+class Clearances extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  TextColumn get cookies => text()();
+
+  TextColumn get userAgent => text().nullable()();
+
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}

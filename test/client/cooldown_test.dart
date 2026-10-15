@@ -123,4 +123,14 @@ void main() {
     clock = clock.add(const Duration(seconds: 6));
     expect(await fa.get('/browse/1/'), '<html></html>');
   });
+
+  test('releasing a challenge lets requests through at once', () async {
+    final _Site site = _Site([_challenge, _page]);
+    final FaClient fa = client(site);
+
+    await expectLater(fa.get('/browse/1/'), throwsA(isA<Challenged>()));
+    cooldown.release();
+    expect(await fa.get('/browse/1/'), '<html></html>');
+    expect(site.asked, 2);
+  });
 }

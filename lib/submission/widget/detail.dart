@@ -79,6 +79,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
           failure,
           onRetry: () => ref.invalidate(submissionProvider(id)),
           onLogin: onLogin,
+          onVerify: context.openChallenge,
         ),
       );
     }
@@ -374,6 +375,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                 onRetry: () =>
                                     ref.invalidate(submissionProvider(id)),
                                 onLogin: onLogin,
+                                onVerify: context.openChallenge,
                               ),
                             )
                           else

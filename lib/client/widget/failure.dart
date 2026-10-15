@@ -6,6 +6,7 @@ FailureView failureFor(
   Object error, {
   VoidCallback? onRetry,
   VoidCallback? onLogin,
+  Future<bool?> Function(String url)? onVerify,
 }) => switch (error) {
   TransportFailure() => FailureView(
     icon: Icons.cloud_off_outlined,
@@ -22,10 +23,18 @@ FailureView failureFor(
               '${retryAfter.inSeconds} seconds.',
     onRetry: onRetry,
   ),
-  Challenged() => const FailureView(
+  Challenged(:final String url) => FailureView(
     icon: Icons.verified_user_outlined,
     title: 'Verification needed',
     detail: 'Fur Affinity wants to check that you are a person.',
+    onRetry: onRetry,
+    actionLabel: 'Verify',
+    actionIcon: Icons.verified_user_outlined,
+    onAction: onVerify == null
+        ? null
+        : () async {
+            if (await onVerify(url) ?? false) onRetry?.call();
+          },
   ),
   AuthenticationRequired() => FailureView(
     icon: Icons.login,

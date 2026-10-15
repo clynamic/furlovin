@@ -1,4 +1,5 @@
 import 'package:furlovin/app/app.dart';
+import 'package:furlovin/client/client.dart';
 import 'package:furlovin/cookie_probe.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/routing/routing.dart';
@@ -140,6 +141,13 @@ GoRouter buildRouter(IdentityStore store) => GoRouter(
       path: loginPath,
       parentNavigatorKey: rootNavigator,
       builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
+      path: challengePath,
+      parentNavigatorKey: rootNavigator,
+      builder: (context, state) => ChallengePage(
+        url: state.uri.queryParameters[challengeUrlKey] ?? faOrigin,
+      ),
     ),
     GoRoute(
       path: settingsPath,

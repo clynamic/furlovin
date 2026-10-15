@@ -29,6 +29,7 @@ class UserPage extends ConsumerWidget {
           error,
           onRetry: () => ref.invalidate(userProvider(name)),
           onLogin: ref.watch(authenticatedProvider) ? null : context.openLogin,
+          onVerify: context.openChallenge,
         ),
       );
     }

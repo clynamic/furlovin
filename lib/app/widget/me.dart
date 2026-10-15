@@ -27,6 +27,7 @@ class MePage extends ConsumerWidget {
           ? failureFor(
               viewer.error!,
               onRetry: () => ref.invalidate(viewerProvider),
+              onVerify: context.openChallenge,
             )
           : const Center(child: CircularProgressIndicator()),
     );
