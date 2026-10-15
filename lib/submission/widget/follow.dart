@@ -54,7 +54,7 @@ class _SubmissionGridFollowState extends ConsumerState<SubmissionGridFollow> {
       final SubmissionListingFollow follow = ref.read(
         submissionListingFollowProvider(widget.listing).notifier,
       );
-      follow.target = null;
+      follow.settle();
       _follow();
     });
   }

@@ -102,9 +102,9 @@ void main() {
     return tester.state(find.byType(Navigator));
   }
 
-  void follow(int id) =>
-      container.read(submissionListingFollowProvider(listing).notifier).target =
-          id;
+  void follow(int id) => container
+      .read(submissionListingFollowProvider(listing).notifier)
+      .follow(_preview(id));
 
   Finder tile(int id) => find.byWidgetPredicate(
     (widget) => widget is SubmissionTile && widget.submission.id == id,
