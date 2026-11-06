@@ -134,21 +134,30 @@ class SubmissionThumbnail extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final double ratio = MediaQuery.devicePixelRatioOf(context);
     final String url = thumbnailFor(submission.thumbnail, extent, ratio);
-    return CachedNetworkImage(
-      imageUrl: url,
-      cacheKey: '$url#${session.discriminator}',
-      cacheManager: cache,
-      memCacheWidth: (extent * ratio).round(),
-      fit: BoxFit.cover,
-      fadeInDuration: const Duration(milliseconds: 120),
-      placeholder: (context, url) => const Skeletonizer(
-        child: Bone(width: double.infinity, height: double.infinity),
+    final String key = '$url#${session.discriminator}';
+    final int width = (extent * ratio).round();
+    return HeldImage(
+      image: ResizeImage.resizeIfNeeded(
+        width,
+        null,
+        CachedNetworkImageProvider(url, cacheKey: key, cacheManager: cache),
       ),
-      errorWidget: (context, url, error) => ColoredBox(
-        color: theme.colorScheme.surfaceContainerHighest,
-        child: Icon(
-          Icons.broken_image_outlined,
-          color: theme.colorScheme.onSurfaceVariant,
+      child: CachedNetworkImage(
+        imageUrl: url,
+        cacheKey: key,
+        cacheManager: cache,
+        memCacheWidth: width,
+        fit: BoxFit.cover,
+        fadeInDuration: const Duration(milliseconds: 120),
+        placeholder: (context, url) => const Skeletonizer(
+          child: Bone(width: double.infinity, height: double.infinity),
+        ),
+        errorWidget: (context, url, error) => ColoredBox(
+          color: theme.colorScheme.surfaceContainerHighest,
+          child: Icon(
+            Icons.broken_image_outlined,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
         ),
       ),
     );

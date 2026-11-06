@@ -160,12 +160,13 @@ class _ProgressiveImageState extends State<ProgressiveImage> {
       final bool best = rung == widget.rungs.last;
       final bool first = rung == widget.rungs.first;
       final bool reporting = best && load != null;
+      final String key = '${rung.url}#${widget.discriminator}';
+      final Map<String, String> headers = widget.headers(rung.url);
       below = CachedNetworkImage(
-        key: best ? ValueKey(_attempt) : null,
         imageUrl: rung.url,
-        cacheKey: '${rung.url}#${widget.discriminator}',
+        cacheKey: key,
         cacheManager: rung.cache,
-        httpHeaders: widget.headers(rung.url),
+        httpHeaders: headers,
         memCacheWidth: rung.decodeWidth,
         fit: widget.fit,
         fadeInDuration: first ? widget.fade : Duration.zero,
@@ -189,9 +190,70 @@ class _ProgressiveImageState extends State<ProgressiveImage> {
               }
             : null,
       );
+      if (best) {
+        below = HeldImage(
+          key: ValueKey(_attempt),
+          image: ResizeImage.resizeIfNeeded(
+            rung.decodeWidth,
+            null,
+            CachedNetworkImageProvider(
+              rung.url,
+              cacheKey: key,
+              cacheManager: rung.cache,
+              headers: headers,
+            ),
+          ),
+          child: below,
+        );
+      }
     }
     return below;
   }
+}
+
+class HeldImage extends StatefulWidget {
+  const HeldImage({super.key, required this.image, required this.child});
+
+  final ImageProvider image;
+  final Widget child;
+
+  @override
+  State<HeldImage> createState() => _HeldImageState();
+}
+
+class _HeldImageState extends State<HeldImage> {
+  ImageStream? _stream;
+  late final ImageStreamListener _listener = ImageStreamListener(
+    (image, synchronousCall) => image.dispose(),
+    onError: (error, stackTrace) {},
+  );
+
+  void _hold() {
+    _stream?.removeListener(_listener);
+    _stream = widget.image.resolve(createLocalImageConfiguration(context))
+      ..addListener(_listener);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_stream == null) _hold();
+  }
+
+  @override
+  void didUpdateWidget(HeldImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.image != oldWidget.image) _hold();
+  }
+
+  @override
+  void dispose() {
+    _stream?.removeListener(_listener);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 class MeasuredImage extends StatefulWidget {
