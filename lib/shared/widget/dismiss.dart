@@ -334,13 +334,19 @@ class DismissPointers extends StatelessWidget {
 }
 
 class DismissScrollPhysics extends ScrollPhysics {
-  const DismissScrollPhysics({required this.controller, super.parent});
+  const DismissScrollPhysics({
+    required this.controller,
+    required this.fromEdge,
+    super.parent,
+  });
 
   final DismissController controller;
+  final bool Function() fromEdge;
 
   @override
   DismissScrollPhysics applyTo(ScrollPhysics? ancestor) => DismissScrollPhysics(
     controller: controller,
+    fromEdge: fromEdge,
     parent: buildParent(ancestor),
   );
 
@@ -358,7 +364,9 @@ class DismissScrollPhysics extends ScrollPhysics {
     if (position.axis != Axis.vertical) {
       return super.applyPhysicsToUserOffset(position, offset);
     }
-    if (offset > 0 && position.pixels <= position.minScrollExtent) {
+    if (offset > 0 &&
+        position.pixels <= position.minScrollExtent &&
+        fromEdge()) {
       controller.push(offset);
       return 0;
     }
@@ -386,6 +394,7 @@ class _ScrollToDismissState extends State<ScrollToDismiss> {
   DismissController? _controller;
   ScrollBehavior? _behavior;
   bool _dragging = false;
+  bool _fromEdge = false;
 
   void _release(double velocity) {
     _dragging = false;
@@ -407,6 +416,11 @@ class _ScrollToDismissState extends State<ScrollToDismiss> {
       case ScrollStartNotification(:final DragStartDetails? dragDetails):
         if (!_dragging) _controller!.settle();
         _dragging = dragDetails != null;
+        if (_dragging) {
+          _fromEdge =
+              notification.metrics.pixels <=
+              notification.metrics.minScrollExtent;
+        }
       default:
         break;
     }
@@ -424,8 +438,10 @@ class _ScrollToDismissState extends State<ScrollToDismiss> {
     }
     final ScrollBehavior behavior = ScrollConfiguration.of(context);
     _behavior = behavior.copyWith(
-      physics: DismissScrollPhysics(controller: controller)
-          .applyTo(behavior.getScrollPhysics(context)),
+      physics: DismissScrollPhysics(
+        controller: controller,
+        fromEdge: () => _fromEdge,
+      ).applyTo(behavior.getScrollPhysics(context)),
     );
   }
 
