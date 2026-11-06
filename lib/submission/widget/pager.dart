@@ -35,7 +35,6 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
   late int settled = current.id;
   bool trailing = false;
   PageController? pages;
-  GalleryPanController? pan;
 
   @override
   void dispose() {
@@ -45,13 +44,8 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
 
   void _drop() {
     final PageController? stale = pages;
-    final GalleryPanController? loose = pan;
     pages = null;
-    pan = null;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      stale?.dispose();
-      loose?.locked.dispose();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => stale?.dispose());
   }
 
   void _settle(SubmissionPreview item) {
@@ -97,7 +91,6 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
   Widget _page(
     SubmissionPreview item, {
     bool settled = true,
-    GalleryPanController? pan,
     VoidCallback? onTapImage,
   }) => widget.fullscreen
       ? SubmissionViewer(
@@ -106,7 +99,6 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
           tag: submissionHeroTag(item.id),
           aspectRatio: SubmissionFacade(preview: item).naturalAspectRatio,
           settled: settled,
-          pan: pan,
         )
       : SubmissionPage(
           id: item.id,
@@ -164,9 +156,6 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
     final PageController pages = this.pages ??= PageController(
       initialPage: index,
     );
-    final GalleryPanController? pan = widget.fullscreen
-        ? this.pan ??= GalleryPanController(pages)
-        : null;
     if (!trailing) _track(pages, index);
 
     final VoidCallback fetchNextPage = ref
@@ -175,47 +164,37 @@ class _SubmissionPagerState extends ConsumerState<SubmissionPager> {
         )
         .fetchNextPage;
 
-    Widget view(bool locked) => PagedPageView<int, SubmissionPreview>(
-      physics: locked ? const NeverScrollableScrollPhysics() : null,
-      state: state,
-      fetchNextPage: fetchNextPage,
-      pageController: pages,
-      onPageChanged: (index) {
-        trailing = index >= items.length;
-        if (!trailing) current = items[index];
-      },
-      builderDelegate: PagedChildBuilderDelegate<SubmissionPreview>(
-        itemBuilder: (context, item, index) => _PagerPage(
-          key: ValueKey(item.id),
-          child: _page(
-            item,
-            settled: item.id == settled,
-            pan: pan,
-            onTapImage: () => _openViewer(item),
+    return NotificationListener<ScrollEndNotification>(
+      onNotification: (notification) => _onScrollEnd(notification, items),
+      child: PagedPageView<int, SubmissionPreview>(
+        state: state,
+        fetchNextPage: fetchNextPage,
+        pageController: pages,
+        onPageChanged: (index) {
+          trailing = index >= items.length;
+          if (!trailing) current = items[index];
+        },
+        builderDelegate: PagedChildBuilderDelegate<SubmissionPreview>(
+          itemBuilder: (context, item, index) => _PagerPage(
+            key: ValueKey(item.id),
+            child: _page(
+              item,
+              settled: item.id == settled,
+              onTapImage: () => _openViewer(item),
+            ),
           ),
-        ),
-        newPageProgressIndicatorBuilder: (context) => _PagerEnd(
-          fullscreen: widget.fullscreen,
-          child: const Center(child: CircularProgressIndicator()),
-        ),
-        newPageErrorIndicatorBuilder: (context) => _PagerEnd(
-          fullscreen: widget.fullscreen,
-          child: Center(
-            child: NewPageError(error: state.error, onRetry: fetchNextPage),
+          newPageProgressIndicatorBuilder: (context) => _PagerEnd(
+            fullscreen: widget.fullscreen,
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+          newPageErrorIndicatorBuilder: (context) => _PagerEnd(
+            fullscreen: widget.fullscreen,
+            child: Center(
+              child: NewPageError(error: state.error, onRetry: fetchNextPage),
+            ),
           ),
         ),
       ),
-    );
-
-    return NotificationListener<ScrollEndNotification>(
-      onNotification: (notification) => _onScrollEnd(notification, items),
-      child: switch (pan) {
-        final GalleryPanController pan => ValueListenableBuilder<bool>(
-          valueListenable: pan.locked,
-          builder: (context, locked, child) => view(locked),
-        ),
-        null => view(false),
-      },
     );
   }
 }

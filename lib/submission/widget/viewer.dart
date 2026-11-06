@@ -14,7 +14,6 @@ class SubmissionViewer extends ConsumerStatefulWidget {
     this.preview,
     this.aspectRatio,
     this.settled = true,
-    this.pan,
   });
 
   final int id;
@@ -22,7 +21,6 @@ class SubmissionViewer extends ConsumerStatefulWidget {
   final Object tag;
   final double? aspectRatio;
   final bool settled;
-  final GalleryPanController? pan;
 
   static Route<void> route({
     required int id,
@@ -50,14 +48,6 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
   final ImageLoadController load = ImageLoadController();
   late double? _ratio = widget.aspectRatio;
 
-  @override
-  void initState() {
-    super.initState();
-    zoom.addListener(_onZoom);
-  }
-
-  void _onZoom() => widget.pan?.locked.value = zoom.isZoomed;
-
   void _onRatio(double ratio) {
     if (_ratio == ratio) return;
     _ratio = ratio;
@@ -78,12 +68,6 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
 
   @override
   void dispose() {
-    final GalleryPanController? pan = widget.pan;
-    if (pan != null && zoom.isZoomed) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => pan.locked.value = false,
-      );
-    }
     zoom.dispose();
     load.dispose();
     super.dispose();
@@ -116,7 +100,6 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
                   child: Zoomable(
                     controller: zoom,
                     aspectRatio: _ratio,
-                    pan: widget.pan,
                     onTap: () => Navigator.of(context).maybePop(),
                     onSpare: _onSpare,
                     onSpareEnd: _onSpareEnd,
