@@ -29,12 +29,12 @@ abstract class Comment with _$Comment {
     /// The rendered comment, as markup rather than text.
     String? body,
 
+    /// FA renders each reply level of div.comment_container three percent
+    /// narrower, from width:100% at the top level down to 85%.
+    int? depth,
+
     /// When the comment was posted.
     DateTime? posted,
-
-    /// The percentage width the site renders the comment at.
-    /// Replies are narrower than their parent, so this encodes depth.
-    int? width,
     @Default(const {}) Map<String, ParseException> failed,
   }) = _Comment;
 
@@ -49,8 +49,8 @@ abstract class Comment with _$Comment {
       authorAvatar: outcome.get<String>('authorAvatar'),
       authorName: outcome.get<String>('authorName'),
       body: outcome.get<String>('body'),
+      depth: outcome.get<int>('depth'),
       posted: outcome.get<DateTime>('posted'),
-      width: outcome.get<int>('width'),
       failed: outcome.failed,
     );
   }

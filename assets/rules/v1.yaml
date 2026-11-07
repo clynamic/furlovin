@@ -1,5 +1,5 @@
 schema: 1
-revision: 21
+revision: 22
 refs:
   viewLink:
     - op: select
@@ -204,10 +204,10 @@ types:
           - - op: select
               css: comment-user-text div.user-submitted-links
             - op: html
-      width:
+      depth:
         description: |-
-          The percentage width the site renders the comment at.
-          Replies are narrower than their parent, so this encodes depth.
+          FA renders each reply level of div.comment_container three percent
+          narrower, from width:100% at the top level down to 85%.
         presence: expected
         type: int
         read:
@@ -215,6 +215,24 @@ types:
               name: style
             - op: regex
               pattern: width:\s*(\d+)
+            - op: replace
+              pattern: ^100$
+              with: '0'
+            - op: replace
+              pattern: ^97$
+              with: '1'
+            - op: replace
+              pattern: ^94$
+              with: '2'
+            - op: replace
+              pattern: ^91$
+              with: '3'
+            - op: replace
+              pattern: ^88$
+              with: '4'
+            - op: replace
+              pattern: ^\d{2,}$
+              with: '5'
 
   folder:
     feature: submission

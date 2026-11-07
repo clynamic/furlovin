@@ -5,7 +5,6 @@ import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/user/user.dart';
 import 'package:material_ui/material_ui.dart';
 
-const int commentWidthStep = 3;
 const double commentIndent = 16;
 const int commentDepthLimit = 5;
 const double commentAvatarSize = 30;
@@ -14,11 +13,8 @@ const double commentElbowArm = 9;
 
 typedef CommentRow = ({Comment comment, int depth});
 
-int commentDepth(Comment comment) {
-  final int? width = comment.width;
-  if (width == null || width >= 100) return 0;
-  return ((100 - width) ~/ commentWidthStep).clamp(0, commentDepthLimit);
-}
+int commentDepth(Comment comment) =>
+    (comment.depth ?? 0).clamp(0, commentDepthLimit);
 
 List<CommentRow> threadComments(List<Comment> comments) => [
   for (final Comment comment in comments)

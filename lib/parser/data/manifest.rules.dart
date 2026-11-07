@@ -24,8 +24,8 @@ const Map<String, Map<String, String>> ruleManifest = {
     'authorAvatar': 'string',
     'authorName': 'string',
     'body': 'string',
+    'depth': 'int',
     'posted': 'timestamp',
-    'width': 'int',
   },
   'folder': {
     'id': 'int!',

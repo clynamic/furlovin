@@ -42,18 +42,13 @@ void main() {
     for (final Comment comment in comments) {
       expect(comment.id, greaterThan(0));
       expect(comment.posted, isNotNull);
-      expect(comment.width, isNotNull);
+      expect(comment.depth, isNotNull);
     }
   });
 
-  test('width encodes reply depth in three point steps', () {
+  test('reads each width step down to 85 percent as one reply level', () {
     final List<Comment> comments = SubmissionDocument.fromOutcome(page)!
         .comments;
-    final Set<int> widths = comments.map((e) => e.width!).toSet();
-    expect(widths, contains(100));
-    for (final int width in widths) {
-      expect((100 - width) % 3, 0, reason: 'width $width is off the ladder');
-      expect(width, inInclusiveRange(85, 100));
-    }
+    expect(comments.map((e) => e.depth).toSet(), {0, 1, 2, 3, 4, 5});
   });
 }
