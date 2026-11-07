@@ -94,6 +94,15 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
       submission: loaded,
       preview: preview,
     );
+    final bool viewable = facade.type.isViewable;
+    final List<ImageRung> rungs = submissionRungs(
+      context,
+      extent: ref.watch(tilesProvider).extent,
+      preview: preview,
+      loaded: loaded,
+      thumbnails: thumbnails,
+      artwork: artwork,
+    );
 
     return ClaimedBottom(
       child: ScrollToDismiss(
@@ -113,10 +122,9 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                   slivers: [
                     SliverAppBar(
                       pinned: true,
-                      expandedHeight: _headerHeight(
-                        constraints,
-                        facade.aspectRatio,
-                      ),
+                      expandedHeight: viewable
+                          ? _headerHeight(constraints, facade.aspectRatio)
+                          : noticeHeaderHeight,
                       leading: const DismissFade(child: ScrimBackButton()),
                       actions: [
                         DismissFade(
@@ -129,32 +137,34 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                       backgroundColor: Colors.transparent,
                       surfaceTintColor: Colors.transparent,
                       flexibleSpace: FlexibleSpaceBar(
-                        background: GestureDetector(
-                          onTap: preview == null && loaded == null
-                              ? null
-                              : widget.onTapImage ??
-                                    () => openViewer(
-                                      context,
-                                      id: id,
-                                      preview: preview,
-                                      tag: submissionHeroTag(id),
-                                      aspectRatio: facade.naturalAspectRatio,
-                                    ),
-                          child: SubmissionHeader(
-                            rungs: submissionRungs(
-                              context,
-                              extent: ref.watch(tilesProvider).extent,
-                              preview: preview,
-                              loaded: loaded,
-                              thumbnails: thumbnails,
-                              artwork: artwork,
-                            ),
-                            session: session,
-                            tag: submissionHeroTag(id),
-                            aspectRatio: facade.naturalAspectRatio,
-                            load: imageLoad,
-                          ),
-                        ),
+                        background: !viewable
+                            ? SubmissionNotice(
+                                id: id,
+                                type: facade.type,
+                                rungs: rungs,
+                                session: session,
+                                submission: loaded,
+                              )
+                            : GestureDetector(
+                                onTap: preview == null && loaded == null
+                                    ? null
+                                    : widget.onTapImage ??
+                                          () => openViewer(
+                                            context,
+                                            id: id,
+                                            preview: preview,
+                                            tag: submissionHeroTag(id),
+                                            aspectRatio:
+                                                facade.naturalAspectRatio,
+                                          ),
+                                child: SubmissionHeader(
+                                  rungs: rungs,
+                                  session: session,
+                                  tag: submissionHeroTag(id),
+                                  aspectRatio: facade.naturalAspectRatio,
+                                  load: imageLoad,
+                                ),
+                              ),
                       ),
                     ),
                     DismissSliverFade(
@@ -483,6 +493,8 @@ class SubmissionFacade {
   String? get uploaderId => submission?.uploader ?? preview?.uploader;
 
   SubmissionRating? get rating => submission?.rating ?? preview?.rating;
+
+  SubmissionType? get type => submission?.type ?? preview?.type;
 
   String? get avatar => submission?.uploaderAvatar;
 

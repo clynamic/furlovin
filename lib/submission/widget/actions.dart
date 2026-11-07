@@ -22,6 +22,9 @@ bool get platformShares => switch (defaultTargetPlatform) {
 
 enum SubmissionAction { copy, browser }
 
+String submissionLink(int id) =>
+    Uri.parse(faOrigin).resolve('/view/$id/').toString();
+
 class SubmissionActions extends ConsumerStatefulWidget {
   const SubmissionActions({super.key, required this.id, this.submission});
 
@@ -32,7 +35,8 @@ class SubmissionActions extends ConsumerStatefulWidget {
   ConsumerState<SubmissionActions> createState() => _SubmissionActionsState();
 }
 
-class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
+class _SubmissionActionsState extends ConsumerState<SubmissionActions>
+    with SubmissionDownloader {
   int get id => widget.id;
 
   Submission? get submission => widget.submission;
@@ -58,7 +62,7 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
     }
   }
 
-  String get link => Uri.parse(faOrigin).resolve('/view/$id/').toString();
+  String get link => submissionLink(id);
 
   Future<void> _share(BuildContext context) async {
     if (!platformShares) return _copy(context);
@@ -80,48 +84,6 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
         content: Text('Link copied'),
       ),
     );
-  }
-
-  bool _downloading = false;
-
-  void _say(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(behavior: SnackBarBehavior.floating, content: Text(message)),
-    );
-  }
-
-  Future<void> _download(String file) async {
-    final CacheManager artwork = ref.read(artworkCacheProvider);
-    final PreferenceStore store = ref.read(preferenceStoreProvider);
-    final String? directory = ref.read(downloadDirectoryProvider);
-    final String discriminator =
-        ref.read(sessionProvider).asData?.value.discriminator ??
-        const Session().discriminator;
-    try {
-      final DownloadTarget target = await Downloads.target(
-        chosen: directory,
-        onChosen: (value) => store.put(downloadDirectoryKey, value),
-      );
-      if (!mounted) return;
-      setState(() => _downloading = true);
-      final File local = await artwork.getSingleFile(
-        file,
-        key: '$file#$discriminator',
-      );
-      final String saved = await Downloads.write(
-        file: local,
-        name: Uri.parse(file).pathSegments.last,
-        target: target,
-      );
-      _say('Saved to $saved');
-    } on DownloadCancelled {
-      return;
-    } on Object catch (error) {
-      _say(describeFailure(error));
-    } finally {
-      if (mounted) setState(() => _downloading = false);
-    }
   }
 
   @override
@@ -180,10 +142,10 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
               ),
               IconButton(
                 tooltip: 'Download',
-                onPressed: file == null || _downloading || !platformDownloads
+                onPressed: file == null || downloading || !platformDownloads
                     ? null
-                    : () => _download(file),
-                icon: _downloading
+                    : () => download(file),
+                icon: downloading
                     ? const SizedBox.square(
                         dimension: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
@@ -222,5 +184,50 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions> {
         ),
       ),
     );
+  }
+}
+
+mixin SubmissionDownloader<T extends ConsumerStatefulWidget>
+    on ConsumerState<T> {
+  bool downloading = false;
+
+  void _say(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(behavior: SnackBarBehavior.floating, content: Text(message)),
+    );
+  }
+
+  Future<void> download(String file) async {
+    final CacheManager artwork = ref.read(artworkCacheProvider);
+    final PreferenceStore store = ref.read(preferenceStoreProvider);
+    final String? directory = ref.read(downloadDirectoryProvider);
+    final String discriminator =
+        ref.read(sessionProvider).asData?.value.discriminator ??
+        const Session().discriminator;
+    try {
+      final DownloadTarget target = await Downloads.target(
+        chosen: directory,
+        onChosen: (value) => store.put(downloadDirectoryKey, value),
+      );
+      if (!mounted) return;
+      setState(() => downloading = true);
+      final File local = await artwork.getSingleFile(
+        file,
+        key: '$file#$discriminator',
+      );
+      final String saved = await Downloads.write(
+        file: local,
+        name: Uri.parse(file).pathSegments.last,
+        target: target,
+      );
+      _say('Saved to $saved');
+    } on DownloadCancelled {
+      return;
+    } on Object catch (error) {
+      _say(describeFailure(error));
+    } finally {
+      if (mounted) setState(() => downloading = false);
+    }
   }
 }

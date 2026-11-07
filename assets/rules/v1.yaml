@@ -1,5 +1,5 @@
 schema: 1
-revision: 20
+revision: 21
 refs:
   viewLink:
     - op: select
@@ -536,6 +536,13 @@ types:
               css: img#submissionImg
             - op: attr
               name: data-preview-src
+            - op: url
+          - - op: closest
+              css: html
+            - op: select
+              css: meta[property="og:image"]
+            - op: attr
+              name: content
             - op: url
       description:
         description: The rendered description, as markup rather than text.

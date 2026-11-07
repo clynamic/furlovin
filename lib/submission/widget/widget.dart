@@ -4,6 +4,7 @@ export 'folders.dart';
 export 'follow.dart';
 export 'grid.dart';
 export 'inbox.dart';
+export 'notice.dart';
 export 'pager.dart';
 export 'rating.dart';
 export 'tile.dart';
