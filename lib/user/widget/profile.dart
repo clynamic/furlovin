@@ -15,12 +15,16 @@ import 'package:skeletonizer/skeletonizer.dart';
 class UserPage extends ConsumerWidget {
   const UserPage({super.key, required this.name, this.onSettings});
 
-  final String name;
+  final String? name;
   final VoidCallback? onSettings;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<UserDocument> detail = ref.watch(userProvider(name));
+    final String? known = this.name;
+    final AsyncValue<UserDocument> detail = known == null
+        ? const AsyncLoading()
+        : ref.watch(userProvider(known));
+    final String name = known ?? BoneMock.name;
 
     if (detail case AsyncError(:final Object error) when !detail.hasValue) {
       return Scaffold(
@@ -42,6 +46,7 @@ class UserPage extends ConsumerWidget {
       body: RevisitRefresh(
         edgeOffset: MediaQuery.paddingOf(context).top + kToolbarHeight,
         onRefresh: () async {
+          if (known == null) return;
           ref.invalidate(userProvider(name));
           await ref
               .read(userProvider(name).future)
@@ -84,7 +89,10 @@ class UserPage extends ConsumerWidget {
                     spacing: Space.medium,
                     children: [
                       Expanded(
-                        child: ProfileIdentity(user: user, fallback: name),
+                        child: Skeletonizer(
+                          enabled: known == null,
+                          child: ProfileIdentity(user: user, fallback: name),
+                        ),
                       ),
                       if (user?.watched case final bool watched
                           when ref.watch(authenticatedProvider))

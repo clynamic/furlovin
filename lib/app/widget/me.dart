@@ -17,20 +17,18 @@ class MePage extends ConsumerWidget {
 
     if (!authenticated) return const GuestPage();
 
-    if (viewer.asData?.value case final Viewer known) {
-      return UserPage(name: known.name, onSettings: context.openSettings);
+    if (viewer.hasError && !viewer.hasValue) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('You')),
+        body: failureFor(
+          viewer.error!,
+          onRetry: () => ref.invalidate(viewerProvider),
+          onVerify: context.openChallenge,
+        ),
+      );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('You')),
-      body: viewer.hasError
-          ? failureFor(
-              viewer.error!,
-              onRetry: () => ref.invalidate(viewerProvider),
-              onVerify: context.openChallenge,
-            )
-          : const Center(child: CircularProgressIndicator()),
-    );
+    return UserPage(name: viewer.value?.name, onSettings: context.openSettings);
   }
 }
 
