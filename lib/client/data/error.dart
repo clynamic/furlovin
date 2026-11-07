@@ -2,21 +2,6 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
-String describeFailure(Object error) => switch (error) {
-  TransportFailure() => 'Could not reach Fur Affinity.',
-  RateLimited() => 'Fur Affinity asked us to slow down.',
-  Challenged() => 'Fur Affinity wants to check that you are a person.',
-  AuthenticationRequired() => 'That needs you to be logged in.',
-  ContentFiltered() => 'That is rated Mature or Adult.',
-  Gone(:final String reason) => reason,
-  ActionRejected(:final String reason) => reason,
-  Forbidden() => 'Fur Affinity refused that.',
-  RequestRejected(:final int status) =>
-    'Fur Affinity rejected that request ($status).',
-  ServerFailure(:final int status) => 'Fur Affinity answered with $status.',
-  _ => 'Something broke.',
-};
-
 sealed class FaException implements Exception {
   const FaException();
 }
