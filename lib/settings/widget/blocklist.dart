@@ -1,0 +1,137 @@
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:furlovin/client/client.dart';
+import 'package:furlovin/identity/identity.dart';
+import 'package:furlovin/shared/shared.dart';
+import 'package:material_ui/material_ui.dart';
+
+class BlocklistSettings extends ConsumerStatefulWidget {
+  const BlocklistSettings({super.key});
+
+  @override
+  ConsumerState<BlocklistSettings> createState() => _BlocklistSettingsState();
+}
+
+class _BlocklistSettingsState extends ConsumerState<BlocklistSettings> {
+  final Set<String> busy = {};
+  final TextEditingController entry = TextEditingController();
+  bool adding = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      if (mounted) ref.invalidate(viewerProvider);
+    });
+  }
+
+  @override
+  void dispose() {
+    entry.dispose();
+    super.dispose();
+  }
+
+  Future<void> _set(String tag, {required bool blocked}) async {
+    final String name = tag.trim();
+    if (name.isEmpty || busy.contains(name)) return;
+    setState(() => busy.add(name));
+    try {
+      await ref.read(blocklistProvider.notifier).setTag(name, blocked: blocked);
+    } on Object catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(describeFailure(error)),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => busy.remove(name));
+    }
+  }
+
+  void _confirm() {
+    final String tag = entry.text;
+    entry.clear();
+    setState(() => adding = false);
+    unawaited(_set(tag, blocked: true));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Blocklist blocklist = ref.watch(blocklistProvider);
+    final List<String> tags = blocklist.tags.toList()..sort();
+    final TextStyle? empty = theme.textTheme.bodyMedium?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Space.medium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: Space.small,
+          children: [
+            Text('Blocked tags', style: theme.textTheme.labelLarge),
+            if (tags.isEmpty)
+              Text('No blocked tags', style: empty)
+            else
+              Wrap(
+                spacing: Space.small,
+                runSpacing: Space.small,
+                children: [
+                  for (final String tag in tags)
+                    InputChip(
+                      label: Text(tag),
+                      onDeleted: !blocklist.editable || busy.contains(tag)
+                          ? null
+                          : () => _set(tag, blocked: false),
+                    ),
+                ],
+              ),
+            if (blocklist.editable && adding)
+              TextField(
+                controller: entry,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Tag to block',
+                  isDense: true,
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    tooltip: 'Block',
+                    onPressed: _confirm,
+                    icon: const Icon(Icons.check),
+                  ),
+                ),
+                textInputAction: TextInputAction.done,
+                onSubmitted: (value) => _confirm(),
+              )
+            else if (blocklist.editable)
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: TextButton.icon(
+                  onPressed: () => setState(() => adding = true),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Block a tag'),
+                ),
+              ),
+            const SizedBox(height: Space.small),
+            Text('Blocked users', style: theme.textTheme.labelLarge),
+            if (blocklist.userNames.isEmpty)
+              Text('No blocked users', style: empty)
+            else
+              Wrap(
+                spacing: Space.small,
+                runSpacing: Space.small,
+                children: [
+                  for (final String name in blocklist.userNames)
+                    Chip(label: Text(name)),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

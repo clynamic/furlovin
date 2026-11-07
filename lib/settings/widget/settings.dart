@@ -87,6 +87,17 @@ class SettingsPage extends ConsumerWidget {
                     ),
             ),
           ),
+          if (authenticated) ...[
+            const SizedBox(height: Space.page),
+            Text(
+              'Blocklist',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: Space.small),
+            const BlocklistSettings(),
+          ],
           const SizedBox(height: Space.page),
           Text(
             'Appearance',

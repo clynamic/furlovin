@@ -1,4 +1,5 @@
 export 'appearance.dart';
+export 'blocklist.dart';
 export 'choice.dart';
 export 'downloads.dart';
 export 'section.dart';
