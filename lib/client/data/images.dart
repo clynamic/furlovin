@@ -44,3 +44,7 @@ CacheManager createArtworkCache(
     ),
   ),
 );
+
+enum ImageStore { thumbnails, artwork }
+
+typedef FaImageRung = ({String url, ImageStore store, int? decodeWidth});

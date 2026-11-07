@@ -134,7 +134,7 @@ class SubmissionThumbnail extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final double ratio = MediaQuery.devicePixelRatioOf(context);
     final String url = thumbnailFor(submission.thumbnail, extent, ratio);
-    final String key = '$url#${session.discriminator}';
+    final String key = session.cacheKey(url);
     final int width = (extent * ratio).round();
     return HeldImage(
       image: ResizeImage.resizeIfNeeded(

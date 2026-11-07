@@ -14,14 +14,12 @@ class SubmissionNotice extends ConsumerStatefulWidget {
     required this.id,
     required this.type,
     required this.rungs,
-    required this.session,
     this.submission,
   });
 
   final int id;
   final SubmissionType? type;
-  final List<ImageRung> rungs;
-  final Session session;
+  final List<FaImageRung> rungs;
   final Submission? submission;
 
   @override
@@ -98,10 +96,8 @@ class _SubmissionNoticeState extends ConsumerState<SubmissionNotice>
                                 ?child,
                               ],
                             ),
-                            child: ProgressiveImage(
+                            child: FaProgressiveImage(
                               rungs: widget.rungs,
-                              headers: widget.session.headersFor,
-                              discriminator: widget.session.discriminator,
                               fit: BoxFit.scaleDown,
                               background: Colors.transparent,
                               load: load,

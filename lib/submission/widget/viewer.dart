@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
-import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
@@ -75,18 +74,13 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
 
   @override
   Widget build(BuildContext context) {
-    final Session session = ref
-        .watch(sessionProvider)
-        .maybeWhen(data: (e) => e, orElse: () => const Session());
-    final List<ImageRung> rungs = submissionRungs(
-      context,
+    final List<FaImageRung> rungs = submissionRungs(
       extent: ref.watch(tilesProvider).extent,
+      pixelRatio: MediaQuery.devicePixelRatioOf(context),
       preview: widget.preview,
       loaded: widget.settled || ref.exists(submissionProvider(widget.id))
           ? ref.watch(submissionProvider(widget.id)).value?.submission
           : null,
-      thumbnails: ref.watch(thumbnailCacheProvider),
-      artwork: ref.watch(artworkCacheProvider),
     );
 
     return ClaimedBottom(
@@ -111,10 +105,8 @@ class _SubmissionViewerState extends ConsumerState<SubmissionViewer>
                         fit: BoxFit.contain,
                         aspectRatio: _ratio,
                       ),
-                      child: ProgressiveImage(
+                      child: FaProgressiveImage(
                         rungs: rungs,
-                        headers: session.headersFor,
-                        discriminator: session.discriminator,
                         onRatio: _onRatio,
                         load: load,
                       ),

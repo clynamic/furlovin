@@ -42,6 +42,8 @@ class Session {
         .toRadixString(16);
   }
 
+  String cacheKey(String url) => '$url#$discriminator';
+
   Map<String, String> headersFor(String url) {
     final Uri? target = Uri.tryParse(url);
     if (target == null || !isFaHost(target.host)) return const {};

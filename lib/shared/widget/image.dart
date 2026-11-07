@@ -85,7 +85,7 @@ class ProgressiveImage extends StatefulWidget {
     super.key,
     required this.rungs,
     required this.headers,
-    required this.discriminator,
+    required this.cacheKey,
     this.fit = BoxFit.contain,
     this.background,
     this.fade = const Duration(milliseconds: 180),
@@ -95,7 +95,7 @@ class ProgressiveImage extends StatefulWidget {
 
   final List<ImageRung> rungs;
   final Map<String, String> Function(String url) headers;
-  final String discriminator;
+  final String Function(String url) cacheKey;
   final BoxFit fit;
   final Color? background;
   final Duration fade;
@@ -134,7 +134,7 @@ class _ProgressiveImageState extends State<ProgressiveImage> {
     if (load == null || load.attempt == _attempt) return;
     _attempt = load.attempt;
     if (widget.rungs.lastOrNull case final ImageRung best) {
-      final String key = '${best.url}#${widget.discriminator}';
+      final String key = widget.cacheKey(best.url);
       unawaited(best.cache?.removeFile(key));
       unawaited(CachedNetworkImageProvider(best.url, cacheKey: key).evict());
     }
@@ -160,7 +160,7 @@ class _ProgressiveImageState extends State<ProgressiveImage> {
       final bool best = rung == widget.rungs.last;
       final bool first = rung == widget.rungs.first;
       final bool reporting = best && load != null;
-      final String key = '${rung.url}#${widget.discriminator}';
+      final String key = widget.cacheKey(rung.url);
       final Map<String, String> headers = widget.headers(rung.url);
       below = CachedNetworkImage(
         imageUrl: rung.url,

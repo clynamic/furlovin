@@ -202,9 +202,8 @@ mixin SubmissionDownloader<T extends ConsumerStatefulWidget>
     final CacheManager artwork = ref.read(artworkCacheProvider);
     final PreferenceStore store = ref.read(preferenceStoreProvider);
     final String? directory = ref.read(downloadDirectoryProvider);
-    final String discriminator =
-        ref.read(sessionProvider).asData?.value.discriminator ??
-        const Session().discriminator;
+    final Session session =
+        ref.read(sessionProvider).asData?.value ?? const Session();
     try {
       final DownloadTarget target = await Downloads.target(
         chosen: directory,
@@ -214,7 +213,7 @@ mixin SubmissionDownloader<T extends ConsumerStatefulWidget>
       setState(() => downloading = true);
       final File local = await artwork.getSingleFile(
         file,
-        key: '$file#$discriminator',
+        key: session.cacheKey(file),
       );
       final String saved = await Downloads.write(
         file: local,

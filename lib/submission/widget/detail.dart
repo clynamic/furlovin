@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/comment/comment.dart';
@@ -58,12 +57,6 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
         widget.settled || ref.exists(submissionProvider(id))
         ? ref.watch(submissionProvider(id))
         : const AsyncLoading();
-    final Session session = ref
-        .watch(sessionProvider)
-        .maybeWhen(data: (e) => e, orElse: () => const Session());
-    final CacheManager thumbnails = ref.watch(thumbnailCacheProvider);
-    final CacheManager artwork = ref.watch(artworkCacheProvider);
-
     final Object? failure = switch (detail) {
       AsyncError(:final Object error) when !detail.hasValue => error,
       _ => null,
@@ -95,13 +88,11 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
       preview: preview,
     );
     final bool viewable = facade.type.isViewable;
-    final List<ImageRung> rungs = submissionRungs(
-      context,
+    final List<FaImageRung> rungs = submissionRungs(
       extent: ref.watch(tilesProvider).extent,
+      pixelRatio: MediaQuery.devicePixelRatioOf(context),
       preview: preview,
       loaded: loaded,
-      thumbnails: thumbnails,
-      artwork: artwork,
     );
 
     return ClaimedBottom(
@@ -142,7 +133,6 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                 id: id,
                                 type: facade.type,
                                 rungs: rungs,
-                                session: session,
                                 submission: loaded,
                               )
                             : GestureDetector(
@@ -159,7 +149,6 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                           ),
                                 child: SubmissionHeader(
                                   rungs: rungs,
-                                  session: session,
                                   tag: submissionHeroTag(id),
                                   aspectRatio: facade.naturalAspectRatio,
                                   load: imageLoad,
@@ -439,43 +428,6 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
   }
 }
 
-List<ImageRung> submissionRungs(
-  BuildContext context, {
-  required double extent,
-  required SubmissionPreview? preview,
-  required Submission? loaded,
-  required CacheManager? thumbnails,
-  required CacheManager? artwork,
-}) {
-  final double ratio = MediaQuery.devicePixelRatioOf(context);
-  final List<ImageRung> rungs = [];
-
-  if (preview case final SubmissionPreview value) {
-    rungs.add((
-      url: thumbnailFor(value.thumbnail, extent, ratio),
-      cache: thumbnails,
-      decodeWidth: (extent * ratio).round(),
-    ));
-  }
-
-  final String? middle =
-      loaded?.preview ??
-      (preview == null
-          ? null
-          : thumbnailAt(preview.thumbnail, thumbnailSizes.last));
-  if (middle != null) {
-    rungs.add((url: middle, cache: thumbnails, decodeWidth: null));
-  }
-
-  if (loaded case final Submission value when value.type.isViewable) {
-    if (value.file case final String file) {
-      rungs.add((url: file, cache: artwork, decodeWidth: null));
-    }
-  }
-
-  return rungs;
-}
-
 class SubmissionFacade {
   const SubmissionFacade({this.submission, this.preview});
 
@@ -522,14 +474,12 @@ class SubmissionHeader extends StatelessWidget {
   const SubmissionHeader({
     super.key,
     required this.rungs,
-    required this.session,
     required this.tag,
     this.aspectRatio,
     this.load,
   });
 
-  final List<ImageRung> rungs;
-  final Session session;
+  final List<FaImageRung> rungs;
   final Object tag;
   final double? aspectRatio;
   final ImageLoadController? load;
@@ -546,10 +496,8 @@ class SubmissionHeader extends StatelessWidget {
       ContentHero(
         tag: tag,
         content: FittedContent(fit: BoxFit.contain, aspectRatio: aspectRatio),
-        child: ProgressiveImage(
+        child: FaProgressiveImage(
           rungs: rungs,
-          headers: session.headersFor,
-          discriminator: session.discriminator,
           background: Colors.transparent,
           load: load,
         ),
