@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$FeaturedSubmission {
 
- int get id; String get link; SubmissionRating get rating; String get thumbnail; String? get title; Map<String, ParseException> get failed;
+ int get id; String get link; SubmissionRating get rating; String get thumbnail;/// The uploader's keywords plus the site's meta tags, among them u_
+/// followed by the uploader's name. The blocklist checks these.
+ String? get filterTags; String? get title; Map<String, ParseException> get failed;
 /// Create a copy of FeaturedSubmission
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +29,20 @@ $FeaturedSubmissionCopyWith<FeaturedSubmission> get copyWith => _$FeaturedSubmis
 @override
 bool operator ==(Object other) {
   final _this = this as FeaturedSubmission;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeaturedSubmission&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.link, _this.link) || other.link == _this.link)&&(identical(other.rating, _this.rating) || other.rating == _this.rating)&&(identical(other.thumbnail, _this.thumbnail) || other.thumbnail == _this.thumbnail)&&(identical(other.title, _this.title) || other.title == _this.title)&&const DeepCollectionEquality().equals(other.failed, _this.failed));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeaturedSubmission&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.link, _this.link) || other.link == _this.link)&&(identical(other.rating, _this.rating) || other.rating == _this.rating)&&(identical(other.thumbnail, _this.thumbnail) || other.thumbnail == _this.thumbnail)&&(identical(other.filterTags, _this.filterTags) || other.filterTags == _this.filterTags)&&(identical(other.title, _this.title) || other.title == _this.title)&&const DeepCollectionEquality().equals(other.failed, _this.failed));
 }
 
 
 @override
 int get hashCode {
   final _this = this as FeaturedSubmission;
-  return Object.hash(runtimeType,_this.id,_this.link,_this.rating,_this.thumbnail,_this.title,const DeepCollectionEquality().hash(_this.failed));
+  return Object.hash(runtimeType,_this.id,_this.link,_this.rating,_this.thumbnail,_this.filterTags,_this.title,const DeepCollectionEquality().hash(_this.failed));
 }
 
 @override
 String toString() {
   final _this = this as FeaturedSubmission;
-  return 'FeaturedSubmission(id: ${_this.id}, link: ${_this.link}, rating: ${_this.rating}, thumbnail: ${_this.thumbnail}, title: ${_this.title}, failed: ${_this.failed})';
+  return 'FeaturedSubmission(id: ${_this.id}, link: ${_this.link}, rating: ${_this.rating}, thumbnail: ${_this.thumbnail}, filterTags: ${_this.filterTags}, title: ${_this.title}, failed: ${_this.failed})';
 }
 
 
@@ -51,7 +53,7 @@ abstract mixin class $FeaturedSubmissionCopyWith<$Res>  {
   factory $FeaturedSubmissionCopyWith(FeaturedSubmission value, $Res Function(FeaturedSubmission) _then) = _$FeaturedSubmissionCopyWithImpl;
 @useResult
 $Res call({
- int id, String link, SubmissionRating rating, String thumbnail, String? title, Map<String, ParseException> failed
+ int id, String link, SubmissionRating rating, String thumbnail, String? filterTags, String? title, Map<String, ParseException> failed
 });
 
 
@@ -68,13 +70,14 @@ class _$FeaturedSubmissionCopyWithImpl<$Res>
 
 /// Create a copy of FeaturedSubmission
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? link = null,Object? rating = null,Object? thumbnail = null,Object? title = freezed,Object? failed = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? link = null,Object? rating = null,Object? thumbnail = null,Object? filterTags = freezed,Object? title = freezed,Object? failed = null,}) {
   return _then(FeaturedSubmission(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,link: null == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
 as String,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
 as SubmissionRating,thumbnail: null == thumbnail ? _self.thumbnail : thumbnail // ignore: cast_nullable_to_non_nullable
-as String,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,filterTags: freezed == filterTags ? _self.filterTags : filterTags // ignore: cast_nullable_to_non_nullable
+as String?,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,failed: null == failed ? _self.failed : failed // ignore: cast_nullable_to_non_nullable
 as Map<String, ParseException>,
   ));
@@ -161,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String? title,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String? filterTags,  String? title,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FeaturedSubmission() when $default != null:
-return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.title,_that.failed);case _:
+return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.filterTags,_that.title,_that.failed);case _:
   return orElse();
 
 }
@@ -182,10 +185,10 @@ return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.title,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String? title,  Map<String, ParseException> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String? filterTags,  String? title,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _FeaturedSubmission():
-return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.title,_that.failed);case _:
+return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.filterTags,_that.title,_that.failed);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +205,10 @@ return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.title,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String? title,  Map<String, ParseException> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String link,  SubmissionRating rating,  String thumbnail,  String? filterTags,  String? title,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _FeaturedSubmission() when $default != null:
-return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.title,_that.failed);case _:
+return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.filterTags,_that.title,_that.failed);case _:
   return null;
 
 }
@@ -217,13 +220,16 @@ return $default(_that.id,_that.link,_that.rating,_that.thumbnail,_that.title,_th
 
 
 class _FeaturedSubmission extends FeaturedSubmission {
-  const _FeaturedSubmission({required this.id, required this.link, required this.rating, required this.thumbnail, this.title,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
+  const _FeaturedSubmission({required this.id, required this.link, required this.rating, required this.thumbnail, this.filterTags, this.title,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 @override final  int id;
 @override final  String link;
 @override final  SubmissionRating rating;
 @override final  String thumbnail;
+/// The uploader's keywords plus the site's meta tags, among them u_
+/// followed by the uploader's name. The blocklist checks these.
+@override final  String? filterTags;
 @override final  String? title;
  final  Map<String, ParseException> _failed;
 @override@JsonKey() Map<String, ParseException> get failed {
@@ -243,18 +249,18 @@ _$FeaturedSubmissionCopyWith<_FeaturedSubmission> get copyWith => __$FeaturedSub
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeaturedSubmission&&(identical(other.id, id) || other.id == id)&&(identical(other.link, link) || other.link == link)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.thumbnail, thumbnail) || other.thumbnail == thumbnail)&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other.failed, _failed));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeaturedSubmission&&(identical(other.id, id) || other.id == id)&&(identical(other.link, link) || other.link == link)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.thumbnail, thumbnail) || other.thumbnail == thumbnail)&&(identical(other.filterTags, filterTags) || other.filterTags == filterTags)&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other.failed, _failed));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,link,rating,thumbnail,title,const DeepCollectionEquality().hash(_failed));
+    return Object.hash(runtimeType,id,link,rating,thumbnail,filterTags,title,const DeepCollectionEquality().hash(_failed));
 }
 
 @override
 String toString() {
-    return 'FeaturedSubmission(id: $id, link: $link, rating: $rating, thumbnail: $thumbnail, title: $title, failed: $failed)';
+    return 'FeaturedSubmission(id: $id, link: $link, rating: $rating, thumbnail: $thumbnail, filterTags: $filterTags, title: $title, failed: $failed)';
 }
 
 
@@ -265,7 +271,7 @@ abstract mixin class _$FeaturedSubmissionCopyWith<$Res> implements $FeaturedSubm
   factory _$FeaturedSubmissionCopyWith(_FeaturedSubmission value, $Res Function(_FeaturedSubmission) _then) = __$FeaturedSubmissionCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String link, SubmissionRating rating, String thumbnail, String? title, Map<String, ParseException> failed
+ int id, String link, SubmissionRating rating, String thumbnail, String? filterTags, String? title, Map<String, ParseException> failed
 });
 
 
@@ -282,13 +288,14 @@ class __$FeaturedSubmissionCopyWithImpl<$Res>
 
 /// Create a copy of FeaturedSubmission
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? link = null,Object? rating = null,Object? thumbnail = null,Object? title = freezed,Object? failed = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? link = null,Object? rating = null,Object? thumbnail = null,Object? filterTags = freezed,Object? title = freezed,Object? failed = null,}) {
   return _then(_FeaturedSubmission(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,link: null == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
 as String,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
 as SubmissionRating,thumbnail: null == thumbnail ? _self.thumbnail : thumbnail // ignore: cast_nullable_to_non_nullable
-as String,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,filterTags: freezed == filterTags ? _self.filterTags : filterTags // ignore: cast_nullable_to_non_nullable
+as String?,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,failed: null == failed ? _self._failed : failed // ignore: cast_nullable_to_non_nullable
 as Map<String, ParseException>,
   ));

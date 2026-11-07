@@ -1,3 +1,4 @@
+export 'blocklist.dart';
 export 'client.dart';
 export 'controls_document.rules.dart';
 export 'providers.dart';

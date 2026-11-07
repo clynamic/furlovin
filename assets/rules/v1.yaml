@@ -1,5 +1,5 @@
 schema: 1
-revision: 22
+revision: 23
 refs:
   viewLink:
     - op: select
@@ -55,6 +55,15 @@ types:
         read:
           - - op: class
               prefix: t-
+      filterTags:
+        description: |-
+          The uploader's keywords plus the site's meta tags, among them u_
+          followed by the uploader's name. The blocklist checks these.
+        read:
+          - - op: select
+              css: img[data-tags]
+            - op: attr
+              name: data-tags
       title:
         description: |-
           Listing titles are sanitised by the site and may lose leading
@@ -463,6 +472,17 @@ types:
             - op: replace
               pattern: ^music$
               with: audio
+      filterTags:
+        description: |-
+          The uploader's keywords plus the site's meta tags, among them u_
+          followed by the uploader's name. The blocklist checks these.
+        read:
+          - - op: select
+              css: >-
+                #submissionImg[data-tags], #c-submissionContent[data-tags],
+                #flash_embed[data-tags]
+            - op: attr
+              name: data-tags
       category:
         description: The kind of work, as the uploader filed it.
         presence: expected
@@ -1000,6 +1020,15 @@ types:
             - op: attr
               name: src
             - op: url
+      filterTags:
+        description: |-
+          The uploader's keywords plus the site's meta tags, among them u_
+          followed by the uploader's name. The blocklist checks these.
+        read:
+          - - op: select
+              css: img[data-tags]
+            - op: attr
+              name: data-tags
       title:
         presence: expected
         read:
@@ -1201,6 +1230,29 @@ types:
               css: 'form.logout-link input[name="key"]'
             - op: attr
               name: value
+      tagBlocklist:
+        read:
+          - - op: attr
+              name: data-tag-blocklist
+      userBlocklist:
+        description: |-
+          Blocked member names, separated by spaces. Empty while
+          hideBlockedContent is off.
+        read:
+          - - op: attr
+              name: data-user-blocklist
+      hideTagless:
+        description: |-
+          Whether the account hides work that carries no tags besides the four
+          meta tags the site adds.
+        type: bool
+        read:
+          - - op: attr
+              name: data-tag-blocklist-hide-tagless
+      blocklistKey:
+        read:
+          - - op: attr
+              name: data-tag-blocklist-nonce
 
   controlsDocument:
     feature: identity

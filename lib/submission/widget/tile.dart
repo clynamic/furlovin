@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:furlovin/client/client.dart';
+import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
@@ -74,11 +75,14 @@ class SubmissionTile extends StatelessWidget {
                     fit: BoxFit.cover,
                     aspectRatio: naturalAspectRatio,
                   ),
-                  child: SubmissionThumbnail(
-                    submission: submission,
-                    session: session,
-                    extent: tiles.extent,
-                    cache: cache,
+                  child: BlockedCover(
+                    filterTags: submission.filterTags,
+                    child: SubmissionThumbnail(
+                      submission: submission,
+                      session: session,
+                      extent: tiles.extent,
+                      cache: cache,
+                    ),
                   ),
                 ),
               ),

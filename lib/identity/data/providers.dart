@@ -58,6 +58,38 @@ final FutureProvider<Viewer?> viewerProvider = FutureProvider<Viewer?>((
   return client.viewer();
 });
 
+final NotifierProvider<BlocklistState, Blocklist> blocklistProvider =
+    NotifierProvider<BlocklistState, Blocklist>(BlocklistState.new);
+
+class BlocklistState extends Notifier<Blocklist> {
+  @override
+  Blocklist build() {
+    final AsyncValue<Viewer?> viewer = ref.watch(viewerProvider);
+    final Blocklist? held = stateOrNull;
+    if (viewer.isLoading && held != null) return held;
+    return switch (viewer.value) {
+      final Viewer known => Blocklist.of(known),
+      null => const Blocklist(),
+    };
+  }
+
+  Future<void> setTag(String tag, {required bool blocked}) async {
+    final String? key = ref.read(viewerProvider).value?.blocklistKey;
+    if (key == null) throw const AuthenticationRequired();
+    final ViewerClient client = await ref.read(viewerClientProvider.future);
+    try {
+      final List<String> stored = await client.setTagBlocked(
+        tag,
+        blocked: blocked,
+        key: key,
+      );
+      state = state.withTags(stored, blocked: blocked);
+    } finally {
+      ref.invalidate(viewerProvider);
+    }
+  }
+}
+
 final Provider<bool> authenticatedProvider = Provider<bool>(
   (ref) => ref
       .watch(sessionProvider)

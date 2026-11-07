@@ -736,6 +736,7 @@ class FeaturedSubmissionCard extends StatelessWidget {
     title: featured.title,
     uploader: uploader,
     uploaderName: uploaderName,
+    filterTags: featured.filterTags,
   );
 
   @override
@@ -751,10 +752,15 @@ class FeaturedSubmissionCard extends StatelessWidget {
           children: [
             ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: featuredMaxHeight),
-              child: FaImage(
-                url: featured.thumbnail,
-                fit: BoxFit.contain,
-                placeholder: const SizedBox(height: featuredPlaceholderHeight),
+              child: BlockedCover(
+                filterTags: featured.filterTags,
+                child: FaImage(
+                  url: featured.thumbnail,
+                  fit: BoxFit.contain,
+                  placeholder: const SizedBox(
+                    height: featuredPlaceholderHeight,
+                  ),
+                ),
               ),
             ),
             if (featured.title case final String title)

@@ -40,6 +40,7 @@ class SubmissionPage extends ConsumerStatefulWidget {
 class _SubmissionPageState extends ConsumerState<SubmissionPage>
     with BottomClaimant {
   final ImageLoadController imageLoad = ImageLoadController();
+  bool revealed = false;
 
   int get id => widget.id;
 
@@ -88,6 +89,9 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
       preview: preview,
     );
     final bool viewable = facade.type.isViewable;
+    final List<BlockReason> blocked = revealed
+        ? const []
+        : ref.watch(blocklistProvider).reasonsFor(facade.filterTags);
     final List<FaImageRung> rungs = submissionRungs(
       extent: ref.watch(tilesProvider).extent,
       pixelRatio: MediaQuery.devicePixelRatioOf(context),
@@ -128,15 +132,24 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                       backgroundColor: Colors.transparent,
                       surfaceTintColor: Colors.transparent,
                       flexibleSpace: FlexibleSpaceBar(
-                        background: !viewable
-                            ? SubmissionNotice(
-                                id: id,
-                                type: facade.type,
-                                rungs: rungs,
-                                submission: loaded,
+                        background: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            if (!viewable)
+                              BlockedBlur(
+                                enabled: blocked.isNotEmpty,
+                                child: SubmissionNotice(
+                                  id: id,
+                                  type: facade.type,
+                                  rungs: rungs,
+                                  submission: loaded,
+                                ),
                               )
-                            : GestureDetector(
-                                onTap: preview == null && loaded == null
+                            else
+                              GestureDetector(
+                                onTap:
+                                    blocked.isNotEmpty ||
+                                        preview == null && loaded == null
                                     ? null
                                     : widget.onTapImage ??
                                           () => openViewer(
@@ -152,8 +165,18 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                   tag: submissionHeroTag(id),
                                   aspectRatio: facade.naturalAspectRatio,
                                   load: imageLoad,
+                                  blurred: blocked.isNotEmpty,
                                 ),
                               ),
+                            if (blocked.isNotEmpty)
+                              DismissFade(
+                                child: BlockedNotice(
+                                  reasons: blocked,
+                                  onShow: () => setState(() => revealed = true),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                     DismissSliverFade(
@@ -446,6 +469,8 @@ class SubmissionFacade {
 
   SubmissionRating? get rating => submission?.rating ?? preview?.rating;
 
+  String? get filterTags => submission?.filterTags ?? preview?.filterTags;
+
   SubmissionType? get type => submission?.type ?? preview?.type;
 
   String? get avatar => submission?.uploaderAvatar;
@@ -477,12 +502,14 @@ class SubmissionHeader extends StatelessWidget {
     required this.tag,
     this.aspectRatio,
     this.load,
+    this.blurred = false,
   });
 
   final List<FaImageRung> rungs;
   final Object tag;
   final double? aspectRatio;
   final ImageLoadController? load;
+  final bool blurred;
 
   @override
   Widget build(BuildContext context) => Stack(
@@ -496,10 +523,13 @@ class SubmissionHeader extends StatelessWidget {
       ContentHero(
         tag: tag,
         content: FittedContent(fit: BoxFit.contain, aspectRatio: aspectRatio),
-        child: FaProgressiveImage(
-          rungs: rungs,
-          background: Colors.transparent,
-          load: load,
+        child: BlockedBlur(
+          enabled: blurred,
+          child: FaProgressiveImage(
+            rungs: rungs,
+            background: Colors.transparent,
+            load: load,
+          ),
         ),
       ),
       const DismissFade(
@@ -723,28 +753,101 @@ class Statistic extends StatelessWidget {
   }
 }
 
-class SubmissionTags extends StatelessWidget {
+class SubmissionTags extends ConsumerWidget {
   const SubmissionTags({super.key, required this.tags});
 
   final List<String> tags;
 
+  Future<void> _setBlocked(
+    BuildContext context,
+    WidgetRef ref,
+    String tag, {
+    required bool blocked,
+  }) async {
+    try {
+      await ref.read(blocklistProvider.notifier).setTag(tag, blocked: blocked);
+    } on Object catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(describeFailure(error)),
+        ),
+      );
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => Wrap(
-    spacing: 6,
-    runSpacing: 6,
-    children: [for (final String tag in tags) TagChip(label: tag)],
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Blocklist blocklist = ref.watch(blocklistProvider);
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        for (final String tag in tags)
+          TagChip(
+            label: tag,
+            blocked: blocklist.blocksTag(tag),
+            onSetBlocked: blocklist.editable
+                ? (blocked) => _setBlocked(context, ref, tag, blocked: blocked)
+                : null,
+          ),
+      ],
+    );
+  }
 }
 
 class TagChip extends StatelessWidget {
-  const TagChip({super.key, required this.label});
+  const TagChip({
+    super.key,
+    required this.label,
+    this.blocked = false,
+    this.onSetBlocked,
+  });
 
   final String label;
+  final bool blocked;
+  final ValueChanged<bool>? onSetBlocked;
+
+  Future<void> _menu(BuildContext context) async {
+    final ValueChanged<bool>? onSetBlocked = this.onSetBlocked;
+    if (onSetBlocked == null) return;
+    final RenderBox chip = context.findRenderObject()! as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context, rootOverlay: true).context.findRenderObject()!
+            as RenderBox;
+    final bool? choice = await showMenu<bool>(
+      context: context,
+      useRootNavigator: true,
+      position: RelativeRect.fromRect(
+        chip.localToGlobal(Offset.zero, ancestor: overlay) & chip.size,
+        Offset.zero & overlay.size,
+      ),
+      items: [
+        PopupMenuItem<bool>(
+          enabled: false,
+          child: Text(label, style: Theme.of(context).textTheme.titleSmall),
+        ),
+        const PopupMenuDivider(),
+        PopupMenuItem<bool>(
+          value: !blocked,
+          child: ListTile(
+            leading: Icon(blocked ? Icons.check_circle_outline : Icons.block),
+            title: Text(blocked ? 'Unblock tag' : 'Block tag'),
+          ),
+        ),
+      ],
+    );
+    if (choice != null) onSetBlocked(choice);
+  }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final bool light = theme.brightness == Brightness.light;
+    final Color tint = blocked
+        ? theme.colorScheme.error
+        : theme.colorScheme.onSurfaceVariant;
     return Material(
       color: light
           ? theme.colorScheme.surface
@@ -764,16 +867,22 @@ class TagChip extends StatelessWidget {
             ],
           ),
         ),
+        onLongPress: onSetBlocked == null ? null : () => _menu(context),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: Space.small,
             vertical: Space.tight,
           ),
-          child: Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: Space.hair,
+            children: [
+              if (blocked) Icon(Icons.block, size: 12, color: tint),
+              Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(color: tint),
+              ),
+            ],
           ),
         ),
       ),

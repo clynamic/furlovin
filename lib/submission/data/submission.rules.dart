@@ -58,6 +58,10 @@ abstract class Submission with _$Submission {
     /// The size of the uploaded file, as FA renders it.
     String? fileSize,
 
+    /// The uploader's keywords plus the site's meta tags, among them u_
+    /// followed by the uploader's name. The blocklist checks these.
+    String? filterTags,
+
     /// Absolute url that opens a new note to whoever posted it. Absent
     /// when signed out.
     String? noteLink,
@@ -123,6 +127,7 @@ abstract class Submission with _$Submission {
       favouriteLink: outcome.get<String>('favouriteLink'),
       favourited: outcome.get<bool>('favourited'),
       fileSize: outcome.get<String>('fileSize'),
+      filterTags: outcome.get<String>('filterTags'),
       noteLink: outcome.get<String>('noteLink'),
       posted: outcome.get<DateTime>('posted'),
       preview: outcome.get<String>('preview'),

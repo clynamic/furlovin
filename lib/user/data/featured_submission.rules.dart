@@ -17,6 +17,10 @@ abstract class FeaturedSubmission with _$FeaturedSubmission {
     required String link,
     required SubmissionRating rating,
     required String thumbnail,
+
+    /// The uploader's keywords plus the site's meta tags, among them u_
+    /// followed by the uploader's name. The blocklist checks these.
+    String? filterTags,
     String? title,
     @Default(const {}) Map<String, ParseException> failed,
   }) = _FeaturedSubmission;
@@ -39,6 +43,7 @@ abstract class FeaturedSubmission with _$FeaturedSubmission {
       link: link,
       rating: rating,
       thumbnail: thumbnail,
+      filterTags: outcome.get<String>('filterTags'),
       title: outcome.get<String>('title'),
       failed: outcome.failed,
     );

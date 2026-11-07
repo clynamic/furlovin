@@ -19,6 +19,7 @@ abstract class Viewer with _$Viewer {
 
     /// Absolute url of the avatar.
     String? avatar,
+    String? blocklistKey,
 
     /// How many new comments are waiting.
     int? commentAlerts,
@@ -28,10 +29,19 @@ abstract class Viewer with _$Viewer {
 
     /// How many new favourites are waiting.
     int? favouriteAlerts,
+
+    /// Whether the account hides work that carries no tags besides the four
+    /// meta tags the site adds.
+    bool? hideTagless,
     String? logoutKey,
 
     /// How many new submissions are waiting.
     int? submissionAlerts,
+    String? tagBlocklist,
+
+    /// Blocked member names, separated by spaces. Empty while
+    /// hideBlockedContent is off.
+    String? userBlocklist,
 
     /// How many new watchers are waiting.
     int? watchAlerts,
@@ -46,11 +56,15 @@ abstract class Viewer with _$Viewer {
     return Viewer(
       name: name,
       avatar: outcome.get<String>('avatar'),
+      blocklistKey: outcome.get<String>('blocklistKey'),
       commentAlerts: outcome.get<int>('commentAlerts'),
       displayName: outcome.get<String>('displayName'),
       favouriteAlerts: outcome.get<int>('favouriteAlerts'),
+      hideTagless: outcome.get<bool>('hideTagless'),
       logoutKey: outcome.get<String>('logoutKey'),
       submissionAlerts: outcome.get<int>('submissionAlerts'),
+      tagBlocklist: outcome.get<String>('tagBlocklist'),
+      userBlocklist: outcome.get<String>('userBlocklist'),
       watchAlerts: outcome.get<int>('watchAlerts'),
       failed: outcome.failed,
     );

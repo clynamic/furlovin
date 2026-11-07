@@ -32,6 +32,10 @@ abstract class SubmissionPreview with _$SubmissionPreview {
     /// lowercased and with underscores removed.
     required String uploader,
 
+    /// The uploader's keywords plus the site's meta tags, among them u_
+    /// followed by the uploader's name. The blocklist checks these.
+    String? filterTags,
+
     /// Thumbnail height in pixels, which the site fixes at 200.
     double? thumbnailHeight,
 
@@ -72,6 +76,7 @@ abstract class SubmissionPreview with _$SubmissionPreview {
       rating: rating,
       thumbnail: thumbnail,
       uploader: uploader,
+      filterTags: outcome.get<String>('filterTags'),
       thumbnailHeight: outcome.get<double>('thumbnailHeight'),
       thumbnailWidth: outcome.get<double>('thumbnailWidth'),
       title: outcome.get<String>('title'),
