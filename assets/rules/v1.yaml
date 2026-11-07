@@ -1,5 +1,5 @@
 schema: 1
-revision: 19
+revision: 20
 refs:
   viewLink:
     - op: select
@@ -442,6 +442,9 @@ types:
               css: script[data-content-id]
             - op: attr
               name: data-content-type
+            - op: replace
+              pattern: ^music$
+              with: audio
       category:
         description: The kind of work, as the uploader filed it.
         presence: expected
