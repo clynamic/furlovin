@@ -22,34 +22,49 @@ const String searchEditKey = 'edit';
 const String challengeUrlKey = 'url';
 const String reportLinkKey = 'link';
 
+String? _branchOf(String where) {
+  for (final String root in branchRoots) {
+    if (where == root || where.startsWith('$root/')) return root;
+  }
+  return null;
+}
+
+bool _coversTabs(GoRouter router) =>
+    _branchOf(
+      router.routerDelegate.currentConfiguration.last.matchedLocation,
+    ) ==
+    null;
+
 extension AppRouting on BuildContext {
-  String get branch {
-    final String where = GoRouter.of(this)
-        .routerDelegate
-        .currentConfiguration
-        .uri
-        .path;
-    for (final String root in branchRoots) {
-      if (where == root || where.startsWith('$root/')) return root;
+  String get branch =>
+      _branchOf(
+        GoRouter.of(this).routerDelegate.currentConfiguration.uri.path,
+      ) ??
+      browsePath;
+
+  String _surface() {
+    final GoRouter router = GoRouter.of(this);
+    while (_coversTabs(router) && router.canPop()) {
+      router.pop();
     }
-    return browsePath;
+    return branch;
   }
 
   void openSubmission(int id, {Object? extra}) =>
-      GoRouter.of(this).push('$branch$submissionPath/$id', extra: extra);
+      GoRouter.of(this).push('${_surface()}$submissionPath/$id', extra: extra);
 
   void openUser(String name) =>
-      GoRouter.of(this).push('$branch$userPath/$name');
+      GoRouter.of(this).push('${_surface()}$userPath/$name');
 
   void openGallery(String name, {bool replace = false}) =>
-      _open('$branch$galleryPath/$name', replace: replace);
+      _open('${_surface()}$galleryPath/$name', replace: replace);
 
   void openScraps(String name, {bool replace = false}) =>
-      _open('$branch$scrapsPath/$name', replace: replace);
+      _open('${_surface()}$scrapsPath/$name', replace: replace);
 
   void openFolder(String name, int id, String slug, {bool replace = false}) =>
       _open(
-        '$branch$galleryPath/$name/$folderSegment/$id/$slug',
+        '${_surface()}$galleryPath/$name/$folderSegment/$id/$slug',
         replace: replace,
       );
 
@@ -62,7 +77,7 @@ extension AppRouting on BuildContext {
   }
 
   void openFavorites(String name) =>
-      GoRouter.of(this).push('$branch$favoritesPath/$name');
+      GoRouter.of(this).push('${_surface()}$favoritesPath/$name');
 
   void openLogin() => GoRouter.of(this).push(loginPath);
 

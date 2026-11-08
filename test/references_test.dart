@@ -29,9 +29,8 @@ types:
       script: '/js/follow.js',
       mentions: ["post('/follow')", "body['nonce']"],
     );
-    expect(
-      missingFrom("fetch(x).then(() => post('/follow'))", reference),
-      ["body['nonce']"],
-    );
+    expect(missingFrom("fetch(x).then(() => post('/follow'))", reference), [
+      "body['nonce']",
+    ]);
   });
 }

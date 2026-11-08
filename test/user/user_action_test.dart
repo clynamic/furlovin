@@ -222,9 +222,11 @@ void main() {
     late _Site site;
     late ProviderContainer container;
     late int viewerLoads;
+    late int settingsLoads;
 
     Future<void> host(String href, String reply) async {
       viewerLoads = 0;
+      settingsLoads = 0;
       site = _Site(page: _withBlock(href), answer: () async => reply);
       final FaClient client = FaClient()..dio.httpClientAdapter = site;
       container = ProviderContainer.test(
@@ -237,10 +239,17 @@ void main() {
             viewerLoads++;
             return const Viewer(name: 'mossbadger');
           }),
+          profileSettingsProvider.overrideWith((ref) async {
+            settingsLoads++;
+            return const ProfileSettingsDocument(blockedUsers: '');
+          }),
         ],
       );
       container.listen(userProvider('fennel-v0578'), (previous, next) {});
-      container.listen(viewerProvider, (previous, next) {});
+      container
+        ..listen(viewerProvider, (previous, next) {})
+        ..listen(profileSettingsProvider, (previous, next) {});
+      await container.read(profileSettingsProvider.future);
       await container.read(userProvider('fennel-v0578').future);
       await container.read(viewerProvider.future);
     }
@@ -268,6 +277,8 @@ void main() {
         expect(shown().blockKey, 'second');
         await container.read(viewerProvider.future);
         expect(viewerLoads, 2);
+        await container.read(profileSettingsProvider.future);
+        expect(settingsLoads, 2);
       },
     );
 

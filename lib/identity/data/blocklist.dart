@@ -14,6 +14,9 @@ final RegExp _edges = RegExp(r'^[\s_]+|[\s_]+$');
 List<String> _words(String? text) =>
     (text ?? '').trim().split(_space).where((e) => e.isNotEmpty).toList();
 
+List<String> blockedNames(ProfileSettingsDocument settings) =>
+    _words(settings.blockedUsers);
+
 String userTag(String name) =>
     'u_${name.toLowerCase().replaceAll(_unsafe, '_').replaceAll(_underscores, '_').replaceAll(_edges, '')}';
 
@@ -59,7 +62,6 @@ class Blocklist {
   const Blocklist({
     this.tags = const {},
     this.users = const {},
-    this.userNames = const [],
     this.hideTagless = false,
     this.editable = false,
   });
@@ -69,14 +71,12 @@ class Blocklist {
     users: {
       for (final String name in _words(viewer.userBlocklist)) userTag(name),
     },
-    userNames: _words(viewer.userBlocklist),
     hideTagless: viewer.hideTagless ?? false,
     editable: viewer.blocklistKey != null,
   );
 
   final Set<String> tags;
   final Set<String> users;
-  final List<String> userNames;
   final bool hideTagless;
   final bool editable;
 
@@ -98,7 +98,6 @@ class Blocklist {
       Blocklist(
         tags: blocked ? {...tags, ...changed} : tags.difference({...changed}),
         users: users,
-        userNames: userNames,
         hideTagless: hideTagless,
         editable: editable,
       );

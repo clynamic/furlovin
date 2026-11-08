@@ -1,5 +1,5 @@
 schema: 1
-revision: 26
+revision: 27
 refs:
   viewLink:
     - op: select
@@ -1458,6 +1458,33 @@ types:
         presence: expected
         type: formControl
         at: ['input[name="sharenotes"]']
+
+  profileSettingsDocument:
+    feature: identity
+    page: true
+    fields:
+      blockedUsers:
+        description: Blocked member names, one per line.
+        presence: required
+        read:
+          - - op: select
+              css: textarea[name="blocklist"]
+            - op: text
+      hideBlockedContent:
+        description: |-
+          Whether the account hides blocked members' work outside their
+          profiles. With it off, the data-user-blocklist attribute on pages is
+          empty.
+        type: bool
+        read:
+          - - op: select
+              css: 'select[name="hide_blocked_user_content"] option[value="1"][selected]'
+            - op: literal
+              value: 'true'
+          - - op: select
+              css: 'select[name="hide_blocked_user_content"]'
+            - op: literal
+              value: 'false'
 
   ticketDocument:
     feature: identity

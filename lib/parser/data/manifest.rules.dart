@@ -191,5 +191,9 @@ const Map<String, Map<String, String>> ruleManifest = {
     'shareNotes': 'formControl',
     'subject': 'formControl',
   },
+  'profileSettingsDocument': {
+    'blockedUsers': 'string!',
+    'hideBlockedContent': 'bool',
+  },
   'ticketDocument': {'ticket': 'ticketForm!'},
 };

@@ -108,7 +108,9 @@ class UserDetail extends AsyncNotifier<UserDocument> {
       );
       _publish();
     } finally {
-      ref.invalidate(viewerProvider);
+      ref
+        ..invalidate(viewerProvider)
+        ..invalidate(profileSettingsProvider);
     }
   }
 

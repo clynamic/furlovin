@@ -59,6 +59,12 @@ final FutureProvider<Viewer?> viewerProvider = FutureProvider<Viewer?>((
   return client.viewer();
 });
 
+final FutureProvider<ProfileSettingsDocument> profileSettingsProvider =
+    FutureProvider<ProfileSettingsDocument>((ref) async {
+      ref.discardOnSessionChange();
+      return (await ref.watch(viewerClientProvider.future)).profileSettings();
+    });
+
 final FutureProviderFamily<TicketDocument, String> ticketProvider =
     FutureProvider.autoDispose.family<TicketDocument, String>(
       (ref, link) async =>

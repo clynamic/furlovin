@@ -7,6 +7,7 @@ const String controlsPath = '/controls/';
 const String logoutPath = '/logout/';
 const String tagBlockingPath = '/route/tag_blocking';
 const String ticketsPath = '/controls/troubletickets/';
+const String profileSettingsPath = '/controls/profile/';
 
 class ViewerClient {
   ViewerClient({required this.client, required this.rules});
@@ -24,6 +25,14 @@ class ViewerClient {
   )).viewer;
 
   Future<void> logOut(String key) => client.post(logoutPath, {'key': key});
+
+  Future<ProfileSettingsDocument> profileSettings() => client.page(
+    rules,
+    ProfileSettingsDocument.ruleType,
+    profileSettingsPath,
+    (outcome, errors) =>
+        ProfileSettingsDocument.fromOutcome(outcome, errors: errors),
+  );
 
   Future<TicketDocument> ticket(String link) => client.page(
     rules,
