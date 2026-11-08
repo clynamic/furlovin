@@ -12,19 +12,37 @@ import 'package:furlovin/user/user.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-class UserPage extends ConsumerWidget {
+class UserPage extends ConsumerStatefulWidget {
   const UserPage({super.key, required this.name, this.onSettings});
 
   final String? name;
   final VoidCallback? onSettings;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final String? known = this.name;
+  ConsumerState<UserPage> createState() => _UserPageState();
+}
+
+class _UserPageState extends ConsumerState<UserPage> {
+  bool revealed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final String? known = widget.name;
+    final VoidCallback? onSettings = widget.onSettings;
     final AsyncValue<UserDocument> detail = known == null
         ? const AsyncLoading()
         : ref.watch(userProvider(known));
     final String name = known ?? BoneMock.name;
+    if (known != null) {
+      ref.listen(userProvider(known).select((e) => e.value?.user.blocked), (
+        previous,
+        next,
+      ) {
+        if (next == true && previous == false) {
+          setState(() => revealed = false);
+        }
+      });
+    }
 
     if (detail case AsyncError(:final Object error) when !detail.hasValue) {
       return Scaffold(
@@ -41,6 +59,7 @@ class UserPage extends ConsumerWidget {
     final UserDocument? loaded = detail.value;
     final User? user = loaded?.user;
     final DocumentErrors? errors = loaded?.errors;
+    final bool hidden = (user?.blocked ?? false) && !revealed;
 
     return Scaffold(
       body: RevisitRefresh(
@@ -78,7 +97,7 @@ class UserPage extends ConsumerWidget {
               backgroundColor: Colors.transparent,
               surfaceTintColor: Colors.transparent,
               flexibleSpace: FlexibleSpaceBar(
-                background: ProfileBanner(url: user?.banner),
+                background: ProfileBanner(url: user?.banner, blurred: hidden),
               ),
             ),
             SliverPadding(
@@ -94,238 +113,261 @@ class UserPage extends ConsumerWidget {
                       Expanded(
                         child: Skeletonizer(
                           enabled: known == null,
-                          child: ProfileIdentity(user: user, fallback: name),
+                          child: ProfileIdentity(
+                            user: user,
+                            fallback: name,
+                            blurred: hidden,
+                          ),
                         ),
                       ),
                       if (user?.watched case final bool watched
-                          when ref.watch(authenticatedProvider))
+                          when ref.watch(authenticatedProvider) &&
+                              user?.blocked != true)
                         WatchButton(name: name, watched: watched),
                     ],
                   ),
-                  const SizedBox(height: Space.medium),
-                  Skeletonizer(
-                    enabled: user == null,
-                    child: ProfileCounts(user: user, errors: errors),
-                  ),
-                  const SizedBox(height: Space.large),
-                  ErrorBoundary(
-                    errors: errors,
-                    name: 'user.profile',
-                    paths: const ['user.profile'],
-                    builder: (context, broken) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 22,
-                      children: [
-                        if (broken case final Breakage known)
-                          BreakageCard(broken: known, name: 'the profile'),
-                        if (user == null)
-                          Skeletonizer(child: Text(BoneMock.paragraph))
-                        else if (user.profile case final String profile)
-                          MarkupBody(markup: profile),
-                      ],
+                  if (!hidden) ...[
+                    const SizedBox(height: Space.medium),
+                    Skeletonizer(
+                      enabled: user == null,
+                      child: ProfileCounts(user: user, errors: errors),
                     ),
-                  ),
+                    const SizedBox(height: Space.large),
+                    ErrorBoundary(
+                      errors: errors,
+                      name: 'user.profile',
+                      paths: const ['user.profile'],
+                      builder: (context, broken) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 22,
+                        children: [
+                          if (broken case final Breakage known)
+                            BreakageCard(broken: known, name: 'the profile'),
+                          if (user == null)
+                            Skeletonizer(child: Text(BoneMock.paragraph))
+                          else if (user.profile case final String profile)
+                            MarkupBody(markup: profile),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
-            ErrorBoundary(
-              errors: errors,
-              name: 'user.featured',
-              paths: const ['featured'],
-              builder: (context, broken) => switch (loaded?.featured) {
-                final FeaturedSubmission featured => PersistentSliverSection(
-                  name: 'featured',
-                  title: 'Featured',
-                  sliver: BreakageSliver(
-                    broken: broken,
-                    name: 'the featured submission',
-                    sliver: SliverToBoxAdapter(
-                      child: FeaturedSubmissionCard(
-                        featured: featured,
-                        uploader: user?.name ?? name,
-                        uploaderName: user?.displayName,
-                      ),
-                    ),
+            if (hidden)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: BlockedProfileNotice(
+                    name: user?.displayName ?? name,
+                    onShow: () => setState(() => revealed = true),
                   ),
                 ),
-                _ => BrokenSection(
-                  broken: broken,
-                  name: 'featured',
-                  title: 'Featured',
-                ),
-              },
-            ),
-            ErrorBoundary(
-              errors: errors,
-              name: 'user.facts',
-              paths: const ['facts'],
-              builder: (context, broken) => switch (loaded?.facts) {
-                final List<Fact> facts when facts.isNotEmpty =>
-                  PersistentSliverSection(
-                    name: 'facts',
-                    title: 'About',
+              )
+            else ...[
+              ErrorBoundary(
+                errors: errors,
+                name: 'user.featured',
+                paths: const ['featured'],
+                builder: (context, broken) => switch (loaded?.featured) {
+                  final FeaturedSubmission featured => PersistentSliverSection(
+                    name: 'featured',
+                    title: 'Featured',
                     sliver: BreakageSliver(
                       broken: broken,
-                      name: 'about',
-                      sliver: SliverList.separated(
-                        itemCount: facts.length,
-                        itemBuilder: (context, index) =>
-                            FactRow(fact: facts[index]),
-                        separatorBuilder: (context, index) =>
-                            facts[index].group == facts[index + 1].group
-                            ? const SizedBox(height: Space.snug)
-                            : const Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: Space.snug,
-                                ),
-                                child: Divider(height: 1),
-                              ),
-                      ),
-                    ),
-                  ),
-                _ => BrokenSection(
-                  broken: broken,
-                  name: 'facts',
-                  title: 'About',
-                ),
-              },
-            ),
-            ErrorBoundary(
-              errors: errors,
-              name: 'user.contacts',
-              paths: const ['contacts'],
-              builder: (context, broken) => switch (loaded?.contacts) {
-                final List<Contact> contacts when contacts.isNotEmpty =>
-                  PersistentSliverSection(
-                    name: 'contacts',
-                    title: 'Elsewhere',
-                    sliver: BreakageSliver(
-                      broken: broken,
-                      name: 'contacts',
-                      sliver: SliverList.separated(
-                        itemCount: contacts.length,
-                        itemBuilder: (context, index) =>
-                            ContactRow(contact: contacts[index]),
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 10),
-                      ),
-                    ),
-                  ),
-                _ => BrokenSection(
-                  broken: broken,
-                  name: 'contacts',
-                  title: 'Elsewhere',
-                ),
-              },
-            ),
-            ErrorBoundary(
-              errors: errors,
-              name: 'user.gallery',
-              paths: const ['gallery'],
-              builder: (context, broken) => switch (loaded?.gallery) {
-                final List<SubmissionPreview> gallery when gallery.isNotEmpty =>
-                  PersistentSliverSection(
-                    name: 'userGallery',
-                    title: 'Gallery',
-                    count: user?.submissions,
-                    action: TextButton.icon(
-                      onPressed: () => context.openGallery(user?.name ?? name),
-                      iconAlignment: IconAlignment.end,
-                      icon: const Icon(Icons.arrow_forward, size: 16),
-                      label: const Text('View gallery'),
-                    ),
-                    inset: const EdgeInsets.fromLTRB(
-                      Space.medium,
-                      Space.medium,
-                      0,
-                      Space.medium,
-                    ),
-                    sliver: BreakageSliver(
-                      broken: broken,
-                      name: 'the gallery',
+                      name: 'the featured submission',
                       sliver: SliverToBoxAdapter(
-                        child: SubmissionStrip(submissions: gallery),
-                      ),
-                    ),
-                  ),
-                _ => BrokenSection(
-                  broken: broken,
-                  name: 'userGallery',
-                  title: 'Gallery',
-                ),
-              },
-            ),
-            ErrorBoundary(
-              errors: errors,
-              name: 'user.favorites',
-              paths: const ['favorites'],
-              builder: (context, broken) => switch (loaded?.favorites) {
-                final List<SubmissionPreview> favorites
-                    when favorites.isNotEmpty =>
-                  PersistentSliverSection(
-                    name: 'userFavorites',
-                    title: 'Favourites',
-                    count: user?.favorites,
-                    action: TextButton.icon(
-                      onPressed: () =>
-                          context.openFavorites(user?.name ?? name),
-                      iconAlignment: IconAlignment.end,
-                      icon: const Icon(Icons.arrow_forward, size: 16),
-                      label: const Text('View favourites'),
-                    ),
-                    inset: const EdgeInsets.fromLTRB(
-                      Space.medium,
-                      Space.medium,
-                      0,
-                      Space.medium,
-                    ),
-                    sliver: BreakageSliver(
-                      broken: broken,
-                      name: 'favourites',
-                      sliver: SliverToBoxAdapter(
-                        child: SubmissionStrip(submissions: favorites),
-                      ),
-                    ),
-                  ),
-                _ => BrokenSection(
-                  broken: broken,
-                  name: 'userFavorites',
-                  title: 'Favourites',
-                ),
-              },
-            ),
-            ErrorBoundary(
-              errors: errors,
-              name: 'user.shouts',
-              paths: const ['shouts'],
-              builder: (context, broken) => switch (loaded?.shouts) {
-                final List<Shout> shouts when shouts.isNotEmpty =>
-                  PersistentSliverSection(
-                    name: 'shouts',
-                    title: 'Shouts',
-                    count: shouts.length,
-                    sliver: BreakageSliver(
-                      broken: broken,
-                      name: 'shouts',
-                      sliver: SliverList.separated(
-                        itemCount: shouts.length,
-                        itemBuilder: (context, index) =>
-                            ShoutTile(shout: shouts[index]),
-                        separatorBuilder: (context, index) => const Padding(
-                          padding: EdgeInsets.symmetric(vertical: Space.medium),
-                          child: Divider(height: 1),
+                        child: FeaturedSubmissionCard(
+                          featured: featured,
+                          uploader: user?.name ?? name,
+                          uploaderName: user?.displayName,
                         ),
                       ),
                     ),
                   ),
-                _ => BrokenSection(
-                  broken: broken,
-                  name: 'shouts',
-                  title: 'Shouts',
-                ),
-              },
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 40)),
+                  _ => BrokenSection(
+                    broken: broken,
+                    name: 'featured',
+                    title: 'Featured',
+                  ),
+                },
+              ),
+              ErrorBoundary(
+                errors: errors,
+                name: 'user.facts',
+                paths: const ['facts'],
+                builder: (context, broken) => switch (loaded?.facts) {
+                  final List<Fact> facts when facts.isNotEmpty =>
+                    PersistentSliverSection(
+                      name: 'facts',
+                      title: 'About',
+                      sliver: BreakageSliver(
+                        broken: broken,
+                        name: 'about',
+                        sliver: SliverList.separated(
+                          itemCount: facts.length,
+                          itemBuilder: (context, index) =>
+                              FactRow(fact: facts[index]),
+                          separatorBuilder: (context, index) =>
+                              facts[index].group == facts[index + 1].group
+                              ? const SizedBox(height: Space.snug)
+                              : const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: Space.snug,
+                                  ),
+                                  child: Divider(height: 1),
+                                ),
+                        ),
+                      ),
+                    ),
+                  _ => BrokenSection(
+                    broken: broken,
+                    name: 'facts',
+                    title: 'About',
+                  ),
+                },
+              ),
+              ErrorBoundary(
+                errors: errors,
+                name: 'user.contacts',
+                paths: const ['contacts'],
+                builder: (context, broken) => switch (loaded?.contacts) {
+                  final List<Contact> contacts when contacts.isNotEmpty =>
+                    PersistentSliverSection(
+                      name: 'contacts',
+                      title: 'Elsewhere',
+                      sliver: BreakageSliver(
+                        broken: broken,
+                        name: 'contacts',
+                        sliver: SliverList.separated(
+                          itemCount: contacts.length,
+                          itemBuilder: (context, index) =>
+                              ContactRow(contact: contacts[index]),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 10),
+                        ),
+                      ),
+                    ),
+                  _ => BrokenSection(
+                    broken: broken,
+                    name: 'contacts',
+                    title: 'Elsewhere',
+                  ),
+                },
+              ),
+              ErrorBoundary(
+                errors: errors,
+                name: 'user.gallery',
+                paths: const ['gallery'],
+                builder: (context, broken) => switch (loaded?.gallery) {
+                  final List<SubmissionPreview> gallery
+                      when gallery.isNotEmpty =>
+                    PersistentSliverSection(
+                      name: 'userGallery',
+                      title: 'Gallery',
+                      count: user?.submissions,
+                      action: TextButton.icon(
+                        onPressed: () =>
+                            context.openGallery(user?.name ?? name),
+                        iconAlignment: IconAlignment.end,
+                        icon: const Icon(Icons.arrow_forward, size: 16),
+                        label: const Text('View gallery'),
+                      ),
+                      inset: const EdgeInsets.fromLTRB(
+                        Space.medium,
+                        Space.medium,
+                        0,
+                        Space.medium,
+                      ),
+                      sliver: BreakageSliver(
+                        broken: broken,
+                        name: 'the gallery',
+                        sliver: SliverToBoxAdapter(
+                          child: SubmissionStrip(submissions: gallery),
+                        ),
+                      ),
+                    ),
+                  _ => BrokenSection(
+                    broken: broken,
+                    name: 'userGallery',
+                    title: 'Gallery',
+                  ),
+                },
+              ),
+              ErrorBoundary(
+                errors: errors,
+                name: 'user.favorites',
+                paths: const ['favorites'],
+                builder: (context, broken) => switch (loaded?.favorites) {
+                  final List<SubmissionPreview> favorites
+                      when favorites.isNotEmpty =>
+                    PersistentSliverSection(
+                      name: 'userFavorites',
+                      title: 'Favourites',
+                      count: user?.favorites,
+                      action: TextButton.icon(
+                        onPressed: () =>
+                            context.openFavorites(user?.name ?? name),
+                        iconAlignment: IconAlignment.end,
+                        icon: const Icon(Icons.arrow_forward, size: 16),
+                        label: const Text('View favourites'),
+                      ),
+                      inset: const EdgeInsets.fromLTRB(
+                        Space.medium,
+                        Space.medium,
+                        0,
+                        Space.medium,
+                      ),
+                      sliver: BreakageSliver(
+                        broken: broken,
+                        name: 'favourites',
+                        sliver: SliverToBoxAdapter(
+                          child: SubmissionStrip(submissions: favorites),
+                        ),
+                      ),
+                    ),
+                  _ => BrokenSection(
+                    broken: broken,
+                    name: 'userFavorites',
+                    title: 'Favourites',
+                  ),
+                },
+              ),
+              ErrorBoundary(
+                errors: errors,
+                name: 'user.shouts',
+                paths: const ['shouts'],
+                builder: (context, broken) => switch (loaded?.shouts) {
+                  final List<Shout> shouts when shouts.isNotEmpty =>
+                    PersistentSliverSection(
+                      name: 'shouts',
+                      title: 'Shouts',
+                      count: shouts.length,
+                      sliver: BreakageSliver(
+                        broken: broken,
+                        name: 'shouts',
+                        sliver: SliverList.separated(
+                          itemCount: shouts.length,
+                          itemBuilder: (context, index) =>
+                              ShoutTile(shout: shouts[index]),
+                          separatorBuilder: (context, index) => const Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: Space.medium,
+                            ),
+                            child: Divider(height: 1),
+                          ),
+                        ),
+                      ),
+                    ),
+                  _ => BrokenSection(
+                    broken: broken,
+                    name: 'shouts',
+                    title: 'Shouts',
+                  ),
+                },
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+            ],
           ],
         ),
       ),
@@ -333,10 +375,54 @@ class UserPage extends ConsumerWidget {
   }
 }
 
+class BlockedProfileNotice extends StatelessWidget {
+  const BlockedProfileNotice({
+    super.key,
+    required this.name,
+    required this.onShow,
+  });
+
+  final String name;
+  final VoidCallback onShow;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: Space.page),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: Space.small,
+        children: [
+          Icon(
+            Icons.block,
+            size: 40,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          Text('You blocked $name', style: theme.textTheme.titleMedium),
+          Text(
+            'They cannot interact with you.',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: Space.small),
+          FilledButton.tonal(
+            onPressed: onShow,
+            child: const Text('Show profile'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class ProfileBanner extends StatelessWidget {
-  const ProfileBanner({super.key, required this.url});
+  const ProfileBanner({super.key, required this.url, this.blurred = false});
 
   final String? url;
+  final bool blurred;
 
   @override
   Widget build(BuildContext context) {
@@ -346,7 +432,11 @@ class ProfileBanner extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (url case final String value) FaImage(url: value),
+          if (url case final String value)
+            BlockedBlur(
+              enabled: blurred,
+              child: FaImage(url: value),
+            ),
           const Align(alignment: Alignment.topCenter, child: TopScrim()),
         ],
       ),
@@ -359,10 +449,12 @@ class ProfileIdentity extends StatelessWidget {
     super.key,
     required this.user,
     required this.fallback,
+    this.blurred = false,
   });
 
   final User? user;
   final String fallback;
+  final bool blurred;
 
   @override
   Widget build(BuildContext context) {
@@ -372,7 +464,12 @@ class ProfileIdentity extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 14,
       children: [
-        Avatar(url: user?.avatar, name: shown, size: 78),
+        ClipOval(
+          child: BlockedBlur(
+            enabled: blurred,
+            child: Avatar(url: user?.avatar, name: shown, size: 78),
+          ),
+        ),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
