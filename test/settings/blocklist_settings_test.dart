@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/identity/identity.dart';
+import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/settings/settings.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
@@ -34,7 +36,7 @@ void main() {
     await show(tester, key: 'ab12');
     expect(find.widgetWithText(InputChip, 'feet'), findsOneWidget);
     expect(find.widgetWithText(InputChip, 'toes'), findsOneWidget);
-    expect(find.widgetWithText(Chip, 'Pine.Marten'), findsOneWidget);
+    expect(find.widgetWithText(ActionChip, 'Pine.Marten'), findsOneWidget);
   });
 
   testWidgets('the add button opens a row with the field and a confirm', (
@@ -70,5 +72,42 @@ void main() {
       isNull,
     );
     expect(find.text('Block a tag'), findsNothing);
+  });
+
+  testWidgets('a blocked user opens their profile', (tester) async {
+    final GoRouter router = GoRouter(
+      initialLocation: browsePath,
+      routes: [
+        GoRoute(
+          path: browsePath,
+          builder: (context, state) => const Scaffold(
+            body: SingleChildScrollView(child: BlocklistSettings()),
+          ),
+          routes: [
+            GoRoute(
+              path: 'user/:name',
+              builder: (context, state) =>
+                  Text('profile ${state.pathParameters['name']}'),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          viewerProvider.overrideWith(
+            (ref) async =>
+                const Viewer(name: 'mossbadger', userBlocklist: 'Pine_Marten'),
+          ),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pine_Marten'));
+    await tester.pumpAndSettle();
+    expect(find.text('profile pinemarten'), findsOneWidget);
   });
 }

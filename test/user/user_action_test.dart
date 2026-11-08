@@ -18,6 +18,14 @@ const String _loggedOut = 'href="/watch/fennel-v0578/?key="';
 String _profile(String href) =>
     fixture('user_full').replaceFirst(_loggedOut, 'href="$href"');
 
+String _withBlock(
+  String href, {
+  String watch = '/watch/fennel-v0578/?key=w1',
+}) => _profile(watch).replaceFirst(
+  '</userpage-nav-interface-buttons>',
+  '<a class="button" id="block-button" href="$href">Block</a></userpage-nav-interface-buttons>',
+);
+
 class _Site implements HttpClientAdapter {
   _Site({required this.page, required this.answer});
 
@@ -82,20 +90,57 @@ void main() {
     expect(user.watchKey, isNull);
   });
 
-  test('reads the answer to a watch request', () {
-    final WatchAnswer answer = WatchAnswer.parse(
+  test(
+    'reads whether the viewer blocked the user and the key to change it',
+    () {
+      final User blocked = read(
+        _withBlock('/unblock/fennel-v0578/?key=abc123'),
+      );
+      expect(blocked.blocked, isTrue);
+      expect(blocked.blockKey, 'abc123');
+
+      final User not = read(_withBlock('/block/fennel-v0578/?key=def456'));
+      expect(not.blocked, isFalse);
+      expect(not.blockKey, 'def456');
+    },
+  );
+
+  test('reads the answer to a user action', () {
+    final UserActionAnswer watched = UserActionAnswer.parse(
       '{"success":true,"is_watched":true,"new_nonce":"n2"}',
+      UserAction.watch,
     );
-    expect(answer.watched, isTrue);
-    expect(answer.key, 'n2');
+    expect(watched.active, isTrue);
+    expect(watched.key, 'n2');
+
+    final UserActionAnswer unblocked = UserActionAnswer.parse(
+      '{"success":true,"is_blocked":false,"new_nonce":"n3"}',
+      UserAction.block,
+    );
+    expect(unblocked.active, isFalse);
+    expect(unblocked.key, 'n3');
 
     expect(
-      () => WatchAnswer.parse('{"success":false,"error":"Invalid key"}'),
+      () => UserActionAnswer.parse(
+        '{"success":true,"is_watched":true,"new_nonce":"n2"}',
+        UserAction.block,
+      ),
+      throwsFormatException,
+    );
+    expect(
+      () => UserActionAnswer.parse(
+        '{"success":false,"error":"Invalid key"}',
+        UserAction.watch,
+      ),
       throwsA(isA<ActionRejected>()),
     );
-    expect(() => WatchAnswer.parse('<html></html>'), throwsFormatException);
     expect(
-      () => WatchAnswer.parse('{"error":"Rate limited"}'),
+      () => UserActionAnswer.parse('<html></html>', UserAction.watch),
+      throwsFormatException,
+    );
+    expect(
+      () =>
+          UserActionAnswer.parse('{"error":"Rate limited"}', UserAction.block),
       throwsA(isA<RateLimited>()),
     );
   });
@@ -164,5 +209,89 @@ void main() {
       expect(shown().watched, isFalse);
       expect(shown().watchedBy, watchers);
     });
+  });
+
+  group('blocking from a profile', () {
+    late _Site site;
+    late ProviderContainer container;
+    late int viewerLoads;
+
+    Future<void> host(String href, String reply) async {
+      viewerLoads = 0;
+      site = _Site(page: _withBlock(href), answer: () async => reply);
+      final FaClient client = FaClient()..dio.httpClientAdapter = site;
+      container = ProviderContainer.test(
+        overrides: [
+          sessionKeyProvider.overrideWithValue('member'),
+          userClientProvider.overrideWith(
+            (ref) => UserClient(client: client, rules: rules),
+          ),
+          viewerProvider.overrideWith((ref) async {
+            viewerLoads++;
+            return const Viewer(name: 'mossbadger');
+          }),
+        ],
+      );
+      container.listen(userProvider('fennel-v0578'), (previous, next) {});
+      container.listen(viewerProvider, (previous, next) {});
+      await container.read(userProvider('fennel-v0578').future);
+      await container.read(viewerProvider.future);
+    }
+
+    UserDetail detail() =>
+        container.read(userProvider('fennel-v0578').notifier);
+
+    User shown() => container.read(userProvider('fennel-v0578')).value!.user;
+
+    test(
+      'sends the block, keeps the new key and reloads the blocklist',
+      () async {
+        await host(
+          '/block/fennel-v0578/?key=first',
+          '{"success":true,"is_blocked":true,"new_nonce":"second"}',
+        );
+        await detail().setBlocked(true);
+
+        expect(site.posted.single, {
+          'action': 'block',
+          'key': 'first',
+          'format': 'json',
+        });
+        expect(shown().blocked, isTrue);
+        expect(shown().blockKey, 'second');
+        await container.read(viewerProvider.future);
+        expect(viewerLoads, 2);
+      },
+    );
+
+    test('unblocking sends the unblock action', () async {
+      await host(
+        '/unblock/fennel-v0578/?key=first',
+        '{"success":true,"is_blocked":false,"new_nonce":"second"}',
+      );
+      await detail().setBlocked(false);
+
+      expect(site.posted.single['action'], 'unblock');
+      expect(shown().blocked, isFalse);
+    });
+
+    test(
+      'a refused block keeps the profile and reloads the blocklist',
+      () async {
+        await host(
+          '/block/fennel-v0578/?key=first',
+          '{"success":false,"error":"Invalid key"}',
+        );
+        await expectLater(
+          detail().setBlocked(true),
+          throwsA(isA<ActionRejected>()),
+        );
+
+        expect(shown().blocked, isFalse);
+        expect(shown().blockKey, 'first');
+        await container.read(viewerProvider.future);
+        expect(viewerLoads, 2);
+      },
+    );
   });
 }

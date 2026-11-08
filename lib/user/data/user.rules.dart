@@ -21,6 +21,11 @@ abstract class User with _$User {
 
     /// Absolute url of the banner across the top of the profile.
     String? banner,
+    String? blockKey,
+
+    /// Whether the signed-in account blocks the member. Absent when signed
+    /// out.
+    bool? blocked,
 
     /// How many comments the member has received.
     int? commentsEarned,
@@ -74,6 +79,8 @@ abstract class User with _$User {
       name: name,
       avatar: outcome.get<String>('avatar'),
       banner: outcome.get<String>('banner'),
+      blockKey: outcome.get<String>('blockKey'),
+      blocked: outcome.get<bool>('blocked'),
       commentsEarned: outcome.get<int>('commentsEarned'),
       commentsMade: outcome.get<int>('commentsMade'),
       displayName: outcome.get<String>('displayName'),

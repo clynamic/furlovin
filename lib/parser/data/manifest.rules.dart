@@ -88,6 +88,8 @@ const Map<String, Map<String, String>> ruleManifest = {
     'name': 'string!',
     'avatar': 'string',
     'banner': 'string',
+    'blockKey': 'string',
+    'blocked': 'bool',
     'commentsEarned': 'int',
     'commentsMade': 'int',
     'displayName': 'string',

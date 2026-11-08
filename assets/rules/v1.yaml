@@ -1,5 +1,5 @@
 schema: 1
-revision: 23
+revision: 24
 refs:
   viewLink:
     - op: select
@@ -857,6 +857,28 @@ types:
         read:
           - - op: select
               css: a#watch-button
+            - op: attr
+              name: href
+            - op: regex
+              pattern: key=(\w+)
+      blocked:
+        description: |-
+          Whether the signed-in account blocks the member. Absent when signed
+          out.
+        type: bool
+        read:
+          - - op: select
+              css: 'a#block-button[href^="/unblock/"]'
+            - op: literal
+              value: 'true'
+          - - op: select
+              css: 'a#block-button[href^="/block/"]'
+            - op: literal
+              value: 'false'
+      blockKey:
+        read:
+          - - op: select
+              css: a#block-button
             - op: attr
               name: href
             - op: regex

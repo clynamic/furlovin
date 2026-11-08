@@ -23,21 +23,23 @@ class UserClient {
     (outcome, errors) => UserDocument.fromOutcome(outcome, errors: errors),
   );
 
-  Future<WatchAnswer> setWatched(
-    String name, {
-    required bool watched,
+  Future<UserActionAnswer> setUserAction(
+    String name,
+    UserAction action, {
+    required bool active,
     required String key,
   }) async {
     final String body = await client.post('/user/$name', {
-      'action': watched ? 'watch' : 'unwatch',
+      'action': active ? action.name : 'un${action.name}',
       'key': key,
       'format': 'json',
     });
     try {
-      return WatchAnswer.parse(body);
+      return UserActionAnswer.parse(body, action);
     } on Object catch (error) {
-      logger.warn('Watch answer refused or unreadable', {
+      logger.warn('User action answer refused or unreadable', {
         'user': name,
+        'action': action.name,
         'answer': excerpt(body),
       }, error);
       rethrow;
@@ -45,29 +47,29 @@ class UserClient {
   }
 }
 
-@immutable
-class WatchAnswer {
-  const WatchAnswer({required this.watched, required this.key});
+enum UserAction { watch, block }
 
-  factory WatchAnswer.parse(String body) {
+@immutable
+class UserActionAnswer {
+  const UserActionAnswer({required this.active, required this.key});
+
+  factory UserActionAnswer.parse(String body, UserAction action) {
     final Object? json = jsonDecode(body);
     if (json is! Map<String, Object?>) {
-      throw const FormatException('The watch answer is not an object');
+      throw const FormatException('The user action answer is not an object');
     }
     if (json['error'] case final String error when error.isNotEmpty) {
       if (_rateLimited.hasMatch(error)) throw const RateLimited(null);
       throw ActionRejected(error);
     }
-    if (json case {
-      'success': true,
-      'is_watched': final bool watched,
-      'new_nonce': final String key,
-    }) {
-      return WatchAnswer(watched: watched, key: key);
+    if (json case {'success': true, 'new_nonce': final String key}) {
+      if (json['is_${action.name}ed'] case final bool active) {
+        return UserActionAnswer(active: active, key: key);
+      }
     }
-    throw const FormatException('The watch answer lacks its fields');
+    throw const FormatException('The user action answer lacks its fields');
   }
 
-  final bool watched;
+  final bool active;
   final String key;
 }

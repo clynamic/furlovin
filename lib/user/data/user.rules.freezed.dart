@@ -18,7 +18,9 @@ mixin _$User {
 /// The url form of the name, lowercased and with underscores removed.
  String get name;/// Absolute url of the avatar.
  String? get avatar;/// Absolute url of the banner across the top of the profile.
- String? get banner;/// How many comments the member has received.
+ String? get banner; String? get blockKey;/// Whether the signed-in account blocks the member. Absent when signed
+/// out.
+ bool? get blocked;/// How many comments the member has received.
  int? get commentsEarned;/// How many comments the member has written.
  int? get commentsMade;/// The name as displayed.
  String? get displayName;/// How many submissions the member has favourited.
@@ -43,20 +45,20 @@ $UserCopyWith<User> get copyWith => _$UserCopyWithImpl<User>(this as User, _$ide
 @override
 bool operator ==(Object other) {
   final _this = this as User;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is User&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.avatar, _this.avatar) || other.avatar == _this.avatar)&&(identical(other.banner, _this.banner) || other.banner == _this.banner)&&(identical(other.commentsEarned, _this.commentsEarned) || other.commentsEarned == _this.commentsEarned)&&(identical(other.commentsMade, _this.commentsMade) || other.commentsMade == _this.commentsMade)&&(identical(other.displayName, _this.displayName) || other.displayName == _this.displayName)&&(identical(other.favorites, _this.favorites) || other.favorites == _this.favorites)&&(identical(other.journals, _this.journals) || other.journals == _this.journals)&&(identical(other.profile, _this.profile) || other.profile == _this.profile)&&(identical(other.registered, _this.registered) || other.registered == _this.registered)&&(identical(other.submissions, _this.submissions) || other.submissions == _this.submissions)&&(identical(other.symbol, _this.symbol) || other.symbol == _this.symbol)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.views, _this.views) || other.views == _this.views)&&(identical(other.watchKey, _this.watchKey) || other.watchKey == _this.watchKey)&&(identical(other.watched, _this.watched) || other.watched == _this.watched)&&(identical(other.watchedBy, _this.watchedBy) || other.watchedBy == _this.watchedBy)&&(identical(other.watching, _this.watching) || other.watching == _this.watching)&&const DeepCollectionEquality().equals(other.failed, _this.failed));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is User&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.avatar, _this.avatar) || other.avatar == _this.avatar)&&(identical(other.banner, _this.banner) || other.banner == _this.banner)&&(identical(other.blockKey, _this.blockKey) || other.blockKey == _this.blockKey)&&(identical(other.blocked, _this.blocked) || other.blocked == _this.blocked)&&(identical(other.commentsEarned, _this.commentsEarned) || other.commentsEarned == _this.commentsEarned)&&(identical(other.commentsMade, _this.commentsMade) || other.commentsMade == _this.commentsMade)&&(identical(other.displayName, _this.displayName) || other.displayName == _this.displayName)&&(identical(other.favorites, _this.favorites) || other.favorites == _this.favorites)&&(identical(other.journals, _this.journals) || other.journals == _this.journals)&&(identical(other.profile, _this.profile) || other.profile == _this.profile)&&(identical(other.registered, _this.registered) || other.registered == _this.registered)&&(identical(other.submissions, _this.submissions) || other.submissions == _this.submissions)&&(identical(other.symbol, _this.symbol) || other.symbol == _this.symbol)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.views, _this.views) || other.views == _this.views)&&(identical(other.watchKey, _this.watchKey) || other.watchKey == _this.watchKey)&&(identical(other.watched, _this.watched) || other.watched == _this.watched)&&(identical(other.watchedBy, _this.watchedBy) || other.watchedBy == _this.watchedBy)&&(identical(other.watching, _this.watching) || other.watching == _this.watching)&&const DeepCollectionEquality().equals(other.failed, _this.failed));
 }
 
 
 @override
 int get hashCode {
   final _this = this as User;
-  return Object.hashAll([runtimeType,_this.name,_this.avatar,_this.banner,_this.commentsEarned,_this.commentsMade,_this.displayName,_this.favorites,_this.journals,_this.profile,_this.registered,_this.submissions,_this.symbol,_this.title,_this.views,_this.watchKey,_this.watched,_this.watchedBy,_this.watching,const DeepCollectionEquality().hash(_this.failed)]);
+  return Object.hashAll([runtimeType,_this.name,_this.avatar,_this.banner,_this.blockKey,_this.blocked,_this.commentsEarned,_this.commentsMade,_this.displayName,_this.favorites,_this.journals,_this.profile,_this.registered,_this.submissions,_this.symbol,_this.title,_this.views,_this.watchKey,_this.watched,_this.watchedBy,_this.watching,const DeepCollectionEquality().hash(_this.failed)]);
 }
 
 @override
 String toString() {
   final _this = this as User;
-  return 'User(name: ${_this.name}, avatar: ${_this.avatar}, banner: ${_this.banner}, commentsEarned: ${_this.commentsEarned}, commentsMade: ${_this.commentsMade}, displayName: ${_this.displayName}, favorites: ${_this.favorites}, journals: ${_this.journals}, profile: ${_this.profile}, registered: ${_this.registered}, submissions: ${_this.submissions}, symbol: ${_this.symbol}, title: ${_this.title}, views: ${_this.views}, watchKey: ${_this.watchKey}, watched: ${_this.watched}, watchedBy: ${_this.watchedBy}, watching: ${_this.watching}, failed: ${_this.failed})';
+  return 'User(name: ${_this.name}, avatar: ${_this.avatar}, banner: ${_this.banner}, blockKey: ${_this.blockKey}, blocked: ${_this.blocked}, commentsEarned: ${_this.commentsEarned}, commentsMade: ${_this.commentsMade}, displayName: ${_this.displayName}, favorites: ${_this.favorites}, journals: ${_this.journals}, profile: ${_this.profile}, registered: ${_this.registered}, submissions: ${_this.submissions}, symbol: ${_this.symbol}, title: ${_this.title}, views: ${_this.views}, watchKey: ${_this.watchKey}, watched: ${_this.watched}, watchedBy: ${_this.watchedBy}, watching: ${_this.watching}, failed: ${_this.failed})';
 }
 
 
@@ -67,7 +69,7 @@ abstract mixin class $UserCopyWith<$Res>  {
   factory $UserCopyWith(User value, $Res Function(User) _then) = _$UserCopyWithImpl;
 @useResult
 $Res call({
- String name, String? avatar, String? banner, int? commentsEarned, int? commentsMade, String? displayName, int? favorites, int? journals, String? profile, DateTime? registered, int? submissions, String? symbol, String? title, int? views, String? watchKey, bool? watched, int? watchedBy, int? watching, Map<String, ParseException> failed
+ String name, String? avatar, String? banner, String? blockKey, bool? blocked, int? commentsEarned, int? commentsMade, String? displayName, int? favorites, int? journals, String? profile, DateTime? registered, int? submissions, String? symbol, String? title, int? views, String? watchKey, bool? watched, int? watchedBy, int? watching, Map<String, ParseException> failed
 });
 
 
@@ -84,12 +86,14 @@ class _$UserCopyWithImpl<$Res>
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? avatar = freezed,Object? banner = freezed,Object? commentsEarned = freezed,Object? commentsMade = freezed,Object? displayName = freezed,Object? favorites = freezed,Object? journals = freezed,Object? profile = freezed,Object? registered = freezed,Object? submissions = freezed,Object? symbol = freezed,Object? title = freezed,Object? views = freezed,Object? watchKey = freezed,Object? watched = freezed,Object? watchedBy = freezed,Object? watching = freezed,Object? failed = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? avatar = freezed,Object? banner = freezed,Object? blockKey = freezed,Object? blocked = freezed,Object? commentsEarned = freezed,Object? commentsMade = freezed,Object? displayName = freezed,Object? favorites = freezed,Object? journals = freezed,Object? profile = freezed,Object? registered = freezed,Object? submissions = freezed,Object? symbol = freezed,Object? title = freezed,Object? views = freezed,Object? watchKey = freezed,Object? watched = freezed,Object? watchedBy = freezed,Object? watching = freezed,Object? failed = null,}) {
   return _then(User(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,avatar: freezed == avatar ? _self.avatar : avatar // ignore: cast_nullable_to_non_nullable
 as String?,banner: freezed == banner ? _self.banner : banner // ignore: cast_nullable_to_non_nullable
-as String?,commentsEarned: freezed == commentsEarned ? _self.commentsEarned : commentsEarned // ignore: cast_nullable_to_non_nullable
+as String?,blockKey: freezed == blockKey ? _self.blockKey : blockKey // ignore: cast_nullable_to_non_nullable
+as String?,blocked: freezed == blocked ? _self.blocked : blocked // ignore: cast_nullable_to_non_nullable
+as bool?,commentsEarned: freezed == commentsEarned ? _self.commentsEarned : commentsEarned // ignore: cast_nullable_to_non_nullable
 as int?,commentsMade: freezed == commentsMade ? _self.commentsMade : commentsMade // ignore: cast_nullable_to_non_nullable
 as int?,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String?,favorites: freezed == favorites ? _self.favorites : favorites // ignore: cast_nullable_to_non_nullable
@@ -190,10 +194,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String? avatar,  String? banner,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  String? watchKey,  bool? watched,  int? watchedBy,  int? watching,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String? avatar,  String? banner,  String? blockKey,  bool? blocked,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  String? watchKey,  bool? watched,  int? watchedBy,  int? watching,  Map<String, ParseException> failed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
-return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.commentsMade,_that.displayName,_that.favorites,_that.journals,_that.profile,_that.registered,_that.submissions,_that.symbol,_that.title,_that.views,_that.watchKey,_that.watched,_that.watchedBy,_that.watching,_that.failed);case _:
+return $default(_that.name,_that.avatar,_that.banner,_that.blockKey,_that.blocked,_that.commentsEarned,_that.commentsMade,_that.displayName,_that.favorites,_that.journals,_that.profile,_that.registered,_that.submissions,_that.symbol,_that.title,_that.views,_that.watchKey,_that.watched,_that.watchedBy,_that.watching,_that.failed);case _:
   return orElse();
 
 }
@@ -211,10 +215,10 @@ return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String? avatar,  String? banner,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  String? watchKey,  bool? watched,  int? watchedBy,  int? watching,  Map<String, ParseException> failed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String? avatar,  String? banner,  String? blockKey,  bool? blocked,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  String? watchKey,  bool? watched,  int? watchedBy,  int? watching,  Map<String, ParseException> failed)  $default,) {final _that = this;
 switch (_that) {
 case _User():
-return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.commentsMade,_that.displayName,_that.favorites,_that.journals,_that.profile,_that.registered,_that.submissions,_that.symbol,_that.title,_that.views,_that.watchKey,_that.watched,_that.watchedBy,_that.watching,_that.failed);case _:
+return $default(_that.name,_that.avatar,_that.banner,_that.blockKey,_that.blocked,_that.commentsEarned,_that.commentsMade,_that.displayName,_that.favorites,_that.journals,_that.profile,_that.registered,_that.submissions,_that.symbol,_that.title,_that.views,_that.watchKey,_that.watched,_that.watchedBy,_that.watching,_that.failed);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -231,10 +235,10 @@ return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String? avatar,  String? banner,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  String? watchKey,  bool? watched,  int? watchedBy,  int? watching,  Map<String, ParseException> failed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String? avatar,  String? banner,  String? blockKey,  bool? blocked,  int? commentsEarned,  int? commentsMade,  String? displayName,  int? favorites,  int? journals,  String? profile,  DateTime? registered,  int? submissions,  String? symbol,  String? title,  int? views,  String? watchKey,  bool? watched,  int? watchedBy,  int? watching,  Map<String, ParseException> failed)?  $default,) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
-return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.commentsMade,_that.displayName,_that.favorites,_that.journals,_that.profile,_that.registered,_that.submissions,_that.symbol,_that.title,_that.views,_that.watchKey,_that.watched,_that.watchedBy,_that.watching,_that.failed);case _:
+return $default(_that.name,_that.avatar,_that.banner,_that.blockKey,_that.blocked,_that.commentsEarned,_that.commentsMade,_that.displayName,_that.favorites,_that.journals,_that.profile,_that.registered,_that.submissions,_that.symbol,_that.title,_that.views,_that.watchKey,_that.watched,_that.watchedBy,_that.watching,_that.failed);case _:
   return null;
 
 }
@@ -246,7 +250,7 @@ return $default(_that.name,_that.avatar,_that.banner,_that.commentsEarned,_that.
 
 
 class _User extends User {
-  const _User({required this.name, this.avatar, this.banner, this.commentsEarned, this.commentsMade, this.displayName, this.favorites, this.journals, this.profile, this.registered, this.submissions, this.symbol, this.title, this.views, this.watchKey, this.watched, this.watchedBy, this.watching,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
+  const _User({required this.name, this.avatar, this.banner, this.blockKey, this.blocked, this.commentsEarned, this.commentsMade, this.displayName, this.favorites, this.journals, this.profile, this.registered, this.submissions, this.symbol, this.title, this.views, this.watchKey, this.watched, this.watchedBy, this.watching,  Map<String, ParseException> failed = const {}}): _failed = failed,super._();
   
 
 /// The url form of the name, lowercased and with underscores removed.
@@ -255,6 +259,10 @@ class _User extends User {
 @override final  String? avatar;
 /// Absolute url of the banner across the top of the profile.
 @override final  String? banner;
+@override final  String? blockKey;
+/// Whether the signed-in account blocks the member. Absent when signed
+/// out.
+@override final  bool? blocked;
 /// How many comments the member has received.
 @override final  int? commentsEarned;
 /// How many comments the member has written.
@@ -301,18 +309,18 @@ _$UserCopyWith<_User> get copyWith => __$UserCopyWithImpl<_User>(this, _$identit
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _User&&(identical(other.name, name) || other.name == name)&&(identical(other.avatar, avatar) || other.avatar == avatar)&&(identical(other.banner, banner) || other.banner == banner)&&(identical(other.commentsEarned, commentsEarned) || other.commentsEarned == commentsEarned)&&(identical(other.commentsMade, commentsMade) || other.commentsMade == commentsMade)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.favorites, favorites) || other.favorites == favorites)&&(identical(other.journals, journals) || other.journals == journals)&&(identical(other.profile, profile) || other.profile == profile)&&(identical(other.registered, registered) || other.registered == registered)&&(identical(other.submissions, submissions) || other.submissions == submissions)&&(identical(other.symbol, symbol) || other.symbol == symbol)&&(identical(other.title, title) || other.title == title)&&(identical(other.views, views) || other.views == views)&&(identical(other.watchKey, watchKey) || other.watchKey == watchKey)&&(identical(other.watched, watched) || other.watched == watched)&&(identical(other.watchedBy, watchedBy) || other.watchedBy == watchedBy)&&(identical(other.watching, watching) || other.watching == watching)&&const DeepCollectionEquality().equals(other.failed, _failed));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _User&&(identical(other.name, name) || other.name == name)&&(identical(other.avatar, avatar) || other.avatar == avatar)&&(identical(other.banner, banner) || other.banner == banner)&&(identical(other.blockKey, blockKey) || other.blockKey == blockKey)&&(identical(other.blocked, blocked) || other.blocked == blocked)&&(identical(other.commentsEarned, commentsEarned) || other.commentsEarned == commentsEarned)&&(identical(other.commentsMade, commentsMade) || other.commentsMade == commentsMade)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.favorites, favorites) || other.favorites == favorites)&&(identical(other.journals, journals) || other.journals == journals)&&(identical(other.profile, profile) || other.profile == profile)&&(identical(other.registered, registered) || other.registered == registered)&&(identical(other.submissions, submissions) || other.submissions == submissions)&&(identical(other.symbol, symbol) || other.symbol == symbol)&&(identical(other.title, title) || other.title == title)&&(identical(other.views, views) || other.views == views)&&(identical(other.watchKey, watchKey) || other.watchKey == watchKey)&&(identical(other.watched, watched) || other.watched == watched)&&(identical(other.watchedBy, watchedBy) || other.watchedBy == watchedBy)&&(identical(other.watching, watching) || other.watching == watching)&&const DeepCollectionEquality().equals(other.failed, _failed));
 }
 
 
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,name,avatar,banner,commentsEarned,commentsMade,displayName,favorites,journals,profile,registered,submissions,symbol,title,views,watchKey,watched,watchedBy,watching,const DeepCollectionEquality().hash(_failed)]);
+    return Object.hashAll([runtimeType,name,avatar,banner,blockKey,blocked,commentsEarned,commentsMade,displayName,favorites,journals,profile,registered,submissions,symbol,title,views,watchKey,watched,watchedBy,watching,const DeepCollectionEquality().hash(_failed)]);
 }
 
 @override
 String toString() {
-    return 'User(name: $name, avatar: $avatar, banner: $banner, commentsEarned: $commentsEarned, commentsMade: $commentsMade, displayName: $displayName, favorites: $favorites, journals: $journals, profile: $profile, registered: $registered, submissions: $submissions, symbol: $symbol, title: $title, views: $views, watchKey: $watchKey, watched: $watched, watchedBy: $watchedBy, watching: $watching, failed: $failed)';
+    return 'User(name: $name, avatar: $avatar, banner: $banner, blockKey: $blockKey, blocked: $blocked, commentsEarned: $commentsEarned, commentsMade: $commentsMade, displayName: $displayName, favorites: $favorites, journals: $journals, profile: $profile, registered: $registered, submissions: $submissions, symbol: $symbol, title: $title, views: $views, watchKey: $watchKey, watched: $watched, watchedBy: $watchedBy, watching: $watching, failed: $failed)';
 }
 
 
@@ -323,7 +331,7 @@ abstract mixin class _$UserCopyWith<$Res> implements $UserCopyWith<$Res> {
   factory _$UserCopyWith(_User value, $Res Function(_User) _then) = __$UserCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String? avatar, String? banner, int? commentsEarned, int? commentsMade, String? displayName, int? favorites, int? journals, String? profile, DateTime? registered, int? submissions, String? symbol, String? title, int? views, String? watchKey, bool? watched, int? watchedBy, int? watching, Map<String, ParseException> failed
+ String name, String? avatar, String? banner, String? blockKey, bool? blocked, int? commentsEarned, int? commentsMade, String? displayName, int? favorites, int? journals, String? profile, DateTime? registered, int? submissions, String? symbol, String? title, int? views, String? watchKey, bool? watched, int? watchedBy, int? watching, Map<String, ParseException> failed
 });
 
 
@@ -340,12 +348,14 @@ class __$UserCopyWithImpl<$Res>
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? avatar = freezed,Object? banner = freezed,Object? commentsEarned = freezed,Object? commentsMade = freezed,Object? displayName = freezed,Object? favorites = freezed,Object? journals = freezed,Object? profile = freezed,Object? registered = freezed,Object? submissions = freezed,Object? symbol = freezed,Object? title = freezed,Object? views = freezed,Object? watchKey = freezed,Object? watched = freezed,Object? watchedBy = freezed,Object? watching = freezed,Object? failed = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? avatar = freezed,Object? banner = freezed,Object? blockKey = freezed,Object? blocked = freezed,Object? commentsEarned = freezed,Object? commentsMade = freezed,Object? displayName = freezed,Object? favorites = freezed,Object? journals = freezed,Object? profile = freezed,Object? registered = freezed,Object? submissions = freezed,Object? symbol = freezed,Object? title = freezed,Object? views = freezed,Object? watchKey = freezed,Object? watched = freezed,Object? watchedBy = freezed,Object? watching = freezed,Object? failed = null,}) {
   return _then(_User(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,avatar: freezed == avatar ? _self.avatar : avatar // ignore: cast_nullable_to_non_nullable
 as String?,banner: freezed == banner ? _self.banner : banner // ignore: cast_nullable_to_non_nullable
-as String?,commentsEarned: freezed == commentsEarned ? _self.commentsEarned : commentsEarned // ignore: cast_nullable_to_non_nullable
+as String?,blockKey: freezed == blockKey ? _self.blockKey : blockKey // ignore: cast_nullable_to_non_nullable
+as String?,blocked: freezed == blocked ? _self.blocked : blocked // ignore: cast_nullable_to_non_nullable
+as bool?,commentsEarned: freezed == commentsEarned ? _self.commentsEarned : commentsEarned // ignore: cast_nullable_to_non_nullable
 as int?,commentsMade: freezed == commentsMade ? _self.commentsMade : commentsMade // ignore: cast_nullable_to_non_nullable
 as int?,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String?,favorites: freezed == favorites ? _self.favorites : favorites // ignore: cast_nullable_to_non_nullable

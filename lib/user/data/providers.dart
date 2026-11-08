@@ -75,16 +75,41 @@ class UserDetail extends AsyncNotifier<UserDocument> {
     final String? key = document.user.watchKey;
     if (key == null) throw const AuthenticationRequired();
     final UserClient client = await ref.read(userClientProvider.future);
-    final WatchAnswer answer = await client.setWatched(
+    final UserActionAnswer answer = await client.setUserAction(
       name,
-      watched: wanted,
+      UserAction.watch,
+      active: wanted,
       key: key,
     );
     _confirmed = _withWatched(
       document,
-      answer.watched,
+      answer.active,
     ).copyWith.user(watchKey: answer.key);
-    return answer.watched;
+    return answer.active;
+  }
+
+  Future<void> setBlocked(bool wanted) async {
+    final UserDocument? document = _confirmed;
+    final String? key = document?.user.blockKey;
+    if (document == null || key == null) {
+      throw const AuthenticationRequired();
+    }
+    final UserClient client = await ref.read(userClientProvider.future);
+    try {
+      final UserActionAnswer answer = await client.setUserAction(
+        name,
+        UserAction.block,
+        active: wanted,
+        key: key,
+      );
+      _confirmed = document.copyWith.user(
+        blocked: answer.active,
+        blockKey: answer.key,
+      );
+      _publish();
+    } finally {
+      ref.invalidate(viewerProvider);
+    }
   }
 
   void _publish() {

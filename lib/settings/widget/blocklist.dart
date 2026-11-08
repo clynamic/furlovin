@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
+import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -126,7 +127,12 @@ class _BlocklistSettingsState extends ConsumerState<BlocklistSettings> {
                 runSpacing: Space.small,
                 children: [
                   for (final String name in blocklist.userNames)
-                    Chip(label: Text(name)),
+                    ActionChip(
+                      label: Text(name),
+                      onPressed: () => context.openUser(
+                        name.toLowerCase().replaceAll('_', ''),
+                      ),
+                    ),
                 ],
               ),
           ],

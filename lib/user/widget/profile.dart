@@ -61,6 +61,9 @@ class UserPage extends ConsumerWidget {
               leading: onSettings == null ? const ScrimBackButton() : null,
               actions: [
                 DocumentErrorsButton(errors: loaded?.errors, onImage: true),
+                if (user?.blocked case final bool blocked
+                    when ref.watch(authenticatedProvider))
+                  ProfileMenu(name: name, blocked: blocked),
                 if (onSettings case final VoidCallback open)
                   IconButton(
                     tooltip: 'Settings',
@@ -711,6 +714,86 @@ class WatchButton extends ConsumerWidget {
             label: const Text('Watch'),
           );
   }
+}
+
+enum ProfileAction { block, unblock }
+
+class ProfileMenu extends ConsumerWidget {
+  const ProfileMenu({super.key, required this.name, required this.blocked});
+
+  final String name;
+  final bool blocked;
+
+  Future<void> _setBlocked(
+    BuildContext context,
+    WidgetRef ref,
+    bool wanted,
+  ) async {
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final UserDetail detail = ref.read(userProvider(name).notifier);
+    if (wanted) {
+      final bool? sure = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Block $name?'),
+          content: const Text(
+            'They will not be able to comment on your submissions or '
+            'journals, shout on your page or send you notes.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Block'),
+            ),
+          ],
+        ),
+      );
+      if (sure != true) return;
+    }
+    try {
+      await detail.setBlocked(wanted);
+      messenger.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(wanted ? 'Blocked $name' : 'Unblocked $name'),
+        ),
+      );
+    } on Object catch (error) {
+      messenger.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(describeFailure(error)),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) =>
+      PopupMenuButton<ProfileAction>(
+        tooltip: 'More',
+        useRootNavigator: true,
+        icon: const Icon(
+          Icons.more_vert,
+          color: Colors.white,
+          shadows: [Shadow(color: scrimShadow, blurRadius: 10)],
+        ),
+        onSelected: (action) =>
+            _setBlocked(context, ref, action == ProfileAction.block),
+        itemBuilder: (context) => [
+          PopupMenuItem<ProfileAction>(
+            value: blocked ? ProfileAction.unblock : ProfileAction.block,
+            child: ListTile(
+              leading: const Icon(Icons.block),
+              title: Text(blocked ? 'Unblock user' : 'Block user'),
+            ),
+          ),
+        ],
+      );
 }
 
 const double featuredMaxHeight = 420;
