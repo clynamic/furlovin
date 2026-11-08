@@ -10,6 +10,8 @@ usage: dart run tool/fixtures.dart <command> [names]
   sanitize [names]                             replace every real value
   rebuild [names]                              reduce, then sanitize
   check                                        run the fixture gate
+  references                                   check the scripts the rules cite
+                                               still carry their mentions
 
 Names are comma separated and default to every fixture. Set FLUTTER to pick
 the flutter binary when the one on PATH is the wrong environment.''';
@@ -44,6 +46,8 @@ int harness(String tool, String? names) {
   return code == noTestsRan ? 0 : code;
 }
 
+int references() => run('dart', ['run', 'tool/check_references.dart']);
+
 void main(List<String> args) {
   if (args.isEmpty) fail(usage);
   final String command = args.first;
@@ -55,7 +59,13 @@ void main(List<String> args) {
   switch (command) {
     case 'capture':
       if (rest.length < 2) fail(usage);
-      exit(run('dart', ['run', 'tool/capture_page.dart', ...rest]));
+      final int captured = run('dart', [
+        'run',
+        'tool/capture_page.dart',
+        ...rest,
+      ]);
+      if (captured != 0) exit(captured);
+      exit(references());
     case 'reduce':
       exit(harness('reduce_page', names));
     case 'sanitize':
@@ -66,6 +76,8 @@ void main(List<String> args) {
       exit(harness('sanitize_page', names));
     case 'check':
       exit(run(flutter, ['test', 'test/fixtures_gate_test.dart']));
+    case 'references':
+      exit(references());
     default:
       fail(usage);
   }

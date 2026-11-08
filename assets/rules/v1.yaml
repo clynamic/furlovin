@@ -1,5 +1,5 @@
 schema: 1
-revision: 25
+revision: 26
 refs:
   viewLink:
     - op: select
@@ -864,6 +864,14 @@ types:
             - op: literal
               value: 'false'
       watchKey:
+        source:
+          script: /themes/beta/js/widgets/user-nav-block-watch.js
+          mentions:
+            - "form_data.append('key', action_nonce)"
+            - "form_data.append('format', 'json')"
+            - "fetch(`/user/${artist_lower}`"
+            - "body[`is_${action_type}ed`]"
+            - "body['new_nonce']"
         read:
           - - op: select
               css: a#watch-button
@@ -886,6 +894,13 @@ types:
             - op: literal
               value: 'false'
       blockKey:
+        source:
+          script: /themes/beta/js/widgets/user-nav-block-watch.js
+          mentions:
+            - "action_type, artist_lower, action_nonce"
+            - "(?:un)?(watch|block)"
+            - "form_data.append('format', 'json')"
+            - "body[`is_${action_type}ed`]"
         read:
           - - op: select
               css: a#block-button
@@ -1282,6 +1297,15 @@ types:
           - - op: attr
               name: data-tag-blocklist-hide-tagless
       blocklistKey:
+        source:
+          script: /themes/beta/js/censor.js
+          mentions:
+            - "fetch('/route/tag_blocking'"
+            - "form_data.append('action', (to_add ? 'add' : 'remove') + '-tag')"
+            - "form_data.append('key', tags_nonce)"
+            - "form_data.append('tag_name', tag_name)"
+            - "body['error'] == 'rate-limited'"
+            - "body['result']"
         read:
           - - op: attr
               name: data-tag-blocklist-nonce
