@@ -18,4 +18,8 @@ void main() {
     expect(describeFailure(failure), contains('30'));
     expect(failureFor(failure).detail, describeFailure(failure));
   });
+
+  test('a disabled account offers no retry', () {
+    expect(failureFor(const AccountDisabled(), onRetry: () {}).onRetry, isNull);
+  });
 }

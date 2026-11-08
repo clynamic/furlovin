@@ -47,6 +47,11 @@ FailureText _faFailureText(FaException error, {required bool loggedIn}) =>
             : 'Log in and allow Mature or Adult content in your Fur Affinity '
                   'settings to see this.',
       ),
+      AccountDisabled() => (
+        icon: Icons.person_off_outlined,
+        title: 'Account disabled',
+        detail: 'This user profile is no longer available.',
+      ),
       Gone(:final String reason) => (
         icon: Icons.search_off,
         title: 'Not here',
@@ -87,6 +92,7 @@ FailureView failureFor(
     AuthenticationRequired() ||
     ContentFiltered() ||
     Gone() ||
+    AccountDisabled() ||
     ActionRejected() ||
     Forbidden() ||
     RequestRejected() => false,

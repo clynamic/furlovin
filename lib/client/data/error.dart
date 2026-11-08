@@ -47,6 +47,13 @@ class ContentFiltered extends FaException {
   String toString() => 'ContentFiltered';
 }
 
+class AccountDisabled extends FaException {
+  const AccountDisabled();
+
+  @override
+  String toString() => 'AccountDisabled';
+}
+
 class Gone extends FaException {
   const Gone(this.reason);
 
@@ -132,6 +139,11 @@ final RegExp _logIn = RegExp(
   caseSensitive: false,
 );
 
+final RegExp _disabled = RegExp(
+  r'<title>\s*Account disabled',
+  caseSensitive: false,
+);
+
 final RegExp _title = RegExp(
   r'<title>\s*System Error\s*</title>',
   caseSensitive: false,
@@ -158,6 +170,8 @@ FaException? classify(Response<Object?> response) {
   if (data is! String) {
     return status >= 400 ? RequestRejected(status) : null;
   }
+
+  if (_disabled.hasMatch(data)) return const AccountDisabled();
 
   if (_title.hasMatch(data)) {
     return Gone(

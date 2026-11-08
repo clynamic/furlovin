@@ -83,6 +83,13 @@ void main() {
     );
   });
 
+  test('reads a disabled account notice as a disabled account', () {
+    expect(
+      classify(_response(200, body: fixture('notice_disabled'))),
+      isA<AccountDisabled>(),
+    );
+  });
+
   test('reads a registered users only notice as needing a log in', () {
     expect(
       classify(_response(200, body: fixture('notice_registered'))),

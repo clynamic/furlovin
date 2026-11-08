@@ -37,5 +37,6 @@ const Map<String, String?> fixturePages = {
   'folder_grouped': 'galleryDocument',
   'favorites': 'favoritesDocument',
   'notice_mature': null,
+  'notice_disabled': null,
   'notice_registered': null,
 };
