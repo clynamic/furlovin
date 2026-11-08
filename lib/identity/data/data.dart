@@ -4,4 +4,6 @@ export 'controls_document.rules.dart';
 export 'providers.dart';
 export 'store.dart';
 export 'table.dart';
+export 'ticket_document.rules.dart';
+export 'ticket_form.rules.dart';
 export 'viewer.rules.dart';

@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/parser/parser.dart';
+import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/user/user.dart';
+import 'package:go_router/go_router.dart';
 import 'package:html/parser.dart' as html;
 import 'package:material_ui/material_ui.dart';
 
@@ -117,5 +119,29 @@ void main() {
     await choose(tester, 'Unblock user');
     expect(find.byType(AlertDialog), findsNothing);
     expect(members.sent, ['unblock']);
+  });
+
+  testWidgets('Report user opens a blank ticket', (tester) async {
+    final GoRouter router = GoRouter(
+      initialLocation: browsePath,
+      routes: [
+        GoRoute(
+          path: browsePath,
+          builder: (context, state) =>
+              const Scaffold(body: ProfileMenu(name: name, blocked: false)),
+        ),
+        GoRoute(
+          path: reportPath,
+          builder: (context, state) =>
+              Text('report ${state.uri.queryParameters[reportLinkKey]}'),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(child: MaterialApp.router(routerConfig: router)),
+    );
+    await choose(tester, 'Report user');
+    expect(find.text('report $ticketsPath'), findsOneWidget);
   });
 }

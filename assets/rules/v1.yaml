@@ -1,5 +1,5 @@
 schema: 1
-revision: 24
+revision: 25
 refs:
   viewLink:
     - op: select
@@ -659,6 +659,16 @@ types:
             - op: attr
               name: href
             - op: url
+      reportLink:
+        description: |-
+          Absolute url of the trouble ticket form, with the submission's address
+          prefilled in the message. Absent when signed out.
+        read:
+          - - op: select
+              css: a[href^="/controls/troubletickets/?"]
+            - op: attr
+              name: href
+            - op: url
 
   submissionDocument:
     feature: submission
@@ -1283,3 +1293,153 @@ types:
       viewer:
         type: viewer
         at: [body]
+
+  formControl:
+    feature: client
+    fields:
+      name:
+        presence: required
+        read:
+          - - op: attr
+              name: name
+      type:
+        read:
+          - - op: attr
+              name: type
+      value:
+        description: |-
+          The value a browser submits for the control. A select submits its
+          selected option, or its first when none is selected. A textarea
+          submits its text.
+        read:
+          - - op: select
+              css: option[selected]
+            - op: attr
+              name: value
+          - - op: select
+              css: option
+            - op: attr
+              name: value
+          - - op: attr
+              name: value
+          - - op: text
+      label:
+        read:
+          - - op: closest
+              css: label
+            - op: text
+            - op: trim
+      checked:
+        type: bool
+        read:
+          - - op: attr
+              name: checked
+            - op: literal
+              value: 'true'
+      disabled:
+        type: bool
+        read:
+          - - op: attr
+              name: disabled
+            - op: literal
+              value: 'true'
+      required:
+        type: bool
+        read:
+          - - op: attr
+              name: required
+            - op: literal
+              value: 'true'
+      maxLength:
+        type: int
+        read:
+          - - op: attr
+              name: maxlength
+      minLength:
+        type: int
+        read:
+          - - op: attr
+              name: minlength
+      options:
+        type: formOption
+        list: true
+        at: [option]
+
+  formOption:
+    feature: client
+    fields:
+      value:
+        presence: required
+        read:
+          - - op: attr
+              name: value
+          - - op: text
+            - op: trim
+      label:
+        read:
+          - - op: text
+            - op: trim
+      group:
+        read:
+          - - op: closest
+              css: optgroup
+            - op: attr
+              name: label
+      selected:
+        type: bool
+        read:
+          - - op: attr
+              name: selected
+            - op: literal
+              value: 'true'
+      placeholder:
+        description: |-
+          Marks the prompt option, such as --Select an Option--, which the site
+          lists first.
+        type: bool
+        read:
+          - - op: attr
+              name: class
+            - op: regex
+              pattern: (default-value)
+            - op: literal
+              value: 'true'
+
+  ticketForm:
+    feature: identity
+    fields:
+      action:
+        presence: required
+        read:
+          - - op: attr
+              name: action
+            - op: url
+      controls:
+        type: formControl
+        list: true
+        at: ['input, select, textarea']
+      issue:
+        presence: required
+        type: formControl
+        at: ['select[name="issuetype"]']
+      subject:
+        presence: expected
+        type: formControl
+        at: ['input[name="other"]']
+      details:
+        presence: required
+        type: formControl
+        at: ['textarea[name="message"]']
+      shareNotes:
+        presence: expected
+        type: formControl
+        at: ['input[name="sharenotes"]']
+
+  ticketDocument:
+    feature: identity
+    page: true
+    fields:
+      ticket:
+        presence: required
+        type: ticketForm
+        at: ['form#new-ticket']

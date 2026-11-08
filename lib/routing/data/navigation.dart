@@ -16,9 +16,11 @@ const String searchPath = '/search';
 const String loginPath = '/login';
 const String challengePath = '/challenge';
 const String settingsPath = '/settings';
+const String reportPath = '/report';
 const String searchTextKey = 'q';
 const String searchEditKey = 'edit';
 const String challengeUrlKey = 'url';
+const String reportLinkKey = 'link';
 
 extension AppRouting on BuildContext {
   String get branch {
@@ -72,6 +74,10 @@ extension AppRouting on BuildContext {
   );
 
   void openSettings() => GoRouter.of(this).push(settingsPath);
+
+  void openReport(String link) => GoRouter.of(this).push(
+    Uri(path: reportPath, queryParameters: {reportLinkKey: link}).toString(),
+  );
 
   void openSearch() => GoRouter.of(this).push('$branch$searchPath');
 

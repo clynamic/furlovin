@@ -155,6 +155,13 @@ GoRouter buildRouter(IdentityStore store) => GoRouter(
       builder: (context, state) => const SettingsPage(),
     ),
     GoRoute(
+      path: reportPath,
+      parentNavigatorKey: rootNavigator,
+      builder: (context, state) => ReportPage(
+        link: state.uri.queryParameters[reportLinkKey] ?? ticketsPath,
+      ),
+    ),
+    GoRoute(
       path: '/session',
       parentNavigatorKey: rootNavigator,
       builder: (context, state) => CookieProbePage(store: store),

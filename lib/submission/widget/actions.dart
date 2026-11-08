@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/markup/markup.dart';
+import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
@@ -20,7 +21,7 @@ bool get platformShares => switch (defaultTargetPlatform) {
   _ => false,
 };
 
-enum SubmissionAction { copy, browser }
+enum SubmissionAction { copy, browser, report }
 
 String submissionLink(int id) =>
     Uri.parse(faOrigin).resolve('/view/$id/').toString();
@@ -116,6 +117,9 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions>
                 onSelected: (action) => switch (action) {
                   SubmissionAction.copy => _copy(context),
                   SubmissionAction.browser => hand(link),
+                  SubmissionAction.report => context.openReport(
+                    submission!.reportLink!,
+                  ),
                 },
                 itemBuilder: (context) => [
                   if (platformShares)
@@ -133,6 +137,14 @@ class _SubmissionActionsState extends ConsumerState<SubmissionActions>
                       title: Text('Open in browser'),
                     ),
                   ),
+                  if (submission?.reportLink != null)
+                    const PopupMenuItem<SubmissionAction>(
+                      value: SubmissionAction.report,
+                      child: ListTile(
+                        leading: Icon(Icons.flag_outlined),
+                        title: Text('Report'),
+                      ),
+                    ),
                 ],
               ),
               IconButton(

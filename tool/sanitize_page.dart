@@ -218,7 +218,10 @@ const Set<String> noticeVocabulary = {
   'in',
 };
 
-const String roleSource = 'lib/markup/data/role.dart';
+const List<String> literalSources = [
+  'lib/markup/data/role.dart',
+  'lib/client/data/form.dart',
+];
 
 Set<String> literalVocabulary(String dartSource) => {
   for (final RegExpMatch m in RegExp("'([^']*)'").allMatches(dartSource))
@@ -457,7 +460,8 @@ void main() {
   final RuleSet rules = loadRules();
   final Set<String> vocabulary = {
     ...structuralVocabulary(File('assets/rules/v1.yaml').readAsStringSync()),
-    ...literalVocabulary(File(roleSource).readAsStringSync()),
+    for (final String source in literalSources)
+      ...literalVocabulary(File(source).readAsStringSync()),
   };
   for (final String name in names) {
     final String? type = fixturePages[name];

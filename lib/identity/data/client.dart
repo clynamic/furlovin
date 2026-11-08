@@ -6,6 +6,7 @@ import 'package:furlovin/parser/parser.dart';
 const String controlsPath = '/controls/';
 const String logoutPath = '/logout/';
 const String tagBlockingPath = '/route/tag_blocking';
+const String ticketsPath = '/controls/troubletickets/';
 
 class ViewerClient {
   ViewerClient({required this.client, required this.rules});
@@ -23,6 +24,22 @@ class ViewerClient {
   )).viewer;
 
   Future<void> logOut(String key) => client.post(logoutPath, {'key': key});
+
+  Future<TicketDocument> ticket(String link) => client.page(
+    rules,
+    TicketDocument.ruleType,
+    link,
+    (outcome, errors) => TicketDocument.fromOutcome(outcome, errors: errors),
+  );
+
+  Future<void> fileTicket(FormRequest form) async {
+    final FormAnswer answer = await client.submit(form);
+    logger.debug('Ticket answered {status}', {
+      'status': answer.status,
+      'location': answer.location,
+      'answer': excerpt(answer.body),
+    });
+  }
 
   Future<List<String>> setTagBlocked(
     String tag, {

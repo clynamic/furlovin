@@ -17,6 +17,8 @@ class SessionInterceptor extends Interceptor {
   }
 }
 
+typedef FormAnswer = ({int status, String? location, String body});
+
 class FaClient {
   FaClient({Session session = const Session(), Cooldown? cooldown})
     : _session = SessionInterceptor(session) {
@@ -66,7 +68,33 @@ class FaClient {
     ),
   );
 
+  Future<FormAnswer> submit(FormRequest form) async {
+    final Response<String> response = await _exchange(
+      form.action,
+      'Submitting to {path}',
+      () => dio.post<String>(
+        form.action,
+        data: form.body,
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+          followRedirects: false,
+        ),
+      ),
+    );
+    return (
+      status: response.statusCode ?? 0,
+      location: response.headers.value('location'),
+      body: response.data ?? '',
+    );
+  }
+
   Future<String> _send(
+    String path,
+    String event,
+    Future<Response<String>> Function() request,
+  ) async => (await _exchange(path, event, request)).data ?? '';
+
+  Future<Response<String>> _exchange(
     String path,
     String event,
     Future<Response<String>> Function() request,
@@ -99,6 +127,6 @@ class FaClient {
       'status': response.statusCode,
       'bytes': response.data?.length ?? 0,
     });
-    return response.data ?? '';
+    return response;
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/database/database.dart';
 import 'package:furlovin/identity/identity.dart';
@@ -57,6 +58,12 @@ final FutureProvider<Viewer?> viewerProvider = FutureProvider<Viewer?>((
   final ViewerClient client = await ref.watch(viewerClientProvider.future);
   return client.viewer();
 });
+
+final FutureProviderFamily<TicketDocument, String> ticketProvider =
+    FutureProvider.autoDispose.family<TicketDocument, String>(
+      (ref, link) async =>
+          (await ref.watch(viewerClientProvider.future)).ticket(link),
+    );
 
 final NotifierProvider<BlocklistState, Blocklist> blocklistProvider =
     NotifierProvider<BlocklistState, Blocklist>(BlocklistState.new);

@@ -25,6 +25,8 @@ const Map<String, String?> fixturePages = {
   'view': 'submissionDocument',
   'view_comments': 'submissionDocument',
   'view_folders': 'submissionDocument',
+  'view_member': 'submissionDocument',
+  'ticket': 'ticketDocument',
   'user': 'userDocument',
   'user_full': 'userDocument',
   'user_narrow': 'userDocument',

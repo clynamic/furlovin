@@ -20,6 +20,33 @@ void main() {
     submission = Submission.fromOutcome(outcome)!;
   });
 
+  test('reads the report link of a signed-in submission', () {
+    final String page = fixture('view_member').replaceFirstMapped(
+      RegExp('<body[^>]*>'),
+      (body) =>
+          '${body[0]}<a href="/controls/troubletickets/">Trouble Tickets</a>',
+    );
+    final Submission member = Submission.fromOutcome(
+      child(
+        rules.parsePage(
+          SubmissionDocument.ruleType,
+          html.parse(page),
+          base: Uri.parse(faOrigin),
+        ),
+        'submission',
+      ),
+    )!;
+    expect(
+      member.reportLink,
+      startsWith('https://www.furaffinity.net/controls/troubletickets/?'),
+    );
+    expect(
+      Uri.parse(member.reportLink!).queryParameters['message'],
+      contains('/view/60015717'),
+    );
+    expect(submission.reportLink, isNull);
+  });
+
   test('parses without failures', () {
     expect(outcome.failed, isEmpty);
   });

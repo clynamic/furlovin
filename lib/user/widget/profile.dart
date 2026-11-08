@@ -716,7 +716,7 @@ class WatchButton extends ConsumerWidget {
   }
 }
 
-enum ProfileAction { block, unblock }
+enum ProfileAction { block, unblock, report }
 
 class ProfileMenu extends ConsumerWidget {
   const ProfileMenu({super.key, required this.name, required this.blocked});
@@ -782,14 +782,24 @@ class ProfileMenu extends ConsumerWidget {
           color: Colors.white,
           shadows: [Shadow(color: scrimShadow, blurRadius: 10)],
         ),
-        onSelected: (action) =>
-            _setBlocked(context, ref, action == ProfileAction.block),
+        onSelected: (action) => switch (action) {
+          ProfileAction.block => _setBlocked(context, ref, true),
+          ProfileAction.unblock => _setBlocked(context, ref, false),
+          ProfileAction.report => context.openReport(ticketsPath),
+        },
         itemBuilder: (context) => [
           PopupMenuItem<ProfileAction>(
             value: blocked ? ProfileAction.unblock : ProfileAction.block,
             child: ListTile(
               leading: const Icon(Icons.block),
               title: Text(blocked ? 'Unblock user' : 'Block user'),
+            ),
+          ),
+          const PopupMenuItem<ProfileAction>(
+            value: ProfileAction.report,
+            child: ListTile(
+              leading: Icon(Icons.flag_outlined),
+              title: Text('Report user'),
             ),
           ),
         ],

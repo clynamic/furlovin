@@ -39,7 +39,8 @@ Iterable<String> mappableValues(Document document) sync* {
 void main() {
   final Set<String> vocabulary = {
     ...structuralVocabulary(File('assets/rules/v1.yaml').readAsStringSync()),
-    ...literalVocabulary(File(roleSource).readAsStringSync()),
+    for (final String source in literalSources)
+      ...literalVocabulary(File(source).readAsStringSync()),
     ...typeVocabulary,
     ...selectorVocabulary,
   };

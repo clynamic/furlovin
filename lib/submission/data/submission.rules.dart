@@ -72,6 +72,10 @@ abstract class Submission with _$Submission {
     /// Absolute url of a reduced copy of the submitted file.
     String? preview,
 
+    /// Absolute url of the trouble ticket form, with the submission's address
+    /// prefilled in the message. Absent when signed out.
+    String? reportLink,
+
     /// The image's pixel dimensions, as FA renders them.
     String? resolution,
 
@@ -131,6 +135,7 @@ abstract class Submission with _$Submission {
       noteLink: outcome.get<String>('noteLink'),
       posted: outcome.get<DateTime>('posted'),
       preview: outcome.get<String>('preview'),
+      reportLink: outcome.get<String>('reportLink'),
       resolution: outcome.get<String>('resolution'),
       species: outcome.get<String>('species'),
       tags: [...?(outcome['tags'] as List<Object?>?)?.whereType<String>()],
