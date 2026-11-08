@@ -28,11 +28,15 @@ void main() {
           builder: (context, state) => Scaffold(
             body: SubmissionActions(id: submission.id, submission: submission),
           ),
-        ),
-        GoRoute(
-          path: reportPath,
-          builder: (context, state) =>
-              Text('report ${state.uri.queryParameters[reportLinkKey]}'),
+          routes: [
+            GoRoute(
+              path: 'report',
+              builder: (context, state) => Text(
+                '${state.uri.path} '
+                'report ${state.uri.queryParameters[reportLinkKey]}',
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -59,7 +63,10 @@ void main() {
     await show(tester, submission);
     await tester.tap(find.text('Report'));
     await tester.pumpAndSettle();
-    expect(find.text('report ${submission.reportLink}'), findsOneWidget);
+    expect(
+      find.text('$browsePath$reportPath report ${submission.reportLink}'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('a submission without a report link offers no Report', (

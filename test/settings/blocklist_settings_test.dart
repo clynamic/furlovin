@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/identity/identity.dart';
+import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/settings/settings.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
@@ -101,6 +105,66 @@ void main() {
       isNull,
     );
     expect(find.text('Block a tag'), findsNothing);
+  });
+
+  testWidgets('a blocked user opens above settings in the same tab', (
+    tester,
+  ) async {
+    final GoRouter router = GoRouter(
+      initialLocation: mePath,
+      routes: [
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, shell) => Scaffold(body: shell),
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: mePath,
+                  builder: (context, state) => const Text('own profile'),
+                  routes: [
+                    GoRoute(
+                      path: 'settings',
+                      builder: (context, state) => const Scaffold(
+                        body: SingleChildScrollView(child: BlocklistSettings()),
+                      ),
+                    ),
+                    GoRoute(
+                      path: 'user/:name',
+                      builder: (context, state) => Text(
+                        '${state.uri.path} '
+                        'profile ${state.pathParameters['name']}',
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          viewerProvider.overrideWith(
+            (ref) async => const Viewer(name: 'mossbadger'),
+          ),
+          settingsOf(users: 'Pine_Marten\n'),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+    unawaited(router.push('$mePath$settingsPath'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pine_Marten'));
+    await tester.pumpAndSettle();
+    expect(find.text('/me/user/pinemarten profile pinemarten'), findsOneWidget);
+
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(find.byType(BlocklistSettings), findsOneWidget);
   });
 
   testWidgets('a full shelf shows one row and expands on request', (

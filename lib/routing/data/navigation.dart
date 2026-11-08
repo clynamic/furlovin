@@ -88,10 +88,13 @@ extension AppRouting on BuildContext {
     ).toString(),
   );
 
-  void openSettings() => GoRouter.of(this).push(settingsPath);
+  void openSettings() => GoRouter.of(this).push('${_surface()}$settingsPath');
 
   void openReport(String link) => GoRouter.of(this).push(
-    Uri(path: reportPath, queryParameters: {reportLinkKey: link}).toString(),
+    Uri(
+      path: '${_surface()}$reportPath',
+      queryParameters: {reportLinkKey: link},
+    ).toString(),
   );
 
   void openSearch() => GoRouter.of(this).push('$branch$searchPath');

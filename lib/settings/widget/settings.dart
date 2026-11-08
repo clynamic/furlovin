@@ -6,9 +6,15 @@ import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
 
-class SettingsPage extends ConsumerWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
+  @override
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends ConsumerState<SettingsPage>
+    with BottomClaimant {
   Future<void> _forget(BuildContext context, WidgetRef ref) async {
     final bool? sure = await showDialog<bool>(
       context: context,
@@ -31,7 +37,7 @@ class SettingsPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final bool authenticated = ref.watch(authenticatedProvider);
     final Viewer? viewer = ref

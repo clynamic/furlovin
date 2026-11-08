@@ -129,11 +129,15 @@ void main() {
           path: browsePath,
           builder: (context, state) =>
               const Scaffold(body: ProfileMenu(name: name, blocked: false)),
-        ),
-        GoRoute(
-          path: reportPath,
-          builder: (context, state) =>
-              Text('report ${state.uri.queryParameters[reportLinkKey]}'),
+          routes: [
+            GoRoute(
+              path: 'report',
+              builder: (context, state) => Text(
+                '${state.uri.path} '
+                'report ${state.uri.queryParameters[reportLinkKey]}',
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -142,6 +146,9 @@ void main() {
       ProviderScope(child: MaterialApp.router(routerConfig: router)),
     );
     await choose(tester, 'Report user');
-    expect(find.text('report $ticketsPath'), findsOneWidget);
+    expect(
+      find.text('$browsePath$reportPath report $ticketsPath'),
+      findsOneWidget,
+    );
   });
 }

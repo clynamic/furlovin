@@ -14,7 +14,7 @@ class ReportPage extends ConsumerStatefulWidget {
   ConsumerState<ReportPage> createState() => _ReportPageState();
 }
 
-class _ReportPageState extends ConsumerState<ReportPage> {
+class _ReportPageState extends ConsumerState<ReportPage> with BottomClaimant {
   final TextEditingController subject = TextEditingController();
   final TextEditingController details = TextEditingController();
   TicketForm? ticket;

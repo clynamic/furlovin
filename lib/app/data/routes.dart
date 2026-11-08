@@ -83,6 +83,20 @@ List<RouteBase> _reachable() => [
       child: UserPage(name: state.pathParameters['name']!),
     ),
   ),
+  GoRoute(
+    path: 'settings',
+    pageBuilder: (context, state) =>
+        DismissPage<void>(key: state.pageKey, child: const SettingsPage()),
+  ),
+  GoRoute(
+    path: 'report',
+    pageBuilder: (context, state) => DismissPage<void>(
+      key: state.pageKey,
+      child: ReportPage(
+        link: state.uri.queryParameters[reportLinkKey] ?? ticketsPath,
+      ),
+    ),
+  ),
 ];
 
 final Map<String, Widget Function(GoRouterState state)> _roots = {
@@ -147,18 +161,6 @@ GoRouter buildRouter(IdentityStore store) => GoRouter(
       parentNavigatorKey: rootNavigator,
       builder: (context, state) => ChallengePage(
         url: state.uri.queryParameters[challengeUrlKey] ?? faOrigin,
-      ),
-    ),
-    GoRoute(
-      path: settingsPath,
-      parentNavigatorKey: rootNavigator,
-      builder: (context, state) => const SettingsPage(),
-    ),
-    GoRoute(
-      path: reportPath,
-      parentNavigatorKey: rootNavigator,
-      builder: (context, state) => ReportPage(
-        link: state.uri.queryParameters[reportLinkKey] ?? ticketsPath,
       ),
     ),
     GoRoute(

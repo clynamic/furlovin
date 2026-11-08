@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
 import 'package:furlovin/parser/parser.dart';
+import 'package:furlovin/shared/shared.dart';
 import 'package:html/parser.dart' as html;
 import 'package:material_ui/material_ui.dart';
 
@@ -46,11 +47,17 @@ class _Staff extends ViewerClient {
 }
 
 void main() {
-  Future<void> open(WidgetTester tester, _Staff staff) async {
+  Future<void> open(
+    WidgetTester tester,
+    _Staff staff, {
+    BottomClaim? claim,
+  }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [viewerClientProvider.overrideWith((ref) async => staff)],
         child: MaterialApp(
+          builder: (context, child) =>
+              BottomClaimScope(claim: claim ?? BottomClaim(), child: child!),
           home: Builder(
             builder: (context) => Scaffold(
               body: TextButton(
@@ -139,5 +146,15 @@ void main() {
     expect(find.byType(ReportPage), findsOneWidget);
     expect(find.text('Report sent'), findsNothing);
     expect(send(tester).onPressed, isNotNull);
+  });
+
+  testWidgets('the report page hides the tab bar while open', (tester) async {
+    final BottomClaim claim = BottomClaim();
+    addTearDown(claim.dispose);
+    await open(tester, _Staff(), claim: claim);
+    expect(claim.coverage, 1);
+    Navigator.of(tester.element(find.byType(ReportPage))).pop();
+    await tester.pumpAndSettle();
+    expect(claim.coverage, 0);
   });
 }
