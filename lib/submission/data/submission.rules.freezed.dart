@@ -26,10 +26,9 @@ mixin _$Submission {
  int? get comments;/// The rendered description, as markup rather than text.
  String? get description;/// The file's extension, without a leading dot.
  String? get extension;/// How many people have favourited the submission.
- int? get favorites;/// Absolute url that adds or removes the submission from your
-/// favourites. The site only writes one of the two, so which it is
-/// says whether you have favourited it already. Absent when signed
-/// out.
+ int? get favorites;/// Absolute url that adds the submission to the favourites or removes it.
+/// The site writes one of the two, and which one says whether the
+/// submission is favourited. Absent when signed out.
  String? get favouriteLink;/// Absent when signed out.
  bool? get favourited;/// The size of the uploaded file, as FA renders it.
  String? get fileSize;/// The uploader's keywords plus the site's meta tags, among them u_
@@ -295,10 +294,9 @@ class _Submission extends Submission {
 @override final  String? extension;
 /// How many people have favourited the submission.
 @override final  int? favorites;
-/// Absolute url that adds or removes the submission from your
-/// favourites. The site only writes one of the two, so which it is
-/// says whether you have favourited it already. Absent when signed
-/// out.
+/// Absolute url that adds the submission to the favourites or removes it.
+/// The site writes one of the two, and which one says whether the
+/// submission is favourited. Absent when signed out.
 @override final  String? favouriteLink;
 /// Absent when signed out.
 @override final  bool? favourited;

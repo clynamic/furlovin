@@ -46,10 +46,9 @@ abstract class Submission with _$Submission {
     /// How many people have favourited the submission.
     int? favorites,
 
-    /// Absolute url that adds or removes the submission from your
-    /// favourites. The site only writes one of the two, so which it is
-    /// says whether you have favourited it already. Absent when signed
-    /// out.
+    /// Absolute url that adds the submission to the favourites or removes it.
+    /// The site writes one of the two, and which one says whether the
+    /// submission is favourited. Absent when signed out.
     String? favouriteLink,
 
     /// Absent when signed out.
