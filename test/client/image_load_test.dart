@@ -76,8 +76,9 @@ void main() {
     load.value = const ImageFailed(RateLimited(Duration(seconds: 3)));
     await tester.pump();
 
-    expect(find.textContaining('Waiting for Fur Affinity'), findsOneWidget);
-    await tester.tap(find.textContaining('Waiting for Fur Affinity'));
+    final Finder button = find.byWidgetPredicate((e) => e is TextButton);
+    expect(tester.widget<TextButton>(button).onPressed, isNull);
+    await tester.tap(button, warnIfMissed: false);
     expect(load.attempt, 0);
   });
 
