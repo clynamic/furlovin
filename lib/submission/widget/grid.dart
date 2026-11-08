@@ -233,12 +233,16 @@ class SubmissionPagedGrid extends ConsumerWidget {
                                         detail: 'The page held no submissions.',
                                       ),
                                   newPageProgressIndicatorBuilder: (context) =>
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
                                           vertical: Space.medium,
                                         ),
                                         child: Center(
-                                          child: CircularProgressIndicator(),
+                                          child: state.isLoading
+                                              ? const CircularProgressIndicator()
+                                              : const SizedBox.square(
+                                                  dimension: 36,
+                                                ),
                                         ),
                                       ),
                                   newPageErrorIndicatorBuilder: (context) =>

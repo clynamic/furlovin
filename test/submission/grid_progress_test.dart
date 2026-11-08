@@ -60,4 +60,45 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(minutes: 1));
   });
+
+  testWidgets('an idle grid with more pages leaves its spinner off', (
+    tester,
+  ) async {
+    final PagingState<int, SubmissionPreview> state =
+        PagingState<int, SubmissionPreview>(
+          pages: [const SubmissionPreviewGhost().list(2)],
+          keys: const [1],
+        );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          thumbnailCacheProvider.overrideWithValue(
+            CacheManager(
+              Config(
+                'test',
+                fileSystem: MemoryCacheSystem(),
+                repo: NonStoringObjectProvider(),
+                fileService: _Silent(),
+              ),
+            ),
+          ),
+        ],
+        child: MaterialApp(
+          theme: buildTheme(Brightness.light),
+          home: SubmissionPagedGrid(
+            state: state,
+            fetchNextPage: () {},
+            onRefresh: () async {},
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(minutes: 1));
+  });
 }
