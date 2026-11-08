@@ -3,7 +3,9 @@ import 'dart:io';
 const String usage = '''
 usage: dart run tool/fixtures.dart <command> [names]
 
-  capture <url> <name> [--cookie name=value]   fetch a page into test/_captures
+  capture <url> <name> [--cookie name=value] [--session]
+                                               fetch a page into test/_captures,
+                                               signed in with the app session
   reduce [names]                               cut to what the rules reach
   sanitize [names]                             replace every real value
   rebuild [names]                              reduce, then sanitize
@@ -31,8 +33,16 @@ int run(String executable, List<String> args, {Map<String, String>? env}) {
   return result.exitCode;
 }
 
-int harness(String tool, String? names) =>
-    run(flutter, ['test', 'tool/$tool.dart'], env: {'FIXTURE': ?names});
+const int noTestsRan = 79;
+
+int harness(String tool, String? names) {
+  final int code = run(
+    flutter,
+    ['test', 'tool/$tool.dart'],
+    env: {'FIXTURE': ?names},
+  );
+  return code == noTestsRan ? 0 : code;
+}
 
 void main(List<String> args) {
   if (args.isEmpty) fail(usage);

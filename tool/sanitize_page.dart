@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -348,6 +349,14 @@ Object? Function() oracleFor(RuleSet rules, String? type, Document document) {
   ).runtimeType.toString();
 }
 
+List<String> leakedSecrets(String output, Iterable<String> secrets) {
+  final String haystack = output.toLowerCase();
+  return [
+    for (final String secret in secrets)
+      if (haystack.contains(secret.toLowerCase())) secret,
+  ];
+}
+
 class Sanitizer {
   Sanitizer({
     required this.document,
@@ -468,6 +477,19 @@ void main() {
     final Object? again = oracleFor(rules, type, html.parse(output))();
     if (!same(again, sanitizer.baseline)) {
       throw StateError('$name changed its shape after a round trip');
+    }
+
+    final File secrets = File('$captureDir/$name.secrets.json');
+    if (secrets.existsSync()) {
+      final List<String> leaked = leakedSecrets(
+        output,
+        (jsonDecode(secrets.readAsStringSync()) as List<Object?>).cast(),
+      );
+      if (leaked.isNotEmpty) {
+        throw StateError(
+          '$name still carries ${leaked.length} secrets from its capture',
+        );
+      }
     }
 
     File('$fixtureDir/$name.html').writeAsStringSync(output);

@@ -105,6 +105,13 @@ void main() {
     },
   );
 
+  test('reads the block button of a signed-in profile', () {
+    final User member = read(fixture('user_member'));
+    expect(member.blocked, isFalse);
+    expect(member.blockKey, isNotEmpty);
+    expect(member.watchKey, isNot(member.blockKey));
+  });
+
   test('reads the answer to a user action', () {
     final UserActionAnswer watched = UserActionAnswer.parse(
       '{"success":true,"is_watched":true,"new_nonce":"n2"}',

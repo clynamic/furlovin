@@ -29,6 +29,7 @@ const Map<String, String?> fixturePages = {
   'user_full': 'userDocument',
   'user_narrow': 'userDocument',
   'user_linked_facts': 'userDocument',
+  'user_member': 'userDocument',
   'gallery_folders': 'galleryDocument',
   'folder_grouped': 'galleryDocument',
   'favorites': 'favoritesDocument',
