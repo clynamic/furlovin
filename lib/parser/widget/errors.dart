@@ -56,6 +56,7 @@ String errorDetails(
 Future<void> showDocumentErrors(
   BuildContext context,
   DocumentErrors errors, {
+  String title = 'Some of this page could not be read',
   List<FieldError>? issues,
   void Function(BoundaryHiding hiding)? onHide,
   String Function(String key) label = spokenName,
@@ -63,22 +64,32 @@ Future<void> showDocumentErrors(
   context: context,
   builder: (context) => DocumentErrorsDialog(
     errors: errors,
+    title: title,
     issues: issues,
     onHide: onHide,
     label: label,
   ),
 );
 
+Future<void> showParseFailure(BuildContext context, ParseFailure failure) =>
+    showDocumentErrors(
+      context,
+      failure.errors,
+      title: 'This page could not be read',
+    );
+
 class DocumentErrorsDialog extends ConsumerWidget {
   const DocumentErrorsDialog({
     super.key,
     required this.errors,
+    this.title = 'Some of this page could not be read',
     this.issues,
     this.onHide,
     this.label = spokenName,
   });
 
   final DocumentErrors errors;
+  final String title;
   final List<FieldError>? issues;
   final void Function(BoundaryHiding hiding)? onHide;
   final String Function(String key) label;
@@ -89,7 +100,7 @@ class DocumentErrorsDialog extends ConsumerWidget {
     final List<FieldError> issues = this.issues ?? errors.all;
     final PackageInfo? app = ref.watch(packageInfoProvider).asData?.value;
     return AlertDialog(
-      title: const Text('Some of this page could not be read'),
+      title: Text(title),
       contentPadding: const EdgeInsets.symmetric(vertical: Space.small),
       content: SizedBox(
         width: 420,

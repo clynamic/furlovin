@@ -104,6 +104,9 @@ void main() {
     expect(retryFailure(2, lost), isNull);
     expect(retryFailure(0, const ContentFiltered()), isNull);
     expect(retryFailure(0, const AuthenticationRequired()), isNull);
-    expect(retryFailure(0, const ParseFailure('submission', {})), isNull);
+    expect(
+      retryFailure(0, ParseFailure('submission', DocumentErrors())),
+      isNull,
+    );
   });
 }

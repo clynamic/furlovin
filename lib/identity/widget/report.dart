@@ -223,7 +223,7 @@ class _ReportPageState extends ConsumerState<ReportPage> with BottomClaimant {
             ),
           ],
         ),
-        (_, AsyncError(:final Object error)) => failureFor(
+        (_, AsyncError(:final Object error)) => FaFailureView(
           error,
           onRetry: () => ref.invalidate(ticketProvider(widget.link)),
           onVerify: context.openChallenge,

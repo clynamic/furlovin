@@ -69,7 +69,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
     if (failure != null && preview == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: failureFor(
+        body: FaFailureView(
           failure,
           onRetry: () => ref.invalidate(submissionProvider(id)),
           onLogin: onLogin,
@@ -392,7 +392,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                           ),
                           if (failure != null)
                             SliverToBoxAdapter(
-                              child: failureFor(
+                              child: FaFailureView(
                                 failure,
                                 onRetry: () =>
                                     ref.invalidate(submissionProvider(id)),

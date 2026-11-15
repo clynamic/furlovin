@@ -20,7 +20,7 @@ class MePage extends ConsumerWidget {
     if (viewer.hasError && !viewer.hasValue) {
       return Scaffold(
         appBar: AppBar(title: const Text('You')),
-        body: failureFor(
+        body: FaFailureView(
           viewer.error!,
           onRetry: () => ref.invalidate(viewerProvider),
           onVerify: context.openChallenge,

@@ -32,7 +32,7 @@ extension FaClientPages on FaClient {
       });
     }
     final T? built = build(outcome, errors);
-    if (built == null) throw ParseFailure(type, outcome.failed);
+    if (built == null) throw ParseFailure(type, errors);
     scope.debug('Read {page}');
     return built;
   }

@@ -25,11 +25,12 @@ Future<ParseOutcome> parseAway(ParseRequest request) =>
     Isolate.run(request.run);
 
 class ParseFailure implements Exception {
-  const ParseFailure(this.entity, this.failed);
+  const ParseFailure(this.entity, this.errors);
 
   final String entity;
-  final Map<String, ParseException> failed;
+  final DocumentErrors errors;
 
   @override
-  String toString() => 'Could not read $entity: ${failed.keys.join(', ')}';
+  String toString() =>
+      'Could not read $entity: ${errors.all.map((e) => e.path).join(', ')}';
 }

@@ -1,4 +1,5 @@
 import 'package:furlovin/client/client.dart';
+import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -7,6 +8,11 @@ typedef FailureText = ({IconData icon, String title, String detail});
 FailureText failureText(Object error, {bool loggedIn = true}) =>
     switch (error) {
       final FaException known => _faFailureText(known, loggedIn: loggedIn),
+      ParseFailure() => (
+        icon: Icons.report_problem_outlined,
+        title: 'Unreadable page',
+        detail: 'The page layout did not match.',
+      ),
       _ => (
         icon: Icons.error_outline,
         title: 'Something broke',
@@ -81,48 +87,66 @@ FailureText _faFailureText(FaException error, {required bool loggedIn}) =>
 
 String describeFailure(Object error) => failureText(error).detail;
 
-FailureView failureFor(
-  Object error, {
-  VoidCallback? onRetry,
-  VoidCallback? onLogin,
-  Future<bool?> Function(String url)? onVerify,
-}) {
-  final FailureText text = failureText(error, loggedIn: onLogin == null);
-  final bool retries = switch (error) {
-    AuthenticationRequired() ||
-    ContentFiltered() ||
-    Gone() ||
-    AccountDisabled() ||
-    ActionRejected() ||
-    Forbidden() ||
-    RequestRejected() => false,
-    _ => true,
-  };
-  final ({String label, IconData icon, VoidCallback? action})? extra =
-      switch (error) {
-        Challenged(:final String url) => (
-          label: 'Verify',
-          icon: Icons.verified_user_outlined,
-          action: onVerify == null
-              ? null
-              : () async {
-                  if (await onVerify(url) ?? false) onRetry?.call();
-                },
-        ),
-        AuthenticationRequired() || ContentFiltered() => (
-          label: 'Log in to Fur Affinity',
-          icon: Icons.login,
-          action: onLogin,
-        ),
-        _ => null,
-      };
-  return FailureView(
-    icon: text.icon,
-    title: text.title,
-    detail: text.detail,
-    onRetry: retries ? onRetry : null,
-    actionLabel: extra?.label,
-    actionIcon: extra?.icon,
-    onAction: extra?.action,
-  );
+class FaFailureView extends StatelessWidget {
+  const FaFailureView(
+    this.error, {
+    super.key,
+    this.onRetry,
+    this.onLogin,
+    this.onVerify,
+  });
+
+  final Object error;
+  final VoidCallback? onRetry;
+  final VoidCallback? onLogin;
+  final Future<bool?> Function(String url)? onVerify;
+
+  @override
+  Widget build(BuildContext context) {
+    final FailureText text = failureText(error, loggedIn: onLogin == null);
+    final bool retries = switch (error) {
+      AuthenticationRequired() ||
+      ContentFiltered() ||
+      Gone() ||
+      AccountDisabled() ||
+      ActionRejected() ||
+      Forbidden() ||
+      RequestRejected() ||
+      ParseFailure() => false,
+      _ => true,
+    };
+    final ({String label, IconData icon, VoidCallback? action})? extra =
+        switch (error) {
+          Challenged(:final String url) => (
+            label: 'Verify',
+            icon: Icons.verified_user_outlined,
+            action: switch (onVerify) {
+              final Future<bool?> Function(String) verify => () async {
+                if (await verify(url) ?? false) onRetry?.call();
+              },
+              null => null,
+            },
+          ),
+          AuthenticationRequired() || ContentFiltered() => (
+            label: 'Log in to Fur Affinity',
+            icon: Icons.login,
+            action: onLogin,
+          ),
+          final ParseFailure failure => (
+            label: 'Show details',
+            icon: Icons.report_problem_outlined,
+            action: () => showParseFailure(context, failure),
+          ),
+          _ => null,
+        };
+    return FailureView(
+      icon: text.icon,
+      title: text.title,
+      detail: text.detail,
+      onRetry: retries ? onRetry : null,
+      actionLabel: extra?.label,
+      actionIcon: extra?.icon,
+      onAction: extra?.action,
+    );
+  }
 }

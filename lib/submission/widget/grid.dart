@@ -2,6 +2,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furlovin/client/client.dart';
 import 'package:furlovin/identity/identity.dart';
+import 'package:furlovin/parser/parser.dart';
 import 'package:furlovin/routing/routing.dart';
 import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
@@ -177,7 +178,7 @@ class SubmissionPagedGrid extends ConsumerWidget {
                   if (state.status == PagingStatus.firstPageError)
                     SliverFillRemaining(
                       hasScrollBody: false,
-                      child: failureFor(
+                      child: FaFailureView(
                         state.error!,
                         onRetry: onRefresh,
                         onLogin: ref.watch(authenticatedProvider)
@@ -279,17 +280,31 @@ class NewPageError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final ParseFailure? unreadable = switch (error) {
+      final ParseFailure failure => failure,
+      _ => null,
+    };
     return InkWell(
-      onTap: onRetry,
+      onTap: switch (unreadable) {
+        final ParseFailure failure => () => showParseFailure(context, failure),
+        null => onRetry,
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.refresh, color: theme.colorScheme.onSurfaceVariant),
+            Icon(
+              unreadable == null
+                  ? Icons.refresh
+                  : Icons.report_problem_outlined,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 8),
             Text(
-              'Could not load more. Tap to try again.',
+              unreadable == null
+                  ? 'Could not load more. Tap to try again.'
+                  : 'Could not read more. Tap for details.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,

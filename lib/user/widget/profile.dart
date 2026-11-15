@@ -47,7 +47,7 @@ class _UserPageState extends ConsumerState<UserPage> {
     if (detail case AsyncError(:final Object error) when !detail.hasValue) {
       return Scaffold(
         appBar: AppBar(title: Text(name)),
-        body: failureFor(
+        body: FaFailureView(
           error,
           onRetry: () => ref.invalidate(userProvider(name)),
           onLogin: ref.watch(authenticatedProvider) ? null : context.openLogin,
