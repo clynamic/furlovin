@@ -10,7 +10,6 @@ import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:furlovin/user/user.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 class UserPage extends ConsumerStatefulWidget {
   const UserPage({super.key, required this.name, this.onSettings});
@@ -32,7 +31,7 @@ class _UserPageState extends ConsumerState<UserPage> {
     final AsyncValue<UserDocument> detail = known == null
         ? const AsyncLoading()
         : ref.watch(userProvider(known));
-    final String name = known ?? BoneMock.name;
+    final String name = known ?? const UserGhost().name;
     if (known != null) {
       ref.listen(userProvider(known).select((e) => e.value?.user.blocked), (
         previous,
@@ -58,6 +57,7 @@ class _UserPageState extends ConsumerState<UserPage> {
 
     final UserDocument? loaded = detail.value;
     final User? user = loaded?.user;
+    final User shown = user ?? const UserGhost();
     final DocumentErrors? errors = loaded?.errors;
     final bool hidden = (user?.blocked ?? false) && !revealed;
 
@@ -130,7 +130,7 @@ class _UserPageState extends ConsumerState<UserPage> {
                     const SizedBox(height: Space.medium),
                     Skeletonizer(
                       enabled: user == null,
-                      child: ProfileCounts(user: user, errors: errors),
+                      child: ProfileCounts(user: shown, errors: errors),
                     ),
                     const SizedBox(height: Space.large),
                     ErrorBoundary(
@@ -143,10 +143,11 @@ class _UserPageState extends ConsumerState<UserPage> {
                         children: [
                           if (broken case final Breakage known)
                             BreakageCard(broken: known, name: 'the profile'),
-                          if (user == null)
-                            Skeletonizer(child: Text(BoneMock.paragraph))
-                          else if (user.profile case final String profile)
-                            MarkupBody(markup: profile),
+                          if (shown.profile case final String profile)
+                            Skeletonizer(
+                              enabled: user == null,
+                              child: MarkupBody(markup: profile),
+                            ),
                         ],
                       ),
                     ),
@@ -526,7 +527,6 @@ class ProfileCounts extends StatelessWidget {
   Widget build(BuildContext context) => StatisticsRow(
     errors: errors,
     name: 'user.stats',
-    loading: user == null,
     wide: wide,
     stats: [
       (

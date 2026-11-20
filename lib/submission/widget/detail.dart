@@ -13,7 +13,6 @@ import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:furlovin/theme/theme.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 const double headerPortraitCeiling = 0.85;
 const double headerLandscapeCeiling = 0.8;
@@ -80,12 +79,13 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
 
     final Submission? loaded = detail.value?.submission;
     final bool pending = loaded == null && failure == null;
+    final Submission? shown = pending ? const SubmissionGhost() : loaded;
     final DocumentErrors? errors = detail.value?.errors;
     final List<CommentRow> comments = threadComments(
       detail.value?.comments ?? const [],
     );
     final SubmissionFacade facade = SubmissionFacade(
-      submission: loaded,
+      submission: preview == null ? shown : loaded,
       preview: preview,
     );
     final bool viewable = facade.type.isViewable;
@@ -193,8 +193,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                   trailing: (wide) => Skeletonizer(
                                     enabled: pending,
                                     child: SubmissionStats(
-                                      submission: loaded,
-                                      loading: pending,
+                                      submission: shown,
                                       errors: errors,
                                       wide: wide,
                                     ),
@@ -217,9 +216,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                             broken: known,
                                             name: 'the description',
                                           ),
-                                        if (pending)
-                                          Text(BoneMock.paragraph)
-                                        else if (loaded?.description
+                                        if (shown?.description
                                             case final String description)
                                           MarkupBody(markup: description),
                                       ],
@@ -408,7 +405,7 @@ class _SubmissionPageState extends ConsumerState<SubmissionPage>
                                 child: Skeletonizer(
                                   enabled: pending,
                                   child: SubmissionMetadata(
-                                    submission: loaded,
+                                    submission: shown,
                                     errors: errors,
                                   ),
                                 ),
@@ -555,14 +552,11 @@ class SubmissionByline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final bool pending = facade.title == null && facade.uploader == null;
-    final String title =
-        facade.title ?? (pending ? BoneMock.words(3) : 'Untitled');
-    final String uploader =
-        facade.uploader ?? (pending ? BoneMock.words(1) : 'unknown');
+    final String title = facade.title ?? 'Untitled';
+    final String uploader = facade.uploader ?? 'unknown';
     final String? id = facade.uploaderId;
     return Skeletonizer(
-      enabled: pending,
+      enabled: facade.submission is Ghost,
       child: InkWell(
         onTap: id == null ? null : () => context.openUser(id),
         child: Row(
@@ -605,20 +599,17 @@ class SubmissionStats extends StatelessWidget {
     super.key,
     required this.submission,
     this.errors,
-    this.loading = false,
     this.wide = false,
   });
 
   final Submission? submission;
   final DocumentErrors? errors;
-  final bool loading;
   final bool wide;
 
   @override
   Widget build(BuildContext context) => StatisticsRow(
     errors: errors,
     name: 'submission.stats',
-    loading: loading,
     wide: wide,
     stats: [
       (
@@ -655,14 +646,12 @@ class StatisticsRow extends StatelessWidget {
     super.key,
     required this.errors,
     required this.name,
-    required this.loading,
     required this.stats,
     this.wide = false,
   });
 
   final DocumentErrors? errors;
   final String name;
-  final bool loading;
   final List<StatisticEntry> stats;
   final bool wide;
 
@@ -688,7 +677,7 @@ class StatisticsRow extends StatelessWidget {
                 broken: true,
               ),
             )
-          else if (loading || stat.value != null)
+          else if (stat.value != null)
             Statistic(icon: stat.icon, value: stat.value, label: stat.label),
       ],
     ),
@@ -731,8 +720,7 @@ class Statistic extends StatelessWidget {
                 TextSpan(
                   text: switch (value) {
                     final int count => countOf(count),
-                    null when broken => '?',
-                    null => BoneMock.chars(5),
+                    null => '?',
                   },
                   style: TextStyle(
                     fontFeatures: const [FontFeature.tabularFigures()],
@@ -975,11 +963,11 @@ class SubmissionMetadata extends StatelessWidget {
                   tint: theme.colorScheme.error,
                 ),
               )
-            else if (submission == null || row.value != null)
+            else if (row.value case final String value)
               MetadataRow(
                 icon: row.icon,
                 label: row.label,
-                value: row.value ?? BoneMock.words(2),
+                value: value,
                 tint: row.tint,
               ),
         ];
