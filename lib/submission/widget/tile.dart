@@ -7,7 +7,6 @@ import 'package:furlovin/settings/settings.dart';
 import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/submission.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 const double fallbackAspectRatio = 1;
 const double minAspectRatio = 0.5;

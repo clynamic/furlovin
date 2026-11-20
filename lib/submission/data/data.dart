@@ -7,7 +7,6 @@ export 'folder_row.rules.dart';
 export 'frontpage_document.rules.dart';
 export 'gallery.dart';
 export 'gallery_document.rules.dart';
-export 'ghost.dart';
 export 'images.dart';
 export 'inbox_document.rules.dart';
 export 'listing.dart';

@@ -24,7 +24,9 @@ void main() {
   ) async {
     final PagingState<int, SubmissionPreview> state =
         PagingState<int, SubmissionPreview>(
-          pages: [const SubmissionPreviewGhost().list(2)],
+          pages: const [
+            [SubmissionPreviewGhost(), SubmissionPreviewGhost(1)],
+          ],
           keys: const [1],
           isLoading: true,
         );
@@ -66,7 +68,9 @@ void main() {
   ) async {
     final PagingState<int, SubmissionPreview> state =
         PagingState<int, SubmissionPreview>(
-          pages: [const SubmissionPreviewGhost().list(2)],
+          pages: const [
+            [SubmissionPreviewGhost(), SubmissionPreviewGhost(1)],
+          ],
           keys: const [1],
         );
 

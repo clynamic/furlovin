@@ -10,5 +10,6 @@ export 'revisit.dart';
 export 'scrim.dart';
 export 'scroll.dart';
 export 'section.dart';
+export 'skeletons.dart';
 export 'spread.dart';
 export 'zoomable.dart';

@@ -34,3 +34,9 @@ List<FaImageRung> submissionRungs({
 
   return rungs;
 }
+
+String submissionHeroTag(int id) => 'submission-$id';
+
+extension SubmissionTypeViewing on SubmissionType? {
+  bool get isViewable => this == null || this == SubmissionType.image;
+}

@@ -4,9 +4,11 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:furlovin/parser/parser.dart';
+import 'package:furlovin/shared/shared.dart';
 import 'package:furlovin/submission/data/submission_rating.rules.dart';
 import 'package:furlovin/submission/data/submission_type.rules.dart';
 
+part 'submission_preview.ghost.dart';
 part 'submission_preview.rules.freezed.dart';
 
 /// A submission as it appears in a listing.

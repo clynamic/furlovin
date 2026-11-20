@@ -4,7 +4,9 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:furlovin/parser/parser.dart';
+import 'package:furlovin/shared/shared.dart';
 
+part 'user.ghost.dart';
 part 'user.rules.freezed.dart';
 
 /// A member as their profile page carries them.

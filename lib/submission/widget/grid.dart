@@ -10,7 +10,6 @@ import 'package:furlovin/submission/submission.dart';
 import 'package:furlovin/user/user.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 const int stripLimit = 10;
 const double browseBannerHeight = 190;
@@ -165,97 +164,94 @@ class SubmissionPagedGrid extends ConsumerWidget {
       child: RevisitRefresh(
         onRefresh: onRefresh,
         edgeOffset: _headerExtent(context),
-        child: state.status == PagingStatus.loadingFirstPage
-            ? SubmissionGrid.ghost(
-                ghost: const SubmissionPreviewGhost(),
-                session: session,
-                tiles: tiles,
-                header: header,
+        child: CustomScrollView(
+          slivers: [
+            if (header case final Widget value) value,
+            if (state.status == PagingStatus.firstPageError)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: FaFailureView(
+                  state.error!,
+                  onRetry: onRefresh,
+                  onLogin: ref.watch(authenticatedProvider)
+                      ? null
+                      : context.openLogin,
+                  onVerify: context.openChallenge,
+                ),
               )
-            : CustomScrollView(
-                slivers: [
-                  if (header case final Widget value) value,
-                  if (state.status == PagingStatus.firstPageError)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: FaFailureView(
-                        state.error!,
-                        onRetry: onRefresh,
-                        onLogin: ref.watch(authenticatedProvider)
-                            ? null
-                            : context.openLogin,
-                        onVerify: context.openChallenge,
-                      ),
-                    )
-                  else
-                    SliverPadding(
-                      padding:
-                          const EdgeInsets.all(Space.small) +
-                          EdgeInsets.only(
-                            bottom: MediaQuery.paddingOf(context).bottom,
-                          ),
-                      sliver:
-                          PagedSliverMasonryGrid<int, SubmissionPreview>.extent(
-                            state: state,
-                            fetchNextPage: fetchNextPage,
-                            maxCrossAxisExtent: tiles.extent,
-                            mainAxisSpacing: Space.small,
-                            crossAxisSpacing: Space.small,
-                            showNewPageProgressIndicatorAsGridChild: false,
-                            showNewPageErrorIndicatorAsGridChild: false,
-                            showNoMoreItemsIndicatorAsGridChild: false,
-                            builderDelegate:
-                                PagedChildBuilderDelegate<SubmissionPreview>(
-                                  itemBuilder: (context, submission, index) =>
-                                      SubmissionFollowProbe(
-                                        child: SubmissionTile(
-                                          submission: submission,
-                                          session: session,
-                                          tiles: tiles,
-                                          cache: cache,
-                                          onTap: switch (listing) {
-                                            final SubmissionListingKey
-                                            listing =>
-                                              () => context.openSubmission(
-                                                submission.id,
-                                                extra: SubmissionOrigin(
-                                                  listing: listing,
-                                                  preview: submission,
-                                                ),
-                                              ),
-                                            null => null,
-                                          },
-                                        ),
-                                      ),
-                                  noItemsFoundIndicatorBuilder: (context) =>
-                                      const FailureView(
-                                        icon: Icons.inbox_outlined,
-                                        title: 'Nothing here',
-                                        detail: 'The page held no submissions.',
-                                      ),
-                                  newPageProgressIndicatorBuilder: (context) =>
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: Space.medium,
-                                        ),
-                                        child: Center(
-                                          child: state.isLoading
-                                              ? const CircularProgressIndicator()
-                                              : const SizedBox.square(
-                                                  dimension: 36,
-                                                ),
-                                        ),
-                                      ),
-                                  newPageErrorIndicatorBuilder: (context) =>
-                                      NewPageError(
-                                        error: state.error,
-                                        onRetry: fetchNextPage,
-                                      ),
-                                ),
-                          ),
+            else
+              SliverPadding(
+                padding:
+                    const EdgeInsets.all(Space.small) +
+                    EdgeInsets.only(
+                      bottom: MediaQuery.paddingOf(context).bottom,
                     ),
-                ],
+                sliver: SliverSkeletonPaging<SubmissionPreview>(
+                  state: state,
+                  fetchNextPage: fetchNextPage,
+                  ghost: SubmissionPreviewGhost.new,
+                  builder: (context, state, fetchNextPage) =>
+                      PagedSliverMasonryGrid<int, SubmissionPreview>.extent(
+                        state: state,
+                        fetchNextPage: fetchNextPage,
+                        maxCrossAxisExtent: tiles.extent,
+                        mainAxisSpacing: Space.small,
+                        crossAxisSpacing: Space.small,
+                        showNewPageProgressIndicatorAsGridChild: false,
+                        showNewPageErrorIndicatorAsGridChild: false,
+                        showNoMoreItemsIndicatorAsGridChild: false,
+                        builderDelegate:
+                            PagedChildBuilderDelegate<SubmissionPreview>(
+                              itemBuilder: (context, submission, index) =>
+                                  SubmissionFollowProbe(
+                                    child: SubmissionTile(
+                                      submission: submission,
+                                      session: session,
+                                      tiles: tiles,
+                                      cache: cache,
+                                      onTap: switch (listing) {
+                                        final SubmissionListingKey listing =>
+                                          () => context.openSubmission(
+                                            submission.id,
+                                            extra: SubmissionOrigin(
+                                              listing: listing,
+                                              preview: submission,
+                                            ),
+                                          ),
+                                        null => null,
+                                      },
+                                    ),
+                                  ),
+                              noItemsFoundIndicatorBuilder: (context) =>
+                                  const FailureView(
+                                    icon: Icons.inbox_outlined,
+                                    title: 'Nothing here',
+                                    detail: 'The page held no submissions.',
+                                  ),
+                              newPageProgressIndicatorBuilder: (context) =>
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: Space.medium,
+                                    ),
+                                    child: Center(
+                                      child: state.isLoading
+                                          ? const CircularProgressIndicator()
+                                          : const SizedBox.square(
+                                              dimension: 36,
+                                            ),
+                                    ),
+                                  ),
+                              newPageErrorIndicatorBuilder: (context) =>
+                                  NewPageError(
+                                    error: state.error,
+                                    onRetry: fetchNextPage,
+                                  ),
+                            ),
+                      ),
+                ),
               ),
+          ],
+        ),
       ),
     );
 
@@ -313,61 +309,6 @@ class NewPageError extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class SubmissionGrid extends StatelessWidget {
-  const SubmissionGrid({
-    super.key,
-    required this.submissions,
-    required this.session,
-    required this.tiles,
-    this.header,
-  }) : loading = false;
-
-  SubmissionGrid.ghost({
-    super.key,
-    required Ghost<SubmissionPreview> ghost,
-    required this.session,
-    required this.tiles,
-    this.header,
-    int count = 12,
-  }) : submissions = ghost.list(count),
-       loading = true;
-
-  final List<SubmissionPreview> submissions;
-  final Session session;
-  final Tiles tiles;
-  final Widget? header;
-  final bool loading;
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomScrollView(
-      physics: loading ? const NeverScrollableScrollPhysics() : null,
-      slivers: [
-        if (header case final Widget value) value,
-        Skeletonizer.sliver(
-          enabled: loading,
-          child: SliverPadding(
-            padding:
-                const EdgeInsets.all(Space.small) +
-                EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
-            sliver: SliverMasonryGrid.extent(
-              maxCrossAxisExtent: tiles.extent,
-              mainAxisSpacing: Space.small,
-              crossAxisSpacing: Space.small,
-              childCount: submissions.length,
-              itemBuilder: (context, index) => SubmissionTile(
-                submission: submissions[index],
-                session: session,
-                tiles: tiles,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
