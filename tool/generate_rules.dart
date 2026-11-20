@@ -10,6 +10,7 @@ const String manifestPath = 'lib/parser/data/manifest.rules.dart';
 
 const String freezedUrl = 'package:freezed_annotation/freezed_annotation.dart';
 const String parserUrl = 'package:furlovin/parser/parser.dart';
+const String sharedUrl = 'package:furlovin/shared/shared.dart';
 
 const Map<String, String> builtInTypes = {
   'string': 'String',
@@ -129,13 +130,16 @@ void main(List<String> arguments) {
     };
     final String path = _path(type.value['feature']! as String, type.key);
     final String file = path.split('/').last;
+    final bool haunted = File(_ghostOf(path)).existsSync();
     _write(
       path,
       Library(
         (b) => b
-          ..directives.add(
+          ..directives.addAll([
+            if (haunted) Directive.import(sharedUrl),
+            if (haunted) Directive.part(_ghostOf(file)),
             Directive.part(file.replaceAll('.dart', '.freezed.dart')),
-          )
+          ])
           ..body.add(
             _model(
               type.key,
@@ -282,6 +286,8 @@ void _write(String path, Library library) {
 
 String _path(String feature, String name) =>
     '$libDir/$feature/data/${_snake(name)}.rules.dart';
+
+String _ghostOf(String path) => path.replaceAll('.rules.dart', '.ghost.dart');
 
 String _url(String feature, String name) =>
     'package:furlovin/$feature/data/${_snake(name)}.rules.dart';
